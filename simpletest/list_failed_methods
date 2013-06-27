@@ -1,0 +1,19 @@
+#!/usr/bin/env python
+
+import os
+from lxml import etree
+
+d = '/home/chris/test-results'
+failures = {}
+for x in [etree.parse(d + '/' + f) for f in os.listdir(d) if f.endswith('xml')]:
+    for f in x.xpath('//failure/..'):
+        class_ = f.get('classname')
+        method = f.get('name')[:-2]
+        if class_ not in failures:
+            failures[class_] = []
+        if method not in failures[class_]:
+            failures[class_].append(method)
+
+for class_ in failures:
+    for method in failures[class_]:
+        print class_ + '::' + method
