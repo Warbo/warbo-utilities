@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Put a symlink to the argument in /usr/local/bin
+if [ $(whoami) = "root" ]; then
+  echo "Making $1 executable"
+  chmod +x $1
+
+  CWD=$(pwd)
+  echo "Linking $CWD/$1 to /usr/local/bin/$1"
+  ln -s $CWD/$1 /usr/local/bin/$1
+
+else
+  gksudo true
+  sudo add_to_bin $@
+fi
