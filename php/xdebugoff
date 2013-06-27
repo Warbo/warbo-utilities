@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Turns off XDebug for PHP
+
+echo "" > /etc/php5/mods-available/xdebug.ini
+service apache2 restart

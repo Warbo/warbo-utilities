@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# I mount a RAM filesystem on /var/lib/mysql_ram and /var/lib/mysql is a symlink
+# to it. This is fast but volatile, so this command makes a non-volatile backup
+# in /var/lib/mysql_disk which we can restore on reboot. The previous contents
+# of /var/lib/mysql_disk are compressed and archived.
+
+# TODO: Make the locations configurable
+# TODO: Automate startup (haven't got round to it, I rarely turn off my laptop)
+if [ $(whoami) = "root" ]; then
+  echo "Backing up old defaults"
+  tar cjf /home/chris/backups/databases/local_mysql.$(date +%F).tar.bz2 /var/lib/mysql_disk
+  echo "Storing new defaults"
+  cp -ar /var/lib/mysql_ram/* /var/lib/mysql_disk/
+  echo "Done"
+else
+  gksudo store_mysql
+fi
+
+exit 0

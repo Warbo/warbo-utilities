@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+
+import sys
+import os
+import subprocess
+
+# TODO: Put these into a config file somewhere
+store_location  = '/var/www/domains/wandisco.com/drupal7/htdocs'
+store_uri       = 'http://debian'
+result_location = '/home/chris/test-results'
+
+def remove_previous(test=''):
+    """Pass in a test's name to clear its previous debug output. Leave empty to
+    clear all previous tests' output."""
+    try:
+        subprocess.check_output(
+            ''.join(['rm ',
+                     store_location,
+                     '/sites/default/files/simpletest/verbose/',
+                     test,
+                     '*.html']),
+            shell=True,
+            stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError:
+        # Files not found; good, we're deleting them anyway!
+        pass
+
+# TODO: Make this more generic; get WANdisco from a config file!
+if len(sys.argv) < 2 or 'WANdisco' in sys.argv:
+    # Run the whole WANdisco group
+    tests = ['WANdisco']
+    remove_previous()
+else:
+    # Run specific tests
+    tests = sys.argv[1:]
+    map(remove_previous, tests)
+
+command = ''.join(['drush test-run ',
+                   ','.join(tests),
+                   ' --uri=',
+                   store_uri,
+                   ' --xml=',
+                   result_location])
+
+# Clear caches and run the tests
+subprocess.check_output('drush cc all', cwd=store_location, shell=True)
+subprocess.check_call(command,          cwd=store_location, shell=True)

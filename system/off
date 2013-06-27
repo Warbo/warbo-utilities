@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Run when unplugging laptop, eg. to go to a meeting
+
+# Turn off external display
+bash ~/.screenlayout/unplugged.sh
+xrandr --output LVDS1 --primary
+
+# Set up keyboard
+keys

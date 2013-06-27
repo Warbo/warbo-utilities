@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Tries to reduce 'Emacs pinky', caused by the position of Ctrl on PS/2 keyboards
+
+# Put Ctrl back to the correct place. On the PS/2 layout this is where Caps Lock is,
+# so we map that to Ctrl. And nothing of value was lost.
+setxkbmap -layout gb -option ctrl:nocaps
+
+# Allow holding-down the space bar to act as Ctrl, so we can use our thumbs
+s2cctl stop
+killall s2c
+s2cctl start

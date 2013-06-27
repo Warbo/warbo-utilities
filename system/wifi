@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# The wireless on my Thinkpad is dodgy. This seems to do the trick.
+
+gksudo modprobe -r iwldvm iwlwifi
+gksudo modprobe iwlwifi

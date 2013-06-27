@@ -1,0 +1,6 @@
+#!/bin/bash
+# Defer to storetest-real, but run it as the www-data user
+# TODO: Make a generic replacement for "-real" which calls itself with an
+# argument if it's not the right user
+gksudo true
+sudo -u www-data storetest-real $@
