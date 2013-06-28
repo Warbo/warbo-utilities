@@ -1,0 +1,20 @@
+Used to navigate the verbose output of Drupal's SimpleTest module.
+
+SimpleTest verbose output files have names of the form "TestCaseName-n.html"
+where "n" is a counter. Each page starts with a header, containing details of
+the request as well as previous/next links. Annoyingly, these links are:
+ - Preceded by the counter, so their position changes when the number of
+   digits in the counter changes.
+ - Displayed in a variable-width font.
+ - Occluded by modal crap (ie. "light boxes").
+ - Scrollable off the screen.
+ - Designed to be used with a mouse.
+
+This all contributes to making navigation a pain, hence this extension.
+
+Usage:
+
+Ctrl-Left will navigate to the previous page
+Ctrl-Right will navigate to the next page
+
+Easy.

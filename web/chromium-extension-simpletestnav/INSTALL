@@ -1,0 +1,7 @@
+Inside Chrome/Chromium go to the Extensions page (currently Tools -> Extensions)
+then tick the "Developer mode" box if it isn't already.
+
+This should make the "Load unpacked extension..." button visible. Click that and
+choose the extension's directory (ie. where this file is).
+
+Job done!
