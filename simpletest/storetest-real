@@ -25,6 +25,23 @@ def remove_previous(test=''):
         # Files not found; good, we're deleting them anyway!
         pass
 
+def command(classes=[], methods=[]):
+    """Build a test command. Any given arguments will be appended to the
+    command."""
+    method_arg = {True:  ' --methods=testRun,' + ','.join(methods),
+                  False: ''}[len(methods) > 0]
+    
+    return ''.join(['drush test-run ',
+                    ','.join(classes),
+                    ' --uri=',
+                    store_uri,
+                    ' --xml=',
+                    result_location,
+                    method_arg])
+
+run = lambda cmd: subprocess.check_call(cmd, cwd=store_location, shell=True)
+
+# Read our arguments
 # TODO: Make this more generic; get WANdisco from a config file!
 if len(sys.argv) < 2 or 'WANdisco' in sys.argv:
     # Run the whole WANdisco group
@@ -33,15 +50,29 @@ if len(sys.argv) < 2 or 'WANdisco' in sys.argv:
 else:
     # Run specific tests
     tests = sys.argv[1:]
-    map(remove_previous, tests)
 
-command = ''.join(['drush test-run ',
-                   ','.join(tests),
-                   ' --uri=',
-                   store_uri,
-                   ' --xml=',
-                   result_location])
+# Split apart whole groups/suites from specific methods
+whole    = []
+specific = []
+for t in tests:
+    {True:  specific,
+     False: whole   }['::' in t].append(t)
 
-# Clear caches and run the tests
-subprocess.check_output('drush cc all', cwd=store_location, shell=True)
-subprocess.check_call(command,          cwd=store_location, shell=True)
+# Clear caches
+run('drush cc all')
+
+# Run the whole groups/suites
+if len(whole) > 0:
+    map(remove_previous, whole)
+    run(command(whole))
+
+# Collect up specific methods
+classes = {}
+for (c, m) in [(s.split('::')[0], s.split('::')[1]) for s in specific]:
+    if c not in classes:
+        classes[c] = []
+    if m not in classes[c]:
+        classes[c].append(m)
+map(remove_previous, classes.keys())
+for c in classes:
+    run(command([c], classes[c]))
