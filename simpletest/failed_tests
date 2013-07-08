@@ -15,6 +15,10 @@ for f in [g for g in os.listdir(result_dir) if g.endswith('.xml')]:
     if count > 0:
         failures[f[:-4]] = count # Chop off the '.xml'
 
+if len(failures) == 0 and '-xmobar' in sys.argv:
+    print '<fc=#44FF44>Tests pass</fc>'
+    sys.exit()
+
 # Output the results, based on our arguments
 count  = {True:  lambda s: ' ' + str(failures[s]),
           False: lambda s: ''                    }['-n' in sys.argv]
