@@ -1,6 +1,11 @@
 #!/bin/bash
 
 # Turns off XDebug for PHP
+if [ $(whoami) = "root" ]; then
+  echo "" > /etc/php5/mods-available/xdebug.ini
+  service apache2 restart
 
-echo "" > /etc/php5/mods-available/xdebug.ini
-service apache2 restart
+else
+  gksudo true
+  sudo xdebugon $@
+fi
