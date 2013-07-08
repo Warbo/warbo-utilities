@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Clear Drupal's cache
+if [ $(whoami) = "root" ]; then
+  su -c "cd /var/www/domains/wandisco.com/drupal7/htdocs && drush cc all" www-data
+
+else
+    gksudo true
+    sudo cc $@
+fi
