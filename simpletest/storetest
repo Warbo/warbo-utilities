@@ -12,5 +12,5 @@ if [ $(whoami) = $STOREOWNER ]; then
 else
   # No, recurse as the correct user, using gksudo if available
   command -v gksudo >/dev/null 2>&1 && { gksudo true; }
-  sudo -u $STOREOWNER storetest $@
+  sudo -u $STOREOWNER /usr/local/bin/storetest $@
 fi
