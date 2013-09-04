@@ -8,12 +8,12 @@ import sys
 # TODO: Put these into a config file somewhere
 store_location  = '/var/www/domains/wandisco.com/drupal7/htdocs'
 result_location = '/tmp/test-results'
-store_uri       = subprocess.check_output(
+store_uri       = subprocess.Popen(
                       ['php',
                        '-r',
                        'require_once "settings.php"; ' + \
                            'echo isset($base_url)? $base_url : "f";'],
-                      cwd=store_location).strip()
+                      cwd=store_location).communicate()[0].strip()
 if store_uri == 'f':
     print "Could not find $base_url"
     sys.exit(1)
