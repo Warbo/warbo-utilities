@@ -24,7 +24,7 @@ def remove_previous(test=''):
     """Pass in a test's name to clear its previous debug output. Leave empty to
     clear all previous tests' output."""
     try:
-        subprocess.check_output(
+        subprocess.check_call(
             ''.join(['rm ',
                      store_location,
                      '/sites/default/files/simpletest/verbose/',
