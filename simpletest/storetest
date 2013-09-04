@@ -1,6 +1,16 @@
 #!/bin/bash
-# Defer to storetest-real, but run it as the www-data user
-# TODO: Make a generic replacement for "-real" which calls itself with an
-# argument if it's not the right user
-gksudo true
-sudo -u www-data storetest-real $@
+
+# Wrapper around storetest-real which ensures it runs as the right user
+
+# See who owns the store
+$STOREOWNER=$(stat -c %U /var/www/domains/wandisco.com/drupal7/htdocs)
+
+# Is it us?
+if [ $(whoami) = $STOREOWNER ]; then
+  # Yes, run the tests
+  storetest-real $@
+else
+  # No, recurse as the correct user, using gksudo if available
+  command -v gksudo >/dev/null 2>&1 && { gksudo true; }
+  sudo -u $STOREOWNER storetest $@
+fi

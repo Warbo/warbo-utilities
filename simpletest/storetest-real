@@ -1,13 +1,22 @@
 #!/usr/bin/env python
 
-import sys
+import math
 import os
 import subprocess
+import sys
 
 # TODO: Put these into a config file somewhere
 store_location  = '/var/www/domains/wandisco.com/drupal7/htdocs'
-store_uri       = 'http://debian'
-result_location = '/home/chris/test-results'
+result_location = '/tmp/test-results'
+store_uri       = subprocess.check_output(
+                      ['php',
+                       '-r',
+                       'require_once "settings.php"; ' + \
+                           'echo isset($base_url)? $base_url : "f";'],
+                      cwd=store_location).strip()
+if store_uri == 'f':
+    print "Could not find $base_url"
+    sys.exit(1)
 
 def remove_previous(test=''):
     """Pass in a test's name to clear its previous debug output. Leave empty to
@@ -26,20 +35,39 @@ def remove_previous(test=''):
         pass
 
 def command(classes=[], methods=[]):
-    """Build a test command. Any given arguments will be appended to the
-    command."""
-    method_arg = {True:  ' --methods=testRun,' + ','.join(methods),
-                  False: ''}[len(methods) > 0]
-    
-    return ''.join(['drush test-run ',
-                    ','.join(classes),
-                    ' --uri=',
-                    store_uri,
-                    ' --xml=',
-                    result_location,
-                    method_arg])
+    """Build test commands. Any given arguments will be appended to the
+    commands."""
 
-run = lambda cmd: subprocess.check_call(cmd, cwd=store_location, shell=True)
+    if len(classes) == 0:
+        raise Exception('Must have classes to test')
+    if len(classes) > 1 and len(methods) > 0:
+        raise Exception('Cannot test specific methods of multiple classes')
+
+    if len(methods) > 0:
+        # Divide up our methods across CPUs
+        method_args = []
+        for index, method in enumerate(methods):
+            method_args.append([])
+            method_args[index % cpus].append(method)
+        return 'drush test-run '         + \
+                   classes[0]            + \
+                   ' --methods=testRun,' + \
+                   ','.join(methods)     + \
+                   ' --uri='             + \
+                   store_uri             + \
+                   ' --xml='             + \
+                   result_location
+
+    return 'drush test-run ' + \
+           ','.join(classes) + \
+           ' --uri=' + \
+           store_uri + \
+           ' --xml=' + \
+           result_location
+
+run = lambda cmd: subprocess.check_call(cmd,
+                                        cwd=store_location,
+                                        shell=True)
 
 # Read our arguments
 # TODO: Make this more generic; get WANdisco from a config file!
@@ -51,6 +79,8 @@ else:
     # Run specific tests
     tests = sys.argv[1:]
 
+tests = filter(lambda t: t != '-c', tests)
+
 # Split apart whole groups/suites from specific methods
 whole    = []
 specific = []
@@ -58,7 +88,7 @@ for t in tests:
     {True:  specific,
      False: whole   }['::' in t].append(t)
 
-# Clear caches
+# Clear caches, so any pending changes take effect
 run('drush cc all')
 
 # Run the whole groups/suites
