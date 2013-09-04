@@ -3,7 +3,7 @@
 # Wrapper around storetest-real which ensures it runs as the right user
 
 # See who owns the store
-$STOREOWNER=$(stat -c %U /var/www/domains/wandisco.com/drupal7/htdocs)
+STOREOWNER=$(stat -c %U /var/www/domains/wandisco.com/drupal7/htdocs)
 
 # Is it us?
 if [ $(whoami) = $STOREOWNER ]; then
