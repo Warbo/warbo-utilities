@@ -12,8 +12,9 @@ store_uri       = subprocess.Popen(
                       ['php',
                        '-r',
                        'require_once "' + \
-                           store_location + '/settings.php"; ' + \
+                           store_location + '/sites/default/settings.php"; ' + \
                            'echo isset($base_url)? $base_url : "f";'],
+                      stdout=subprocess.PIPE,
                       cwd=store_location).communicate()[0].strip()
 if store_uri == 'f':
     print "Could not find $base_url"
