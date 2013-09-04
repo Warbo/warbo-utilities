@@ -3,7 +3,7 @@
 import os
 from lxml import etree
 
-d = '/home/chris/test-results'
+d        = '/tmp/test-results'
 failures = {}
 for x in [etree.parse(d + '/' + f) for f in os.listdir(d) if f.endswith('xml')]:
     for f in x.xpath('//failure/..'):

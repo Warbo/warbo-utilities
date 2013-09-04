@@ -5,8 +5,7 @@ import os
 import sys
 from lxml import etree
 
-# TODO: Read this from a config file
-result_dir = '/home/chris/test-results'
+result_dir = '/tmp/test-results'
 
 # Loop through all XML result files and grab those which have failures
 failures = {}
