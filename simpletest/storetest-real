@@ -11,7 +11,8 @@ result_location = '/tmp/test-results'
 store_uri       = subprocess.Popen(
                       ['php',
                        '-r',
-                       'require_once "settings.php"; ' + \
+                       'require_once "' + \
+                           store_location + '/settings.php"; ' + \
                            'echo isset($base_url)? $base_url : "f";'],
                       cwd=store_location).communicate()[0].strip()
 if store_uri == 'f':
