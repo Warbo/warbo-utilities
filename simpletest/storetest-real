@@ -46,26 +46,21 @@ def command(classes=[], methods=[]):
         raise Exception('Cannot test specific methods of multiple classes')
 
     if len(methods) > 0:
-        # Divide up our methods across CPUs
-        method_args = []
-        for index, method in enumerate(methods):
-            method_args.append([])
-            method_args[index % cpus].append(method)
-        return 'drush test-run '         + \
-                   classes[0]            + \
-                   ' --methods=testRun,' + \
-                   ','.join(methods)     + \
-                   ' --uri='             + \
-                   store_uri             + \
-                   ' --xml='             + \
-                   result_location
+        return ['drush test-run '         + \
+                    classes[0]            + \
+                    ' --methods=testRun,' + \
+                    ','.join(methods)     + \
+                    ' --uri='             + \
+                    store_uri             + \
+                    ' --xml='             + \
+                    result_location]
 
-    return 'drush test-run ' + \
-           ','.join(classes) + \
-           ' --uri=' + \
-           store_uri + \
-           ' --xml=' + \
-           result_location
+    return sum([['drush test-run ' + \
+                     c + \
+                     ' --uri=' + \
+                     store_uri + \
+                     ' --xml=' + \
+                     result_location, 'drush test-clean'] for c in classes], [])
 
 run = lambda cmd: subprocess.check_call(cmd,
                                         cwd=store_location,
@@ -96,7 +91,7 @@ run('drush cc all')
 # Run the whole groups/suites
 if len(whole) > 0:
     map(remove_previous, whole)
-    run(command(whole))
+    map(run, command(whole))
 
 # Collect up specific methods
 classes = {}
@@ -107,4 +102,4 @@ for (c, m) in [(s.split('::')[0], s.split('::')[1]) for s in specific]:
         classes[c].append(m)
 map(remove_previous, classes.keys())
 for c in classes:
-    run(command([c], classes[c]))
+    map(run, command([c], classes[c]))
