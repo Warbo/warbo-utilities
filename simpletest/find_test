@@ -20,7 +20,7 @@ else:
     method = None
 
 # Look up HTML output for this class
-d     = '/home/chris/codebase/storedev/sites/default/files/simpletest/verbose'
+d     = '/var/www/domains/wandisco.com/drupal7/htdocs/sites/default/files/simpletest/verbose'
 files = sorted([f for f in os.listdir(d) if f.startswith(class_ + '-')])
 
 # We can't output anything when we have no URL
