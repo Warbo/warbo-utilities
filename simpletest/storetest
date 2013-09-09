@@ -5,12 +5,14 @@
 # See who owns the store
 STOREOWNER=$(stat -c %U /var/www/domains/wandisco.com/drupal7/htdocs)
 
-# Is it us?
-if [ $(whoami) = $STOREOWNER ]; then
-  # Yes, run the tests
-  /usr/local/bin/storetest-real $@
+# Are we root?
+if [ $(whoami) = "root" ]; then
+  # Yes; make a new RAM database for the tests
+  # TODO
+  # Run the tests as the correct user
+  sudo -u $STOREOWNER /usr/local/bin/storetest-real $@
 else
-  # No, recurse as the correct user, using gksudo if available
+  # No. Use (gk)sudo to become root then recurse
   command -v gksudo >/dev/null 2>&1 && { gksudo true; }
-  sudo -u $STOREOWNER /usr/local/bin/storetest $@
+  sudo -u root /usr/local/bin/storetest $@
 fi
