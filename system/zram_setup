@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Mount zram filesystem for MySQL/MariaDB
+
+case "$1" in
+  start)
+    zram_mount
+  *)
+    exit 0
+esac
+exit 0
