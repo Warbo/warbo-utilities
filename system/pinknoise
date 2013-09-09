@@ -1,0 +1,8 @@
+#!/bin/sh
+# Various noise generators, mainly from http://unreasonable.org/node/303
+
+# A more calming pink noise; filtered to reduce pops, tremolo to make it wavy
+#play -n synth '7:00:00' pinknoise band -n 1200 200 tremolo 20 .1
+
+# Pink noise, filtered to overlap voices
+play -c 2 -n synth pinknoise band -n 2500 4000 reverb 20
