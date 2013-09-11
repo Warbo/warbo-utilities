@@ -55,12 +55,12 @@ def command(classes=[], methods=[]):
                     ' --xml='             + \
                     result_location]
 
-    return sum([['drush test-run ' + \
-                     c + \
-                     ' --uri=' + \
-                     store_uri + \
-                     ' --xml=' + \
-                     result_location, 'drush test-clean'] for c in classes], [])
+    return ['drush test-run ' + \
+                c + \
+                ' --uri=' + \
+                store_uri + \
+                ' --xml=' + \
+                result_location for c in classes]
 
 run = lambda cmd: subprocess.check_call(cmd,
                                         cwd=store_location,
@@ -87,10 +87,12 @@ for t in tests:
 
 # Clear caches, so any pending changes take effect
 run('drush cc all')
+run('drush test-clean')
 
 # Run the whole groups/suites
 if len(whole) > 0:
     map(remove_previous, whole)
+
     map(run, command(whole))
 
 # Collect up specific methods
@@ -100,6 +102,10 @@ for (c, m) in [(s.split('::')[0], s.split('::')[1]) for s in specific]:
         classes[c] = []
     if m not in classes[c]:
         classes[c].append(m)
+
 map(remove_previous, classes.keys())
+
 for c in classes:
-    map(run, command([c], classes[c]))
+    for com in command([c], classes[c]):
+        run(com)
+        run('drush test-clean')
