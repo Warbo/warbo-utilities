@@ -92,8 +92,12 @@ run('drush test-clean')
 # Run the whole groups/suites
 if len(whole) > 0:
     map(remove_previous, whole)
-
-    map(run, command(whole))
+    for com in command(whole):
+        try:
+            run(com)
+        except e:
+            print "Failed: " + com
+        run('drush test-clean')
 
 # Collect up specific methods
 classes = {}
