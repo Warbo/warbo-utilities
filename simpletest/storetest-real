@@ -107,5 +107,8 @@ map(remove_previous, classes.keys())
 
 for c in classes:
     for com in command([c], classes[c]):
-        run(com)
+        try:
+            run(com)
+        except e:
+            print "Fail: " + com
         run('drush test-clean')
