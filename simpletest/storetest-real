@@ -95,7 +95,7 @@ if len(whole) > 0:
     for com in command(whole):
         try:
             run(com)
-        except e:
+        except:
             print "Failed: " + com
         run('drush test-clean')
 
@@ -113,6 +113,6 @@ for c in classes:
     for com in command([c], classes[c]):
         try:
             run(com)
-        except e:
+        except:
             print "Fail: " + com
         run('drush test-clean')
