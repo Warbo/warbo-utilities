@@ -3,7 +3,10 @@
 import os
 from lxml import etree
 
-d        = '/tmp/test-results'
+result_dir = {True:  lambda *_: sys.argv[sys.argv.index('-d') + 1],
+              False: lambda *_: '/tmp/test-results'}['-d' in sys.argv]()
+
+# Loop through all XML result files and grab those which have failures
 failures = {}
 for x in [etree.parse(d + '/' + f) for f in os.listdir(d) if f.endswith('xml')]:
     for f in x.xpath('//failure/..'):
@@ -14,6 +17,7 @@ for x in [etree.parse(d + '/' + f) for f in os.listdir(d) if f.endswith('xml')]:
         if method not in failures[class_]:
             failures[class_].append(method)
 
+# Print what we found
 for class_ in failures:
     for method in failures[class_]:
         print class_ + '::' + method
