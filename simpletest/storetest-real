@@ -4,6 +4,8 @@ import math
 import os
 import subprocess
 import sys
+import time
+import datetime
 
 # TODO: Put these into a config file somewhere
 store_location  = '/var/www/domains/wandisco.com/drupal7/htdocs'
@@ -19,6 +21,8 @@ store_uri       = subprocess.Popen(
 if store_uri == 'f':
     print "Could not find $base_url"
     sys.exit(1)
+
+now = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H-%M')
 
 def remove_previous(test=''):
     """Pass in a test's name to clear its previous debug output. Leave empty to
@@ -45,6 +49,7 @@ def command(classes=[], methods=[]):
     if len(classes) > 1 and len(methods) > 0:
         raise Exception('Cannot test specific methods of multiple classes')
 
+    tee = ' | tee -a /tmp/test-run-' + now
     if len(methods) > 0:
         return ['drush test-run '         + \
                     classes[0]            + \
@@ -53,14 +58,16 @@ def command(classes=[], methods=[]):
                     ' --uri='             + \
                     store_uri             + \
                     ' --xml='             + \
-                    result_location]
+                    result_location       + \
+                    tee]
 
-    return ['drush test-run ' + \
-                c + \
-                ' --uri=' + \
-                store_uri + \
-                ' --xml=' + \
-                result_location for c in classes]
+    return ['drush test-run '   + \
+                c               + \
+                ' --uri='       + \
+                store_uri       + \
+                ' --xml='       + \
+                result_location + \
+                tee for c in classes]
 
 run = lambda cmd: subprocess.check_call(cmd,
                                         cwd=store_location,
