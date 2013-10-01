@@ -49,7 +49,7 @@ def command(classes=[], methods=[]):
     if len(classes) > 1 and len(methods) > 0:
         raise Exception('Cannot test specific methods of multiple classes')
 
-    tee = ' | tee -a /tmp/test-run-' + now
+    tee = ' 2>&1 | tee -a /tmp/test-run-' + now
     if len(methods) > 0:
         return ['drush test-run '         + \
                     classes[0]            + \
