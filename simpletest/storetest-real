@@ -10,14 +10,18 @@ import datetime
 # TODO: Put these into a config file somewhere
 store_location  = '/var/www/domains/wandisco.com/drupal7/htdocs'
 result_location = '/tmp/test-results'
-store_uri       = subprocess.Popen(
-                      ['php',
-                       '-r',
-                       'require_once "' + \
-                           store_location + '/sites/default/settings.php"; ' + \
-                           'echo isset($base_url)? $base_url : "f";'],
-                      stdout=subprocess.PIPE,
-                      cwd=store_location).communicate()[0].strip()
+site            = {True:  'svn-academy.wandisco.com',
+                   False: 'default'}['-training' in sys.argv]
+
+store_uri = subprocess.Popen(
+                ['php',
+                 '-r',
+                 'require_once "' + \
+                     store_location + '/sites/' + site + '/settings.php"; ' + \
+                     'echo isset($base_url)? $base_url : "f";'],
+                stdout=subprocess.PIPE,
+                cwd=store_location).communicate()[0].strip()
+
 if store_uri == 'f':
     print "Could not find $base_url"
     sys.exit(1)
@@ -75,6 +79,7 @@ run = lambda cmd: subprocess.check_call(cmd,
 
 # Read our arguments
 # TODO: Make this more generic; get WANdisco from a config file!
+sys.argv = filter(lambda a: a != '-training', sys.argv)
 if len(sys.argv) < 2 or 'WANdisco' in sys.argv:
     # Run the whole WANdisco group
     tests = ['WANdisco']
