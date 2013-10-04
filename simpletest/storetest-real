@@ -33,7 +33,7 @@ def remove_previous(test=''):
     clear all previous tests' output."""
     try:
         subprocess.check_call(
-            ''.join(['rm ',
+            ''.join(['rm -f ',
                      store_location,
                      '/sites/default/files/simpletest/verbose/',
                      test,
