@@ -9,7 +9,8 @@ result_dir = {True:  lambda *_: sys.argv[sys.argv.index('-d') + 1],
 
 # Loop through all XML result files and grab those which have failures
 failures = {}
-for x in [etree.parse(d + '/' + f) for f in os.listdir(d) if f.endswith('xml')]:
+for x in (etree.parse(result_dir + '/' + f) \
+    for f in os.listdir(d) if f.endswith('xml')):
     for f in x.xpath('//failure/..'):
         class_ = f.get('classname')
         method = f.get('name')[:-2]
