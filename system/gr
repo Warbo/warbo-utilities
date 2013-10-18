@@ -1,10 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env python
 
 # More convenient grep
-use_dot=1
-if [ "$#" -eq "$use_dot" ]
-then
-  grep -r $@ . 2> /dev/null | grep -v "\.svn" | grep -v "\.sql"
-else
-  grep -r $@   2> /dev/null | grep -v "\.svn" | grep -v "\.sql"
-fi
+import sys
+import subprocess
+regex = '"' + sys.argv[1] + '"'
+path  = (sys.argv + ['.'])[2]
+cmd   = ' '.join(['grep -r',
+                  regex,
+                  path,
+                  '| grep -v "\.svn" | grep -v "\.sql"'])
+subprocess.call(cmd,
+                shell=True,
+                stderr=open('/dev/null', 'w'))
