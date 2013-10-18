@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# More convenient grep
+use_dot=1
+if [ "$#" -eq "$use_dot" ]
+then
+  grep -r $@ . 2> /dev/null | grep -v "\.svn" | grep -v "\.sql"
+else
+  grep -r $@   2> /dev/null | grep -v "\.svn" | grep -v "\.sql"
