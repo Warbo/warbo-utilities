@@ -4,7 +4,7 @@
 
 # Set up multiple screens
 bash ~/.screenlayout/plugged_in.sh
-xrandr --output HDMI1 --primary
+xrandr --output LVDS1 --primary
 
 # Set up keyboard
 keys
