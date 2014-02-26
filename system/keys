@@ -6,7 +6,21 @@
 # so we map that to Ctrl. And nothing of value was lost.
 setxkbmap -layout gb -option ctrl:nocaps
 
-# Allow holding-down the space bar to act as Ctrl, so we can use our thumbs
-s2cctl stop
-killall s2c
-s2cctl start
+# Kill any existing xcape instances
+killall xcape
+
+# Use xmodmap to map space bar to the 'left hyper' key
+spare_modifier="Hyper_L"
+xmodmap -e "keycode 65 = $spare_modifier"
+
+# Remove the normal 'left hyper' mapping
+xmodmap -e "remove mod4 = $spare_modifier" # hyper_l is mod4 by default
+
+# Map 'left hyper' to Control
+xmodmap -e "add Control = $spare_modifier"
+
+# Map space to an unused keycode
+xmodmap -e "keycode any = space"
+
+# Use xcape to make tapping 'left hyper' produce a space
+xcape -e "$spare_modifier=space"

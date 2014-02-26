@@ -10,7 +10,7 @@ import datetime
 # TODO: Put these into a config file somewhere
 store_location  = '/var/www/domains/wandisco.com/drupal7/htdocs'
 result_location = '/tmp/test-results'
-site            = {True:  'svn-academy.wandisco.com',
+site            = {True:  'svn-training.wandisco.com',
                    False: 'default'}['-training' in sys.argv]
 
 store_uri = subprocess.Popen(
@@ -28,9 +28,28 @@ if store_uri == 'f':
 
 now = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H-%M')
 
+def clean():
+    # Poor man's closure
+    cleaned = [False]
+    def cleaner():
+        """Clean up previous test cruft"""
+        if not cleaned[0] and '-clean' in sys.argv:
+            run('drush test-clean')
+        cleaned.pop()
+        cleaned.append(True)
+    return cleaner
+clean = clean()
+
 def remove_previous(test=''):
     """Pass in a test's name to clear its previous debug output. Leave empty to
     clear all previous tests' output."""
+    if '-clean' not in sys.argv:
+        return
+
+    # Clear old databases and files
+    clean()
+
+    # Remove old debug output
     try:
         subprocess.check_call(
             ''.join(['rm -f ',
@@ -43,6 +62,17 @@ def remove_previous(test=''):
     except subprocess.CalledProcessError:
         # Files not found; good, we're deleting them anyway!
         pass
+
+def clear_cache():
+    cleared = [False]
+    def clearer():
+        """Clear Drupal's cache, so that we use the latest test definitions."""
+        if not cleared[0] and '-clear' in sys.argv:
+            run('drush cc all')
+        cleared.pop()
+        cleared.append(True)
+    return clearer
+clear_cache = clear_cache()
 
 def command(classes=[], methods=[]):
     """Build test commands. Any given arguments will be appended to the
@@ -65,13 +95,13 @@ def command(classes=[], methods=[]):
                     result_location       + \
                     tee]
 
-    return ['drush test-run '   + \
-                c               + \
-                ' --uri='       + \
-                store_uri       + \
-                ' --xml='       + \
-                result_location + \
-                tee for c in classes]
+    return ['drush test-run '     + \
+                ','.join(classes) + \
+                ' --uri='         + \
+                store_uri         + \
+                ' --xml='         + \
+                result_location   + \
+                tee]
 
 run = lambda cmd: subprocess.check_call(cmd,
                                         cwd=store_location,
@@ -79,16 +109,14 @@ run = lambda cmd: subprocess.check_call(cmd,
 
 # Read our arguments
 # TODO: Make this more generic; get WANdisco from a config file!
-sys.argv = filter(lambda a: a != '-training', sys.argv)
-if len(sys.argv) < 2 or 'WANdisco' in sys.argv:
+args = [a for a in sys.argv if not a.startswith('-')]
+if len(args) < 2 or 'WANdisco' in args:
     # Run the whole WANdisco group
     tests = ['WANdisco']
     remove_previous()
 else:
     # Run specific tests
-    tests = sys.argv[1:]
-
-tests = filter(lambda t: t != '-c', tests)
+    tests = args[1:]
 
 # Split apart whole groups/suites from specific methods
 whole    = []
@@ -97,9 +125,8 @@ for t in tests:
     {True:  specific,
      False: whole   }['::' in t].append(t)
 
-# Clear caches, so any pending changes take effect
-run('drush cc all')
-run('drush test-clean')
+# Clear the cache, if we're told to
+clear_cache()
 
 # Run the whole groups/suites
 if len(whole) > 0:
@@ -109,7 +136,7 @@ if len(whole) > 0:
             run(com)
         except:
             print "Failed: " + com
-        run('drush test-clean')
+        clean()
 
 # Collect up specific methods
 classes = {}
@@ -127,4 +154,4 @@ for c in classes:
             run(com)
         except:
             print "Fail: " + com
-        run('drush test-clean')
+        clean()

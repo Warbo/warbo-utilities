@@ -6,5 +6,5 @@ if [ $(whoami) = "root" ]; then
 
 else
     gksudo true
-    sudo cc $@
+    sudo dcc $@
 fi

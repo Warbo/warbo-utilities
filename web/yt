@@ -1,0 +1,10 @@
+#!/usr/bin/python
+# EASY-INSTALL-ENTRY-SCRIPT: 'whitey==0.4','console_scripts','yt'
+__requires__ = 'whitey==0.4'
+import sys
+from pkg_resources import load_entry_point
+
+if __name__ == '__main__':
+    sys.exit(
+        load_entry_point('whitey==0.4', 'console_scripts', 'yt')()
+    )

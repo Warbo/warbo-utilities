@@ -3,4 +3,4 @@
 # The wireless on my Thinkpad is dodgy. This seems to do the trick.
 gksudo true
 sudo modprobe -r iwldvm iwlwifi
-sudo modprobe iwlwifi
+sudo modprobe iwlwifi 11n_disable=1

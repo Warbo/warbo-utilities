@@ -8,7 +8,7 @@ path  = (sys.argv + ['.'])[2]
 cmd   = ' '.join(['grep -r',
                   regex,
                   path,
-                  '| grep -v "\.svn" | grep -v "\.sql"'])
+                  '| grep -v "\.svn" | grep -v "\.sql" | grep -v "verbose"'])
 subprocess.call(cmd,
                 shell=True,
                 stderr=open('/dev/null', 'w'))
