@@ -1,10 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 
 # Run when plugging laptop back in, eg. after a meeting
 
 # Set up multiple screens
-bash ~/.screenlayout/plugged_in.sh
-xrandr --output HDMI1 --primary
+bash ~/.screenlayout/uni.sh
 
 # Set up keyboard
 keys

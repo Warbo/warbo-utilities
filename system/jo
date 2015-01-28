@@ -1,0 +1,4 @@
+#!/bin/sh
+ssh -f jo@debian "killall x11vnc; export DISPLAY=:0; x11vnc"
+sleep 2
+vncviewer debian

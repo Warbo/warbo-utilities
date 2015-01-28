@@ -15,7 +15,7 @@ debug = lambda x: {True:  sys.stdout.write(str(x)),
 
 def format(x, n):
     """Optionally format the output for xmobar."""
-    active_col = '#44ff66'    
+    active_col = '#44ff66'
     if '-xmobar' in sys.argv and n > 0:
         return ''.join([x,
                         ' <fc=', active_col, '>',
