@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# Short-hand for svn diff
+svn diff -x --ignore-all-space "$@"

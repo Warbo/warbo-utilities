@@ -5,7 +5,8 @@ import os
 import sys
 from lxml import etree
 
-result_dir = '/tmp/test-results'
+result_dir = {True:  lambda *_: sys.argv[sys.argv.index('-d') + 1],
+              False: lambda *_: '/tmp/test-results'}['-d' in sys.argv]()
 
 # Loop through all XML result files and grab those which have failures
 failures = {}

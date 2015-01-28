@@ -1,2 +1,2 @@
 #!/bin/sh
-grep -R "$@" .
+grep -R "$@" . | grep -v "\.svn" | grep -v "\.sql" | grep -v "\.git"
