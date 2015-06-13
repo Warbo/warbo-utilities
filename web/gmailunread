@@ -1,3 +1,0 @@
-#!/bin/sh
-nix-shell -p python pythonPackages.lxml --command "gmail_unread -xmobar"
-
