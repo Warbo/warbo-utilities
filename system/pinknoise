@@ -1,4 +1,6 @@
-#!/bin/sh
+#! /usr/bin/env nix-shell
+#! nix-shell -i bash -p sox
+
 # Various noise generators, mainly from http://unreasonable.org/node/303
 
 # A more calming pink noise; filtered to reduce pops, tremolo to make it wavy

@@ -1,0 +1,6 @@
+#!/bin/sh
+echo "Unmounting /home/chris/iPod"
+sudo umount /home/chris/iPod
+echo "Mounting /dev/disk/by-label/IPOD on /home/chris/iPod"
+sudo mount -t vfat -ouser,umask=0000 /dev/disk/by-label/IPOD /home/chris/iPod
+echo "Done"

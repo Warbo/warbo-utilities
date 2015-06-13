@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Enable keyboard shortcuts (eg. volume buttons)
+xbindkeys
+
 # Tries to reduce 'Emacs pinky', caused by the position of Ctrl on PS/2
 # keyboards
 
