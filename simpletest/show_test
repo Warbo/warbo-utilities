@@ -1,7 +1,0 @@
-#!/bin/bash
-# Takes the name of a SimpleTest method in the form class::method and tries to
-# open a browser containing that test's verbose output.
-
-# You can get a list of failing tests with list_failed_methods.
-
-x-www-browser $(find_test $@)

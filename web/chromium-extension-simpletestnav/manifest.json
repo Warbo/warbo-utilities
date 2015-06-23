@@ -1,9 +1,0 @@
-{
-  "manifest_version" : 2,
-  "name"             : "SimpleTest Nav",
-  "version"          : "1",
-  "description"      : "Navigate between pages from Drupal SimpleTest",
-  "content_scripts"  : [{
-    "matches"        : ["file:///*simpletest/verbose/*"],
-    "js"             : ["simpletestnav.js"]}]
-}

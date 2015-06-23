@@ -1,3 +1,0 @@
-#!/bin/sh
-cd /home/chris/codebase/webs-store/resources/scripts
-./deploy.sh $@
