@@ -41,7 +41,8 @@ try:
             bits = line.split(' ')
             if 'login' in bits and 'password' in bits:
                 get = lambda s: bits[bits.index(s) + 1]
-                logins[get('login')] = get('password')
+                if 'gmail' in get('login'):
+                    logins[get('login')] = get('password')
 except Exception as e:
     print "ACCOUNT ERROR"
     debug(e)
