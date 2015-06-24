@@ -1,3 +1,10 @@
 #!/bin/sh
-cd ~/.tests
-./once.sh
+RUNNING=$(ps ax | grep once.sh | grep -v grep | wc -l)
+
+if [[ $RUNNING -eq 0 ]]
+then
+    cd ~/.tests
+    ./once.sh
+else
+    echo "Already running"
+fi
