@@ -1,3 +1,3 @@
 #!/bin/sh
-nix-store --clear-failed-paths paths
+nix-store --clear-failed-paths '*'
 nix-shell -p "$1" --pure --show-trace --command "true"
