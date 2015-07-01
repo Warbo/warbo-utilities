@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+
+set -e
+
+TEDIR="/home/chris/System/Packages/haskell-te"
+TEDEFAULT="/home/chris/System/Packages/haskell-te/default.nix"
+
+function getHead {
+  git rev-parse --short HEAD
+}
+
+function anySha {
+  date | sha256sum | cut -d ' ' -f 1
+}
+
+function lineNum {
+    grep -n "$1" | cut -d ':' -f 1
+}
+
+function firstAbove {
+    while read LINE
+    do
+        if [[ "$LINE" -gt "$1" ]]
+        then
+            echo "$LINE"
+            return
+        fi
+    done
+}
+
+function replaceSetting {
+    # $1 is a pattern preceding the line to change
+    STARTLINE=$(lineNum "$PREFIX" < "$TOALTER")
+    # $2 is the setting we're changing. Get the first match after $STARTLINE
+    CHANGELINE=$(lineNum "$1" < "$TOALTER" | firstAbove "$STARTLINE")
+    # On line $CHANGELINE, replace 'foo = "bar";' with 'foo = "baz";'
+    PATTERN="${CHANGELINE}s/$1[ ]*= \".*\";/$1 = \"$2\";/"
+    sed -e "$PATTERN" -i "$TOALTER"
+}
+
+function tryTest {
+    if [[ "x$1" == "xhaskell-te" ]]
+    then
+        nix-shell -p HS2AST 2>& 1
+    else
+        (cd "$TEDIR"; ./one.sh "$1" 2>& 1)
+    fi
+}
+
+function trySha {
+    tryTest "$1" |
+        grep  ", instead has "      |
+        grep -o "instead has .*"    |
+        grep -o         "has .*"    |
+        grep -o            " [^ ]*" |
+        grep -o              "[0-9a-zA-Z]*"
+}
+
+function bump {
+    git push --all
+    replaceSetting "rev" $(getHead)
+    replaceSetting "sha256" $(anySha)
+    replaceSetting "sha256" $(trySha "$1")
+}
+
+function bumpInTE {
+    PREFIX="$1 ? {"
+    TOALTER="$TEDEFAULT"
+    bump "$1"
+}
+
+function bumpTE {
+    if git status | grep "modified:[ ]*default.nix" > /dev/null
+    then
+        git add default.nix
+        git commit -m "Bumping versions"
+    fi
+
+    PREFIX="name[ ]*= \"$1\";"
+    TOALTER=$(readlink -f "/home/chris/.nixpkgs/config.nix")
+    bump "$1"
+}
+
+case "$PWD" in
+    "/home/chris/Programming/Haskell/MLSpec")
+        bumpInTE "mlspec"
+        ;;
+
+    "/home/chris/Programming/Haskell/ML4HS")
+        bumpInTE "ml4hs"
+        ;;
+
+    "/home/chris/Programming/Haskell/TreeFeatures")
+        bumpInTE "treefeatures"
+        ;;
+
+    "/home/chris/Programming/Haskell/ArbitraryHaskell")
+        bumpInTE "ArbitraryHaskell"
+        ;;
+
+    "/home/chris/Programming/Haskell/AstPlugin")
+        bumpInTE "AstPlugin"
+        ;;
+
+    "/home/chris/Programming/Haskell/HS2AST")
+        bumpInTE "HS2AST"
+        ;;
+
+    "/home/chris/System/Packages/haskell-te")
+        bumpTE "haskell-te"
+        ;;
+
+    *)
+        echo "Couldn't determine project in $PWD"
+        exit 1
+        ;;
+esac
