@@ -106,6 +106,10 @@ case "$PWD" in
         bumpInTE "HS2AST"
         ;;
 
+    "/home/chris/Programming/Haskell/ML4HSHelper")
+        bumpInTE "ML4HSHelper"
+        ;;
+
     "/home/chris/System/Packages/haskell-te")
         bumpTE "haskell-te"
         ;;

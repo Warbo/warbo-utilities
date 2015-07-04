@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i bash -p xbindkeys xmodmap xscape
+#! nix-shell -i bash -p xbindkeys xorg.xmodmap xcape
 
 # Enable keyboard shortcuts (eg. volume buttons)
 xbindkeys
