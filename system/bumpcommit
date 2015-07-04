@@ -3,7 +3,6 @@
 set -e
 
 TEDIR="/home/chris/System/Packages/haskell-te"
-TEDEFAULT="/home/chris/System/Packages/haskell-te/default.nix"
 
 function getHead {
   git rev-parse --short HEAD
@@ -17,7 +16,7 @@ function lineNum {
     grep -n "$1" | cut -d ':' -f 1
 }
 
-function firstAbove {
+function firstAfter {
     while read LINE
     do
         if [[ "$LINE" -gt "$1" ]]
@@ -29,10 +28,10 @@ function firstAbove {
 }
 
 function replaceSetting {
-    # $1 is a pattern preceding the line to change
-    STARTLINE=$(lineNum "$PREFIX" < "$TOALTER")
-    # $2 is the setting we're changing. Get the first match after $STARTLINE
-    CHANGELINE=$(lineNum "$1" < "$TOALTER" | firstAbove "$STARTLINE")
+    # $PREFIX is a pattern preceding the line to change
+    STARTLINE=$(lineNum "$PREFIX" < "$TOALTER" | head -n 1)
+    # $1 is the setting we're changing. Get the first match after $STARTLINE
+    CHANGELINE=$(lineNum "$1" < "$TOALTER" | firstAfter "$STARTLINE")
     # On line $CHANGELINE, replace 'foo = "bar";' with 'foo = "baz";'
     PATTERN="${CHANGELINE}s/$1[ ]*= \".*\";/$1 = \"$2\";/"
     sed -e "$PATTERN" -i "$TOALTER"
@@ -42,6 +41,9 @@ function tryTest {
     if [[ "x$1" == "xhaskell-te" ]]
     then
         nix-shell -p HS2AST 2>& 1
+    elif [[ "x$1" == "xwarbo-utilities-src" ]]
+    then
+        nix-shell -p warbo-utilities 2>& 1
     else
         (cd "$TEDIR"; ./one.sh "$1" 2>& 1)
     fi
@@ -65,11 +67,11 @@ function bump {
 
 function bumpInTE {
     PREFIX="$1 ? {"
-    TOALTER="$TEDEFAULT"
+    TOALTER="/home/chris/System/Packages/haskell-te/default.nix"
     bump "$1"
 }
 
-function bumpTE {
+function bumpInCfg {
     if git status | grep "modified:[ ]*default.nix" > /dev/null
     then
         git add default.nix
@@ -111,7 +113,11 @@ case "$PWD" in
         ;;
 
     "/home/chris/System/Packages/haskell-te")
-        bumpTE "haskell-te"
+        bumpInCfg "haskell-te"
+        ;;
+
+    "/home/chris/warbo-utilities")
+        bumpInCfg "warbo-utilities-src"
         ;;
 
     *)
