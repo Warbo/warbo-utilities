@@ -1,0 +1,6 @@
+#!/bin/sh
+
+WIFIID=$(nmcli -a c show | grep aa.net.uk | grep -o "[0-9a-f-]*" | grep "-" | grep -v "802-11" | grep -v "--")
+
+nmcli -a c up "$WIFIID"
+

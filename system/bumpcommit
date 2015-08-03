@@ -28,13 +28,7 @@ function firstAfter {
 }
 
 function replaceSetting {
-    # $PREFIX is a pattern preceding the line to change
-    STARTLINE=$(lineNum "$PREFIX" < "$TOALTER" | head -n 1)
-    # $1 is the setting we're changing. Get the first match after $STARTLINE
-    CHANGELINE=$(lineNum "$1" < "$TOALTER" | firstAfter "$STARTLINE")
-    # On line $CHANGELINE, replace 'foo = "bar";' with 'foo = "baz";'
-    PATTERN="${CHANGELINE}s/$1[ ]*= \".*\";/$1 = \"$2\";/"
-    sed -e "$PATTERN" -i "$TOALTER"
+    echo "\"$3\"" > "$TOALTER/$1.$2.nix"
 }
 
 function tryTest {
@@ -60,26 +54,24 @@ function trySha {
 
 function bump {
     git push --all
-    replaceSetting "rev" $(getHead)
-    replaceSetting "sha256" $(anySha)
-    replaceSetting "sha256" $(trySha "$1")
+    replaceSetting "$1" "rev"    $(getHead)
+    replaceSetting "$1" "sha256" $(anySha)
+    replaceSetting "$1" "sha256" $(trySha "$1")
 }
 
 function bumpInTE {
-    PREFIX="$1 ? {"
-    TOALTER="/home/chris/System/Packages/haskell-te/default.nix"
+    TOALTER="/home/chris/System/Packages/haskell-te"
     bump "$1"
 }
 
 function bumpInCfg {
-    if git status | grep "modified:[ ]*default.nix" > /dev/null
+    if git status | grep "modified:[ ]*.*\.nix" > /dev/null
     then
-        git add default.nix
+        git add *.nix
         git commit -m "Bumping versions"
     fi
 
-    PREFIX="name[ ]*= \"$1\";"
-    TOALTER=$(readlink -f "/home/chris/.nixpkgs/config.nix")
+    TOALTER=$(readlink -f "/home/chris/.nixpkgs/local")
     bump "$1"
 }
 
