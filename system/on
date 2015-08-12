@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # Run when plugging laptop back in, eg. after a meeting
 
@@ -9,6 +9,12 @@ bash ~/.screenlayout/uni.sh
 keys
 
 # Set up wifi
-WIFIID=$(nmcli -a c show | grep UoD | grep -o "[0-9a-f]*-[0-9a-f-]*" | grep -v 802-11 | grep -v "[-]-")
-nmcli -a c up "$WIFIID"
+read -s -p "UoD Wifi password: " password
+WIFIID=$(nmcli -a c show       |
+         grep UoD          |
+         sed 's/[ ]* / /g' |
+         cut -d ' ' -f 2)
 
+nmcli c up "$WIFIID" passwd-file <(
+    echo "802-1x.identity:cmwarburton"
+    echo "802-1x.password:$password" )
