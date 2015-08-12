@@ -34,22 +34,29 @@ function replaceSetting {
 function tryTest {
     if [[ "x$1" == "xhaskell-te" ]]
     then
-        nix-shell -p HS2AST 2>& 1
+        nix-shell -p HS2AST --run "true" 2>& 1
     elif [[ "x$1" == "xwarbo-utilities-src" ]]
     then
-        nix-shell -p warbo-utilities 2>& 1
+        nix-shell -p warbo-utilities --run "true" 2>& 1
     else
         (cd "$TEDIR"; ./one.sh "$1" 2>& 1)
     fi
 }
 
 function trySha {
-    tryTest "$1" |
-        grep  ", instead has "      |
-        grep -o "instead has .*"    |
-        grep -o         "has .*"    |
-        grep -o            " [^ ]*" |
-        grep -o              "[0-9a-zA-Z]*"
+    SHASUM=$(tryTest "$1" |
+                    grep  ", instead has "      |
+                    grep -o "instead has .*"    |
+                    grep -o         "has .*"    |
+                    grep -o            " [^ ]*" |
+                    grep -o              "[0-9a-zA-Z]*")
+    if [[ -n "$SHASUM" ]]
+    then
+        echo "$SHASUM"
+    else
+        echo "Failed to get SHA of $1" > /dev/stderr
+        exit 1
+    fi
 }
 
 function bump {
