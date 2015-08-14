@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 fusermount -u /home/chris/Public
 sudo umount -l /home/chris/Public
 sshfs pi@raspberrypi:/opt/shared /home/chris/Public

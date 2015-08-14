@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 echo "Unmounting /home/chris/iPod"
 sudo umount /home/chris/iPod
 echo "Mounting /dev/disk/by-label/IPOD on /home/chris/iPod"

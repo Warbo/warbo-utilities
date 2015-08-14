@@ -1,4 +1,5 @@
-#!/bin/sh
-ssh -t jo@debian "/home/jo/vnc"
-#sleep 2
-#vncviewer debian
+#!/usr/bin/env bash
+ssh -t jo@debian "/home/jo/vnc" &
+sleep 2
+echo "Connecting..."
+vncviewer debian

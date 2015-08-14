@@ -61,9 +61,10 @@ function trySha {
 
 function bump {
     git push --all
-    replaceSetting "$1" "rev"    $(getHead)
-    replaceSetting "$1" "sha256" $(anySha)
-    replaceSetting "$1" "sha256" $(trySha "$1")
+    replaceSetting "$1" "rev"    "$(getHead)"
+    replaceSetting "$1" "sha256" "$(anySha)"
+    TRY=$(trySha "$1")
+    replaceSetting "$1" "sha256" "$TRY"
 }
 
 function bumpInTE {
@@ -74,7 +75,7 @@ function bumpInTE {
 function bumpInCfg {
     if git status | grep "modified:[ ]*.*\.nix" > /dev/null
     then
-        git add *.nix
+        git add ./*.nix
         git commit -m "Bumping versions"
     fi
 

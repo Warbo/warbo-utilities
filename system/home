@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 nmcli -a c show       |
     grep aa.net.uk    |
@@ -8,3 +8,5 @@ nmcli -a c show       |
     do
         test -n "$line" && nmcli -a c up "$line"
     done
+
+pi

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # Run when unplugging laptop, eg. to go to a meeting
 

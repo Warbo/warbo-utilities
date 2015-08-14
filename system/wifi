@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # Clear NixOS's DNS cache
 sudo systemctl restart nscd

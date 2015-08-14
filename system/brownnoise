@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # Various noise generators, mainly from http://unreasonable.org/node/303
 
 # A more calming pink noise; filtered to reduce pops, tremolo to make it wavy
