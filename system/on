@@ -21,16 +21,12 @@ keys
 # Set up wifi
 if ! nmcli connection show --active | grep UoD > /dev/null
 then
-    read -s -p "UoD Wifi password: " password
     WIFIID=$(nmcli c show      |
                     grep UoD          |
                     sed 's/[ ]* / /g' |
                     cut -d ' ' -f 2)
 
-    nmcli c up "$WIFIID" passwd-file <(
-        echo "802-1x.identity:cmwarburton"
-        echo "802-1x.password:$password" )
-
+    nmcli c up "$WIFIID"
     echo "Try nm-applet for VPN support"
 fi
 
