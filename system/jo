@@ -1,5 +1,2 @@
 #!/usr/bin/env bash
-ssh -t jo@debian "/home/jo/vnc" &
-sleep 2
-echo "Connecting..."
-vncviewer debian
+vncviewer -via jo@debian debian:0
