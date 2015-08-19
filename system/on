@@ -3,18 +3,39 @@
 # Run when plugging laptop back in, eg. after a meeting
 
 # Set up multiple screens
-bash ~/.screenlayout/uni.sh
+if xrandr | grep "VGA1 connected" > /dev/null
+then
+    # We're plugged in. Do we have a resolution?
+    if ! xrandr | grep "VGA1 connected [0-9][0-9]*" > /dev/null
+    then
+        # Nope. We need to switch on.
+        bash ~/.screenlayout/uni.sh
+    fi
+else
+    echo "VGA cable unplugged, not switching on monitor"
+fi
 
 # Set up keyboard
 keys
 
 # Set up wifi
-read -s -p "UoD Wifi password: " password
-WIFIID=$(nmcli -a c show       |
-         grep UoD          |
-         sed 's/[ ]* / /g' |
-         cut -d ' ' -f 2)
+if ! nmcli connection show --active | grep UoD > /dev/null
+then
+    read -s -p "UoD Wifi password: " password
+    WIFIID=$(nmcli c show      |
+                    grep UoD          |
+                    sed 's/[ ]* / /g' |
+                    cut -d ' ' -f 2)
 
-nmcli c up "$WIFIID" passwd-file <(
-    echo "802-1x.identity:cmwarburton"
-    echo "802-1x.password:$password" )
+    nmcli c up "$WIFIID" passwd-file <(
+        echo "802-1x.identity:cmwarburton"
+        echo "802-1x.password:$password" )
+
+    echo "Try nm-applet for VPN support"
+fi
+
+if ! mount | grep Uni > /dev/null
+then
+    sudo mount.cifs //socwww.computing.dundee.ac.uk/christopherwarburton \
+         /home/chris/Uni --verbose -o credentials=/home/chris/cred,uid=chris
+fi
