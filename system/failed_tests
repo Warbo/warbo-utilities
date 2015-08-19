@@ -1,2 +1,26 @@
 #!/usr/bin/env bash
-cat ~/.tests/status.txt
+shopt -s nullglob
+
+ALL=$( ls -1 ~/.tests/scripts        | wc -l)
+PASS=$(ls -1 ~/.tests/results/pass   | wc -l)
+RUN=$( ls -1 ~/.tests/results/stdout | wc -l)
+DIFF=$(( RUN - PASS ))
+
+EXTRA=""
+[[ "$ALL" -eq "$RUN" ]] || EXTRA=" so far"
+
+if [[ "$DIFF" -gt 0 ]]
+then
+    echo "<fc=#FF0000>${PASS}/${RUN} passed${EXTRA}</fc>"
+else
+    echo "<fc=#00FF00>${PASS}/${RUN} passed${EXTRA}</fc>"
+fi
+
+[[ "x$1" = "xshow" ]] || exit 0
+
+for TEST in ~/.tests/scripts/*
+do
+    NAME=$(basename "$TEST")
+    [[ -e "/home/chris/.tests/results/stdout/$NAME" ]] || continue
+    [[ -e "/home/chris/.tests/results/pass/$NAME"   ]] || echo "$NAME"
+done
