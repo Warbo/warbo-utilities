@@ -1,2 +1,4 @@
 #!/usr/bin/env bash
-vncviewer -via jo@debian debian:0
+ssh -t jo@debian "pkill x11vnc; DISPLAY=:0 x11vnc" &
+sleep 2
+vncviewer debian:0
