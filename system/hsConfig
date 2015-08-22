@@ -1,9 +1,5 @@
-#!/bin/sh
-
-function gendef {
-    echo "Generating default.nix"
-    cabal2nix ./. > default.nix
-}
+#! /usr/bin/env nix-shell
+#! nix-shell -p bash -p cabal2nix -i bash
 
 if [[ -e "default.nix" ]]
 then
@@ -11,7 +7,10 @@ then
     cat default.nix
     echo "END DEFAULT.NIX"
 fi
-gendef
+echo "Generating default.nix"
+DEF=$(cabal2nix ./.) || exit 1
+
+echo "$DEF" > default.nix
 
 if [[ -e "shell.nix" ]]
 then
@@ -19,7 +18,10 @@ then
     cat shell.nix
     echo "END SHELL.NIX"
 fi
-cabal2nix --shell . > shell.nix
+
+SHELL=$(cabal2nix --shell .) || exit 1
+
+echo "$SHELL" > shell.nix
 
 echo "Configuring package"
 nix-shell --run 'cabal configure --enable-tests --enable-coverage -v'
