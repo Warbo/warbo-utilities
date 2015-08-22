@@ -30,8 +30,4 @@ then
     echo "Try nm-applet for VPN support"
 fi
 
-if ! mount | grep Uni > /dev/null
-then
-    sudo mount.cifs //socwww.computing.dundee.ac.uk/christopherwarburton \
-         /home/chris/Uni --verbose -o credentials=/home/chris/cred,uid=chris
-fi
+uni

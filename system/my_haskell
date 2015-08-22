@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+# List the Haskell projects in ~/Programming/Haskell which I can edit
+
+skipDirs=(AI tip-tools Botworld IsaHipster AlgorithmsAndAI
+          hipspec LazySmallCheck2012 hbmc quickspec
+          lambdapi hip ghc structural-induction ebc
+          unification LC)
+
+function checkDir {
+    for PART in $(echo "$1" | sed 's@/@\n@g')
+    do
+        for SKIP in ${skipDirs[@]}
+        do
+            [[ "x$PART" = "x$SKIP" ]] && return 1
+        done
+    done
+    echo "$1"
+    return 0
+}
+
+function allDirs {
+    for DIR in ~/Programming/Haskell/*
+    do
+        [[ -d "$DIR" ]] && echo "$DIR"
+    done
+    find ~/Programming/Haskell -name "*.cabal" -exec dirname {} \;
+}
+
+while IFS= read -r POSSIBLE
+do
+    checkDir "$POSSIBLE"
+done < <(allDirs | sort -u)
