@@ -1,19 +1,50 @@
 #!/usr/bin/env bash
+DIR="$1"
+ABS=$(readlink -f "$1")
 
-DEP="$1"
-DIR=$(mktemp -d -t "try_removing_cabalXXXXX")
-
-ABS=$(readline -f "$1")
-cp -r "$ABS" "$DIR/"
-
-cd "$DIR"/*
-
-for CABAL in *.cabal
+CABAL=""
+for CABAL in "$ABS"/*.cabal
 do
     export CABAL
-    export DEP
-    remove_cabal_dep
 done
 
-cd ~
-rm -rf "$DIR"
+[[ -f "$CABAL" ]] ||
+    { echo "No cabal file in '$ABS'" >> /dev/stderr; exit 1; }
+
+CABAL=$(basename "$CABAL")
+
+TMPDIR=$(mktemp -d -t "try_removing_cabalXXXXX")
+
+while read -r DEP
+do
+    [[ -z "$DEP" ]] && continue # Skip empty lines
+    echo "Trying to remove '$DEP'"
+    export DEP
+
+    # Copy the project to a temp folder, for experimenting
+    rm -rf "$TMPDIR/project"
+    cp -r "$ABS" "$TMPDIR/project"
+    cd "$TMPDIR/project"
+
+    echo "In '$TMPDIR/project'"
+
+    # Remove $DEP from the .cabal file
+    WITHOUT=$(remove_cabal_dep < "$CABAL")
+    echo "$WITHOUT" > "$CABAL"
+
+    # See if we can build without this dependency
+    if ! hsConfig
+    then
+        echo "Could not hsConfig without '$DEP'" >> /dev/stderr
+        continue
+    fi
+    if cabal build
+    then
+        echo "$DEP doesn't appear to be needed"
+    fi
+
+    # Clean up
+    echo "REMOVING '$TMPDIR'"
+done < <(list_cabal_deps < "$ABS"/*.cabal)
+
+rm -rf "$TMPDIR"
