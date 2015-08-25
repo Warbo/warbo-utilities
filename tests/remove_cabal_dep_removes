@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "$0")
+ABS=$(readlink -f "$DIR")
+
+CABAL=$(cat <<'EOF'
+name:                Test
+version:             0.1.0.0
+synopsis:            Test for Cabal scripts
+-- description:
+license:             PublicDomain
+license-file:        LICENSE
+author:              Chris Warburton
+maintainer:          chriswarbo@gmail.com
+-- copyright:
+category:            Language
+build-type:          Simple
+cabal-version:       >=1.10
+
+executable Test
+  main-is:             Main.hs
+  -- other-modules:
+  -- other-extensions:
+  build-depends:       base >=4.8 && <4.9
+                     , ArbitraryHaskell
+                     , hashable
+                     , aeson
+                     , stringable
+                     , bytestring
+                     , haskell-src-exts
+                     , syb
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+
+test-suite test
+  default-language:    Haskell2010
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test, src
+  main-is:             Main.hs
+  build-depends:       base >=4.7
+                     , ArbitraryHaskell
+                     , MissingH
+                     , process
+                     , temporary
+                     , directory
+                     , hashable
+                     , aeson
+                     , stringable
+                     , bytestring
+                     , haskell-src-exts
+                     , syb
+                     , QuickCheck
+                     , quickspec
+                     , tasty >= 0.7
+                     , tasty-quickcheck
+EOF
+)
+
+ALL=$(echo "$CABAL" | "$ABS/../system/list_cabal_deps")
+
+ERR=0
+while read -r DEP
+do
+    export DEP
+    WITHOUT=$(echo "$CABAL"   | "$ABS/../system/remove_cabal_dep")
+    while read -r NEWDEP
+    do
+        if [[ "x$NEWDEP" = "x$DEP" ]]
+        then
+            echo "Didn't remove '$DEP'" >> /dev/stderr
+            ERR=1
+        fi
+    done < <(echo "$WITHOUT" | "$ABS/../system/list_cabal_deps")
+done < <(echo "$ALL")
+
+exit "$ERR"

@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+DEP="$1"
+DIR=$(mktemp -d -t "try_removing_cabalXXXXX")
+
+ABS=$(readline -f "$1")
+cp -r "$ABS" "$DIR/"
+
+cd "$DIR"/*
+
+for CABAL in *.cabal
+do
+    export CABAL
+    export DEP
+    remove_cabal_dep
+done
+
+cd ~
+rm -rf "$DIR"

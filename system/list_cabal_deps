@@ -1,0 +1,41 @@
+#!/usr/bin/env runhaskell
+{-# LANGUAGE FlexibleInstances #-}
+import Data.List
+import Data.Maybe
+import Distribution.Package
+import Distribution.PackageDescription
+import Distribution.PackageDescription.Parse
+import Distribution.PackageDescription.PrettyPrint
+import System.IO
+
+processPkg x = out
+  where pkg       = case parsePackageDescription x of
+                         ParseFailed err  -> error (show err)
+                         ParseOk _ result -> result
+        deps      = concat [process condLibrary,
+                            process condExecutables,
+                            process condTestSuites,
+                            process condBenchmarks]
+        process f = getDeps (f pkg)
+        out       = unlines (nub (map get deps))
+
+class HasDeps a where
+  getDeps :: a -> [Dependency]
+
+instance HasDeps (Maybe (CondTree a [Dependency] b)) where
+  getDeps Nothing  = []
+  getDeps (Just x) = applyToCs x
+
+instance HasDeps [(a, CondTree b [Dependency] c)] where
+  getDeps = concatMap (\(x, ct) -> applyToCs ct)
+
+applyToCs :: CondTree v [Dependency] a -> [Dependency]
+applyToCs ct = concat [condTreeConstraints ct,
+                       concatMap process (condTreeComponents ct)]
+  where process (a, b, mc) = concat [applyToCs b,
+                                     concatMap applyToCs (maybeToList mc)]
+
+get (Dependency n _) = unPackageName n
+
+main = do content <- getContents
+          putStrLn (processPkg content)
