@@ -26,7 +26,7 @@ then
                     sed 's/[ ]* / /g' |
                     cut -d ' ' -f 2)
 
-    nmcli c up "$WIFIID"
+    nmcli -a c up "$WIFIID"
     echo "Try nm-applet for VPN support"
 fi
 

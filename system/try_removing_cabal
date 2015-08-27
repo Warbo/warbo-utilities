@@ -10,7 +10,6 @@ done
 
 [[ -f "$CABAL" ]] ||
     { echo "No cabal file in '$ABS'" >> /dev/stderr; exit 1; }
-
 CABAL=$(basename "$CABAL")
 
 TMPDIR=$(mktemp -d -t "try_removing_cabalXXXXX")

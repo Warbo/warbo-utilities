@@ -1,1 +1,1 @@
-abduco -a default || abduco -c default sesh
+abduco -A default sesh

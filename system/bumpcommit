@@ -54,7 +54,7 @@ function trySha {
     then
         echo "$SHASUM"
     else
-        echo "Failed to get SHA of $1" > /dev/stderr
+        echo "Failed to get SHA of $1 (is the commit online?)" >> /dev/stderr
         exit 1
     fi
 }
@@ -106,10 +106,6 @@ case "$PWD" in
 
     "/home/chris/Programming/Haskell/HS2AST")
         bumpInTE "HS2AST"
-        ;;
-
-    "/home/chris/Programming/Haskell/ML4HSHelper")
-        bumpInTE "ML4HSHelper"
         ;;
 
     "/home/chris/System/Packages/haskell-te")
