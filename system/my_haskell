@@ -10,7 +10,7 @@ skipDirs=(AI tip-tools Botworld IsaHipster AlgorithmsAndAI
 function checkDir {
     for PART in $(echo "$1" | sed 's@/@\n@g')
     do
-        for SKIP in ${skipDirs[@]}
+        for SKIP in "${skipDirs[@]}"
         do
             [[ "x$PART" = "x$SKIP" ]] && return 1
         done
@@ -24,7 +24,10 @@ function allDirs {
     do
         [[ -d "$DIR" ]] && echo "$DIR"
     done
-    find ~/Programming/Haskell -name "*.cabal" -exec dirname {} \;
+    locate "/home/chris/Programming/Haskell/*.cabal" | while read -r LINE
+    do
+        dirname "$LINE"
+    done
 }
 
 while IFS= read -r POSSIBLE

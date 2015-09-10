@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 shopt -s nullglob
 
-ALL=$( ls -1 ~/.tests/scripts        | wc -l)
-PASS=$(ls -1 ~/.tests/results/pass   | wc -l)
-RUN=$( ls -1 ~/.tests/results/stdout | wc -l)
+ALL=$( find ~/.tests/scripts        -type f | wc -l)
+PASS=$(find ~/.tests/results/pass   -type f | wc -l)
+RUN=$( find ~/.tests/results/stdout -type f | wc -l)
 DIFF=$(( RUN - PASS ))
 
 EXTRA=""

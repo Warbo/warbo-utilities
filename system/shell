@@ -1,1 +1,2 @@
+#!/usr/bin/env bash
 abduco -A default sesh
