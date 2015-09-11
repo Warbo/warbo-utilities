@@ -5,7 +5,7 @@
 skipDirs=(AI tip-tools Botworld IsaHipster AlgorithmsAndAI
           hipspec LazySmallCheck2012 hbmc quickspec
           lambdapi hip ghc structural-induction ebc
-          unification LC)
+          unification LC test-data)
 
 function checkDir {
     for PART in $(echo "$1" | sed 's@/@\n@g')

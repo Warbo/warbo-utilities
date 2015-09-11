@@ -18,16 +18,3 @@ fi
 # Set up keyboard
 keys
 
-# Set up wifi
-if ! nmcli connection show --active | grep UoD > /dev/null
-then
-    WIFIID=$(nmcli c show      |
-                    grep UoD          |
-                    sed 's/[ ]* / /g' |
-                    cut -d ' ' -f 2)
-
-    nmcli -a c up "$WIFIID"
-    echo "Try nm-applet for VPN support"
-fi
-
-uni

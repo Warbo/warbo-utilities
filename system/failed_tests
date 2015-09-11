@@ -1,9 +1,18 @@
 #!/usr/bin/env bash
 shopt -s nullglob
 
-ALL=$( find ~/.tests/scripts        -type f | wc -l)
-PASS=$(find ~/.tests/results/pass   -type f | wc -l)
-RUN=$( find ~/.tests/results/stdout -type f | wc -l)
+PASS=0
+ ALL=0
+ RUN=0
+
+while read -r LINE
+do
+    NAME=$(basename "$LINE")
+    ALL=$(( ALL + 1 ))
+    [[ -e ~/.tests/results/pass/"$NAME"   ]] && PASS=$(( PASS + 1 ))
+    [[ -e ~/.tests/results/stdout/"$NAME" ]] &&  RUN=$(( RUN + 1 ))
+done < <(find ~/.tests/scripts -type f)
+
 DIFF=$(( RUN - PASS ))
 
 EXTRA=""
@@ -21,6 +30,6 @@ fi
 for TEST in ~/.tests/scripts/*
 do
     NAME=$(basename "$TEST")
-    [[ -e "/home/chris/.tests/results/stdout/$NAME" ]] || continue
-    [[ -e "/home/chris/.tests/results/pass/$NAME"   ]] || echo "$NAME"
+    [[ -e ~/.tests/results/stdout/"$NAME" ]] || continue
+    [[ -e ~/.tests/results/pass/"$NAME"   ]] || echo "$NAME"
 done
