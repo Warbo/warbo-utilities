@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# Regenerate HTML pages
+NAME=$(basename "$PWD" .git)
+HTML="/opt/html"
+mkdir -p "$HTML/$NAME"
+
+# Update HTML if it exists, but don't generate from scratch
+if [ -d "$HTML/$NAME" ]
+then
+    /opt/html/git2html/repository/git2html.sh    \
+        -p "$NAME"                               \
+        -r "$PWD"                                \
+        -l "http://chriswarbo.net/git/$NAME.git" \
+        "$HTML/$NAME"
+else
+    echo "No HTML for $NAME!"
+fi
+
+exec git update-server-info

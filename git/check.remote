@@ -1,0 +1,52 @@
+#!/bin/sh
+
+(cd /opt/repos
+ echo "Make sure each repo in /opt/repos is linked in /opt/git/"
+ for repo in *.git
+ do
+     name=$(basename "$repo")
+     if [ ! -h "/opt/git/$name" ]
+     then
+         (cd /opt/git
+          ln -s "/opt/repos/$name" "$name")
+     fi
+ done
+
+ echo "Make sure each repo has been initialised"
+ for repo in *.git
+ do
+     (cd "$repo"
+      git init --bare)
+ done
+
+ echo "Make sure each repo has its hooks in place"
+ for repo in *.git
+ do
+     name=$(basename "$repo")
+     (cd "$repo/hooks"
+      for hook in post-receive post-update
+      do
+          if [ ! -h "$hook" ]
+          then
+              # Use post-receive.hook for both
+              ln -s ../../post-receive.hook "$hook"
+          fi
+      done)
+ done
+
+ echo "Run the post-receive hook to ensure changes are served"
+ for repo in *.git
+ do
+     (cd "$repo"
+      echo "$PWD"
+      sh hooks/post-receive)
+ done)
+
+# Make sure HTML is served
+(cd /opt/html
+ for repo in *
+ do
+     test -h "/opt/git/$repo" || (cd /opt/git && ln -s "../html/$repo" "$repo")
+     test -f "$repo/repository/.git/config" &&
+         sed -i 's@/home/chris/Programming@/opt@' "$repo/repository/.git/config"
+ done)

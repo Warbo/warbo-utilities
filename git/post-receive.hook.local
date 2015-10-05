@@ -1,0 +1,16 @@
+#! /usr/bin/env nix-shell
+#! nix-shell -i bash -p git2html git bash
+
+# Fiddle environment to prevent problems
+unset $(git rev-parse --local-env-vars)
+
+# Push everything to chriswarbo.net and mirror to GitHub
+git push --all
+
+# Regenerate HTML pages
+NAME=$(basename "$PWD" .git)
+HTML="/home/chris/Programming/git-html"
+mkdir -p "$HTML/$NAME"
+
+nix-shell -p git2html --run \
+  "git2html -p '$NAME' -r '$PWD' -l 'http://chriswarbo.net/git/$NAME.git' '$HTML/$NAME'"

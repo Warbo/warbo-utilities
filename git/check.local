@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+# FIXME: Put in version control (eg. warbo-utilities)
+
+echo "Putting hooks in place"
+for repo in *.git
+do
+    if [ ! -h "$repo/hooks/post-receive" ]
+    then
+        (cd "$repo/hooks"
+         ln -s ../../post-receive.hook post-receive)
+    fi
+done
+
+echo "Checking connection to chriswarbo.net"
+if ssh -q chriswarbo.net exit
+then
+    echo "Copying repos to chriswarbo.net"
+    for repo in *.git
+    do
+        if ssh chriswarbo.net "test ! -d /opt/repos/$repo"
+        then
+            echo "Can't find $repo on remote server, copying..."
+            tar c "$repo" | gzip - | ssh chriswarbo.net "cd /opt/repos; tar xz"
+        fi
+    done
+fi
+
+echo "Running hooks"
+for repo in *.git
+do
+    (cd "$repo"
+     chmod +x hooks/post-receive
+     sh hooks/post-receive)
+done
+
+echo "Copying HTML to remote"
+if ssh -q chriswarbo.net exit
+then
+    for repo in *.git
+    do
+        NAME=$(basename "$repo" .git)
+        if [ -d "../git-html/$NAME" ]
+        then
+            if ssh chriswarbo.net "test ! -d /opt/html/$NAME"
+            then
+                echo "Can't find $NAME on remote server, copying..."
+                (cd ../git-html
+                 tar c "$NAME" | gzip - | ssh chriswarbo.net "cd /opt/html; tar xz")
+            fi
+        fi
+    done
+fi
+
+echo "Running checks on remote"
+ssh chriswarbo.net 'cd /opt/repos; sh check.sh'
