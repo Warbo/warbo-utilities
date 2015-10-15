@@ -1,0 +1,23 @@
+#! /usr/bin/env nix-shell
+#! nix-shell -i python -p python pythonPackages.pyPdf
+
+# Script taken from http://blog.isnotworking.com/2006/08/extract-pdf-title-from-all-files-on.html
+
+from pyPdf import PdfFileWriter, PdfFileReader
+import os
+import fileinput
+
+for line in fileinput.input():
+    fileName = line.strip() # Remove \n
+    try:
+        if fileName.lower()[-3:] != "pdf": continue
+        input1 = PdfFileReader(file(fileName, "rb"))
+
+        ttl = input1.getDocumentInfo().title
+
+        if ttl is None: continue
+
+        # print the title of input1.pdf
+        print '##1', fileName, '##2', ttl
+    except:
+        continue
