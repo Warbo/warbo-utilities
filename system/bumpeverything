@@ -8,9 +8,12 @@ function bumpIn {
 
 bumpIn "/home/chris/Programming/Haskell/TreeFeatures"
 bumpIn "/home/chris/Programming/Haskell/HS2AST"
-bumpIn "/home/chris/Programming/Haskell/ML4HS"
+bumpIn "/home/chris/Programming/ML4HS"
 bumpIn "/home/chris/Programming/Haskell/MLSpec"
 bumpIn "/home/chris/Programming/Haskell/ArbitraryHaskell"
 bumpIn "/home/chris/Programming/Haskell/AstPlugin"
+bumpIn "/home/chris/Programming/Haskell/ML4HSFE"
+bumpIn "/home/chris/Programming/Haskell/nix-eval"
+bumpIn "/home/chris/Programming/Haskell/mlspec-helper"
 bumpIn "/home/chris/System/Packages/haskell-te"
 bumpIn "/home/chris/warbo-utilities"

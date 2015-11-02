@@ -78,26 +78,10 @@ function prefixLinks {
 }
 
 function getLinks {
-    while read -r URL
+    while read -r URL2
     do
-        get "$URL"
-    done < <(echo "$LINKS")
+        get "$URL2"
+    done
 }
 
-CURL=$(runCurl)
-[[ -n "$DUMPCURL" ]] && echo "$CURL"
-
-[[ -n "$NORESULTS" ]] && exit
-RESULTS=$(echo "$CURL" | allResults)
-[[ -n "$DUMPRESULTS" ]] && echo "$RESULTS"
-
-[[ -n "$NOLINKS" ]] && exit
-LINKS=$(echo "$RESULTS" | removeAds)
-[[ -n "$DUMPLINKS" ]] && echo "$LINKS"
-
-[[ -n "$NOABS" ]] && exit
-ABSLINKS=$(echo "$LINKS" | prefixLinks)
-[[ -n "$DUMPABS" ]] && echo "$ABS"
-
-[[ -n "$NOURLS" ]] && exit
-echo "$ABSLINKS" | getLinks
+runCurl | allResults | removeAds | prefixLinks | getLinks

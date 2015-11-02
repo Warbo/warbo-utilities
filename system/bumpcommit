@@ -28,16 +28,16 @@ function firstAfter {
 }
 
 function replaceSetting {
-    echo "\"$3\"" > "$TOALTER/$1.$2.nix"
+    echo "\"$3\"" > "$TOALTER/$1.$2"
 }
 
 function tryTest {
     if [[ "x$1" == "xhaskell-te" ]]
     then
-        nix-shell -p HS2AST --run "true" 2>& 1
+        nix-shell --show-trace -p HS2AST --run "true" 2>& 1
     elif [[ "x$1" == "xwarbo-utilities-src" ]]
     then
-        nix-shell -p warbo-utilities --run "true" 2>& 1
+        nix-shell --show-trace -p warbo-utilities --run "true" 2>& 1
     else
         (cd "$TEDIR"; ./one.sh "$1" 2>& 1)
     fi
@@ -68,7 +68,7 @@ function bump {
 }
 
 function bumpInTE {
-    TOALTER="/home/chris/System/Packages/haskell-te"
+    TOALTER="/home/chris/System/Packages/haskell-te/components"
     bump "$1"
 }
 
@@ -88,7 +88,7 @@ case "$PWD" in
         bumpInTE "mlspec"
         ;;
 
-    "/home/chris/Programming/Haskell/ML4HS")
+    "/home/chris/Programming/ML4HS")
         bumpInTE "ml4hs"
         ;;
 
@@ -106,6 +106,18 @@ case "$PWD" in
 
     "/home/chris/Programming/Haskell/HS2AST")
         bumpInTE "HS2AST"
+        ;;
+
+    "/home/chris/Programming/Haskell/ML4HSFE")
+        bumpInTE "ML4HSFE"
+        ;;
+
+    "/home/chris/Programming/Haskell/nix-eval")
+        bumpInTE "nix-eval"
+        ;;
+
+    "/home/chris/Programming/Haskell/mlspec-helper")
+        bumpInTE "mlspec-helper"
         ;;
 
     "/home/chris/System/Packages/haskell-te")

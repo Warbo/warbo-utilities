@@ -1,6 +1,4 @@
-#! /usr/bin/env nix-shell
-#! nix-shell -i python -p python pythonPackages.lxml
-
+#!/usr/bin/env python
 """Print an unread email count. Takes credentials from ~/.authinfo"""
 
 import os

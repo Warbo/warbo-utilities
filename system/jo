@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
-ssh -t jo@debian "pkill x11vnc; DISPLAY=:0 x11vnc" &
-sleep 5
-vncviewer debian:0
+CMD="x2x -west -to :0"
+
+if ssh jo@debian true 1> /dev/null 2> /dev/null
+then
+    echo "Found debian, starting x2x"
+    ssh -X jo@debian "$CMD"
+else
+    echo "Couldn't connect to debian, trying via raspberrypi"
+    ssh -L20000:jo@debian:22 pi@raspberrypi
+    ssh -p 20000 -X localhost "$CMD"
+fi

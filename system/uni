@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
 SERVER="socwww.computing.dundee.ac.uk"
 DIR="Uni"
-if ! ping "$SERVER" -c 1
+if [[ -z "$1" ]]
 then
-    echo "Not mounting $DIR, as can't ping $SERVER"
-    exit 1
+    if ! ping "$SERVER" -c 1
+    then
+        echo "Not mounting $DIR, as can't ping $SERVER"
+        exit 1
+    fi
+    if mount | grep "$DIR" > /dev/null
+    then
+        echo "Not mounting $DIR, as it's in mtab"
+        exit 0
+    fi
 fi
 
-if ! mount | grep "$DIR" > /dev/null
-then
-    sudo mount.cifs "//$SERVER/christopherwarburton" \
-         "/home/chris/$DIR" --verbose -o credentials=/home/chris/cred,uid=chris
-fi
+sudo mount.cifs "//$SERVER/christopherwarburton" \
+     "/home/chris/$DIR" --verbose -o credentials=/home/chris/cred,uid=chris

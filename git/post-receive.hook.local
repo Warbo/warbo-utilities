@@ -5,7 +5,14 @@
 unset $(git rev-parse --local-env-vars)
 
 # Push everything to chriswarbo.net and mirror to GitHub
-git push --all
+git remote | while read -r REMOTE
+do
+  git branch | cut -c 3- | while read -r BRANCH
+  do
+    echo "Pushing '$BRANCH' to '$REMOTE'"
+    git push "$REMOTE" "$BRANCH"
+  done
+done
 
 # Regenerate HTML pages
 NAME=$(basename "$PWD" .git)

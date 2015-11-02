@@ -1,3 +1,8 @@
 #!/usr/bin/env bash
 
-ssh jo@debian -t "./vol"
+if ssh jo@debian true
+then
+    ssh jo@debian -t "./vol"
+else
+    ssh pi@raspberrypi -t 'ssh -t jo@debian "./vol"'
+fi

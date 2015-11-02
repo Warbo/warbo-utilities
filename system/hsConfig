@@ -1,29 +1,33 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -p bash -p cabal2nix -i bash
+#! nix-shell -i bash -p bash cabal2nix
 
 if [[ -e "default.nix" ]]
 then
     echo "START DEFAULT.NIX"
     cat default.nix
     echo "END DEFAULT.NIX"
+    echo "Generating default.nix"
+    DEF=$(cabal2nix ./.) ||
+        { echo "Error: $DEF" >> /dev/stderr; exit 1; }
+    echo "$DEF" > default.nix
 fi
-echo "Generating default.nix"
-DEF=$(cabal2nix ./.) ||
-    { echo "Error: $DEF" >> /dev/stderr; exit 1; }
 
-echo "$DEF" > default.nix
+CMD="cabal configure --enable-tests --enable-coverage -v"
+
+SHELL=$(cabal2nix --shell ./.) ||
+    { echo "Shell error: $SHELL" >> /dev/stderr; exit 1; }
 
 if [[ -e "shell.nix" ]]
 then
     echo "START SHELL.NIX"
     cat shell.nix
     echo "END SHELL.NIX"
+    echo "$SHELL" > shell.nix
+    echo "Configuring package"
+    nix-shell --run "$CMD"
+else
+    F=$(mktemp "hsConfigXXXXXX.nix")
+    echo "$SHELL" > "$F"
+    nix-shell --run "$CMD" "$F"
+    rm "$F"
 fi
-
-SHELL=$(cabal2nix --shell .) ||
-    { echo "Shell error: $SHELL" >> /dev/stderr; exit 1; }
-
-echo "$SHELL" > shell.nix
-
-echo "Configuring package"
-nix-shell --run 'cabal configure --enable-tests --enable-coverage -v'
