@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-if [ ! -e shell.drv ]; then
-  nix-instantiate --indirect --add-root "$PWD"/shell.drv
-fi
-printf 'nix-shell "%s/shell.drv" --pure --run "%s"' "$PWD" "$@" | sh;
