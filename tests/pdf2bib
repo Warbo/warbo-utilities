@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "$0")
+CMD="$DIR/../docs/pdf2bib"
+
+"$CMD" && {
+    echo "'$CMD' didn't complain about having no argument" >> /dev/stderr
+    exit 1
+}
+
+DOC="~/Documents/ArchivedPapers/quickspec.pdf"
+TTL="QuickSpec: Guessing Formal Speciﬁcations using Testing"
+
+OUT=$("$CMD" "$DOC") || {
+    echo "'$CMD' failed for '$DOC'" >> /dev/stderr
+    exit 1
+}
+
+{ echo "$OUT" | grep "FOUND TITLE"; } || {
+    echo "Didn't find title in '$OUT'"
+    exit 1
+}
+
+{ echo "$OUT" | grep "FOUND TITLE" | grep -- "$TTL"; } || {
+    echo "Didn't find title '$TTL' in '$OUT'"
+    exit 1
+}
+
+{ echo "$OUT" | grep "FOUND BIBTEX"; } || {
+    echo "Didn't find BibTeX '$OUT'"
+    exit 1
+}
+
+echo "$OUT"
+
+exit 0

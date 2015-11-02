@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+{ command -v headings.py && command -v scholar.py; } || {
+    nix-shell -p pdfssa4met -p scholar --run "'$0' '$1'"
+    exit "$?"
+}
+
+[[ -n "$1" ]] || {
+    echo "Please provide a PDF file" >> /dev/stderr
+    exit 1
+}
+
+TTL=$(headings.py --noxml --title "$1") || {
+    echo "Error extracting title from '$1' ('$TTL')" >> /dev/stderr
+    exit 1
+}
+
+TRANS=$(echo "$TTL" | iconv -f utf-8 -t ascii//translit)
+
+echo "FOUND TITLE: Original '$TTL', ASCII '$TRANS'"
+
+scholar.py -t -c 1 --citation=bt -s $TRANS
