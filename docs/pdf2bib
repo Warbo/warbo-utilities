@@ -19,4 +19,4 @@ TRANS=$(echo "$TTL" | iconv -f utf-8 -t ascii//translit)
 
 echo "FOUND TITLE: Original '$TTL', ASCII '$TRANS'"
 
-scholar.py -t -c 1 --citation=bt -s $TRANS
+scholar.py -t -c 1 --citation=bt -s "$TRANS"

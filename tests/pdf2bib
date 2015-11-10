@@ -8,7 +8,7 @@ CMD="$DIR/../docs/pdf2bib"
     exit 1
 }
 
-DOC="~/Documents/ArchivedPapers/quickspec.pdf"
+DOC="$HOME/Documents/ArchivedPapers/quickspec.pdf"
 TTL="QuickSpec: Guessing Formal Speciﬁcations using Testing"
 
 OUT=$("$CMD" "$DOC") || {

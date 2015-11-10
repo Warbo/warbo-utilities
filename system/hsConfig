@@ -1,33 +1,58 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i bash -p bash cabal2nix
 
-if [[ -e "default.nix" ]]
+function genDefault {
+    DEF=$(cabal2nix ./.) || {
+        echo "Error: $DEF" >> /dev/stderr
+        exit 1
+    }
+    echo "$DEF"
+}
+
+function genShell {
+    SHELL=$(cabal2nix --shell ./.) || {
+        echo "Shell error: $SHELL" >> /dev/stderr
+        exit 1
+    }
+    echo "$SHELL"
+}
+
+function writeFile {
+    # Only write to existing files; dump any old content to stdout first
+    if [[ -e "$1" ]]
+    then
+        echo "START $1"
+        cat "$1"
+        echo "END $1"
+        echo "Generating $1"
+        cat > "$1"
+    fi
+}
+
+function haveTests {
+    grep "^test-suite" < *.cabal > /dev/null
+}
+
+# Update any existing files
+genDefault | writeFile "default.nix"
+genShell   | writeFile "shell.nix"
+
+# Coverage can cause instability, so only use it when there are tests
+if haveTests
 then
-    echo "START DEFAULT.NIX"
-    cat default.nix
-    echo "END DEFAULT.NIX"
-    echo "Generating default.nix"
-    DEF=$(cabal2nix ./.) ||
-        { echo "Error: $DEF" >> /dev/stderr; exit 1; }
-    echo "$DEF" > default.nix
+    CMD="cabal configure --enable-tests --enable-coverage -v"
+else
+    CMD="cabal configure -v"
 fi
 
-CMD="cabal configure --enable-tests --enable-coverage -v"
-
-SHELL=$(cabal2nix --shell ./.) ||
-    { echo "Shell error: $SHELL" >> /dev/stderr; exit 1; }
-
+# If we don't have shell.nix, make a temporary alternative
 if [[ -e "shell.nix" ]]
 then
-    echo "START SHELL.NIX"
-    cat shell.nix
-    echo "END SHELL.NIX"
-    echo "$SHELL" > shell.nix
     echo "Configuring package"
     nix-shell --run "$CMD"
 else
     F=$(mktemp "hsConfigXXXXXX.nix")
-    echo "$SHELL" > "$F"
+    genShell > "$F"
     nix-shell --run "$CMD" "$F"
     rm "$F"
 fi
