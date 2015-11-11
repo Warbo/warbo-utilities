@@ -1,0 +1,78 @@
+#!/usr/bin/env python
+"""Dereferences each URL in 'feeds' and pulls out RSS
+items. It compares these with the lines in ~/news and
+appends any new ones to that file. Useful with cron."""
+
+# Put RSS here
+feeds = [
+    "http://identi.ca/api/statuses/friends_timeline/warbo.rss"
+]
+
+import lxml.etree as e
+import string
+import urllib2 as u
+from email.utils import mktime_tz, parsedate_tz
+from inspect import getargspec
+from subprocess import call
+from time import asctime, gmtime, mktime
+
+# Helper functions
+
+# Silly Python doesn't even curry its functions! Let's fix that
+def c(f):
+    # Look up f's arguments
+    (args, varargs, keywords, defaults) = getargspec(f)
+    def
+
+# I can't live without function composition ;)
+c = lambda f: (lambda g: (lambda x: f(g(x))))
+
+# Render a post
+render = lambda s: s.strip() + '\n'
+
+# Lookup particular element text from some XML
+txt = lambda xml, el: xml.xpath('//' + el + '/text()')[0]
+
+# Strip non-printable characters from a string
+sanitise = lambda s: filter(lambda c: c in string.printable, s)
+
+# Here's how to open a URL as...
+a_file = u.urlopen
+a_list_of_lines = c(lambda f: f.readlines(), a_file)
+a_string = c(lambda ls: ''.join(ls), a_list_of_lines)
+a_sanitised_string = c(sanitise, a_string)
+xml = c(e.fromstring, a_sanitised_string)
+item_list = c(lambda xml: xml.xpath('//item'), xml)
+dated_items = c(lambda i: (txt(i, 'pubDate'), txt(i, 'title')), item_list)
+
+# Strip out unprintable, non-ascii characters and reverse
+# (we could do some kind of fancy sort-by-date, but meh)
+swap = lambda (x, y): (y, x)
+items = [filter(allowed, i) for i in items][::-1]
+items = filter(lambda x: len(x.strip()) > 0, items)
+
+# Read the known content
+existing = []
+with open('/home/chris/news', 'r') as f:
+    existing = [pad(l) for l in f.readlines()]
+existing = filter(lambda x: len(x.strip()) > 0, existing)
+
+# Truncate to a semi-reasonable number
+while len(existing) > 1000:
+    existing.pop(0)
+
+# Append new entries
+new = [pad(s) for s in items if pad(s) not in existing]
+all = existing + new
+
+# Sort by pubDate
+pubdate2epoch = lambda pd: mktime(gmtime(mktime_tz(parsedate_tz(pd))))
+
+# Notify
+if len(new) > 0:
+    print str(new)
+    call(['aplay', '/usr/share/sounds/purple/receive.wav'])
+
+# Write the new entries
+with open('/home/chris/news', 'w') as f:
+    f.writelines(all)

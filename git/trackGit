@@ -1,0 +1,32 @@
+#!/bin/sh
+
+REPOS="/home/chris/Programming/repos"
+
+if ! ROOT=$(git rev-parse --show-toplevel)
+then
+    echo "You must be in a git repo to run trackGit"
+    exit 1
+fi
+
+echo "Enter project name (.git will be appended automatically)"
+read name
+if [ ! -d "$REPOS/$name.git" ]
+then
+    (cd "$REPOS"
+     echo "Cloning $ROOT to $REPOS/$name.git"
+     git clone --bare "$ROOT" "$name.git")
+fi
+
+echo "Pointing $name.git to chriswarbo.net"
+(cd "$REPOS/$name.git"
+ git remote rm  origin
+ git remote add origin "chris@chriswarbo.net:/opt/repos/$name.git")
+
+echo "Adding $REPOS/$name.git as a remote"
+(cd "$ROOT"
+ git remote rm  origin
+ git remote add origin "$REPOS/$name.git")
+
+echo "Propagating changes"
+(cd "$REPOS"
+ sh check.sh)

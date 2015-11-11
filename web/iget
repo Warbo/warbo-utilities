@@ -1,0 +1,2 @@
+#!/bin/sh
+get_iplayer --no-purge --raw "$@"

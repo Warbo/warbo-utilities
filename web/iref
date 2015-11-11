@@ -1,0 +1,5 @@
+#!/bin/sh
+cd /home/chris/Downloads
+get_iplayer --no-purge --refresh > LIST
+cat LIST
+

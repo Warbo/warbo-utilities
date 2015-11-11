@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+
+from subprocess import call
+import os
+from sys import argv, stdout, exit
+
+usage = lambda _: (sys.stdout.write("""
+Recurse through directories taking the checksums and looking for
+duplicates.
+
+Usage: dupes.py command [options]
+
+Where command is one of:
+  scan  - Find the md5sums of files
+  purge - Go through known duplicates and interactively delete them
+  help  - Show this message (actually, any invalid invocation will show this)
+
+Options are:
+  -f db_file - Use db_file to store checksums
+  -d dir     - Work in the dir directory, rather than the current directory
+"""), sys.exit())
+
+args = map(lambda (arg, dflt, msg):
+    arg in argv and len(argv) > argv.index(arg) + 1,
+        (
+            ('-f', 'dupes.db', 'Using default DB file'),
+            ('-d', '.',        'Using current directory')
+        )
+    )
+    return (db, cwd)
+
+def scan():
+    """Add to the database."""
+
+
+commands = {
+    'scan' :
+    'purge':
+    'help' : usage
+}
+
+command = None
+if len(sys.argv) > 1 and sys.argv[1] in commands:
+    command = sys.argv[1]
+else:
+    command = 'help'
+commands[command]()
+
+find "$@" -type f -print0 | xargs -0 -n1 md5sum | sort --key=1,32 | uniq -w 32 -d --all-repeated=separate | sed -r 's/^[0-9a-f]*( )*//;s/([^a-zA-Z0-9./_-])/\\\1/g;s/(.+)/#rm \1/' >> $OUTF;
+chmod a+x $OUTF
