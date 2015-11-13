@@ -30,7 +30,7 @@ function writeFile {
 }
 
 function haveTests {
-    grep "^test-suite" < *.cabal > /dev/null
+    tr '[:upper:]' '[:lower:]' < *.cabal | grep "^\s*test-suite" > /dev/null
 }
 
 # Update any existing files
