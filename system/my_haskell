@@ -2,9 +2,9 @@
 
 # List the Haskell projects in ~/Programming/Haskell which I can edit
 
-skipDirs=(AI tip-tools Botworld IsaHipster AlgorithmsAndAI
+skipDirs=(tip-tools IsaHipster
           hipspec LazySmallCheck2012 hbmc quickspec
-          lambdapi hip ghc structural-induction ebc
+          hip ghc structural-induction ebc
           unification LC test-data)
 
 function checkDir {
@@ -24,7 +24,7 @@ function allDirs {
     do
         [[ -d "$DIR" ]] && echo "$DIR"
     done
-    locate "/home/chris/Programming/Haskell/*.cabal" | while read -r LINE
+    locate -e "/home/chris/Programming/Haskell/*.cabal" | while read -r LINE
     do
         dirname "$LINE"
     done

@@ -11,8 +11,8 @@ function skip {
 }
 
 function all {
-    locate shell.nix
-    locate default.nix
+    locate -e shell.nix
+    locate -e default.nix
 }
 
 ERR=0
