@@ -10,7 +10,7 @@ do
     NAME=$(basename "$LINE")
     ALL=$(( ALL + 1 ))
     [[ -e ~/.tests/results/pass/"$NAME"   ]] && PASS=$(( PASS + 1 ))
-    [[ -e ~/.tests/results/stdout/"$NAME" ]] &&  RUN=$(( RUN + 1 ))
+    [[ -e ~/.tests/results/stdout/"$NAME" ]] &&  RUN=$(( RUN  + 1 ))
 done
 
 DIFF=$(( RUN - PASS ))
@@ -18,15 +18,34 @@ DIFF=$(( RUN - PASS ))
 EXTRA=""
 [[ "$ALL" -eq "$RUN" ]] || EXTRA=" so far"
 
-if [[ "$DIFF" -gt 0 ]]
-then
-    echo "<fc=#FF0000>${PASS}/${RUN} passed${EXTRA}</fc>"
-else
-    echo "<fc=#00FF00>${PASS}/${RUN} passed${EXTRA}</fc>"
-fi
+HEX="#00FF00"
+[[ "$DIFF" -gt 0 ]] && HEX="#FF0000"
+
+echo "<fc=${HEX}>${PASS}/${RUN} passed${EXTRA}</fc>"
 
 [[ "x$1" = "xshow" ]] || exit 0
 
+echo "PASS: $PASS"
+echo "RUN: $RUN"
+echo "ALL: $ALL"
+
+echo "Passed:"
+for TEST in ~/.tests/scripts/*
+do
+    NAME=$(basename "$TEST")
+    [[ -e ~/.tests/results/pass/"$NAME" ]] && echo "$NAME"
+done
+echo ""
+
+echo "Not run:"
+for TEST in ~/.tests/scripts/*
+do
+    NAME=$(basename "$TEST")
+    [[ -e ~/.tests/results/stdout/"$NAME" ]] || echo "$NAME"
+done
+echo ""
+
+echo "Failures:"
 for TEST in ~/.tests/scripts/*
 do
     NAME=$(basename "$TEST")

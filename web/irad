@@ -1,3 +1,2 @@
 #!/bin/sh
-get_iplayer --url="$@" --type=radio
-
+get_iplayer --url="$*" --type=radio

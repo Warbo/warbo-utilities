@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-# FIXME: Put in version control (eg. warbo-utilities)
-
 echo "Putting hooks in place"
 for repo in *.git
 do

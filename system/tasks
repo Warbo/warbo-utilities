@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+grep --exclude-dir=.git -rEI "TODO|FIXME" . 2>/dev/null

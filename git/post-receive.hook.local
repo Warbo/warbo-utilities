@@ -2,6 +2,7 @@
 #! nix-shell -i bash -p git2html git bash
 
 # Fiddle environment to prevent problems
+# shellcheck disable=SC2046
 unset $(git rev-parse --local-env-vars)
 
 # Push everything to chriswarbo.net and mirror to GitHub
