@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i bash -p bash git2html
+#! nix-shell -i bash -p bash git2html parallel
 
 echo "Putting hooks in place"
 for repo in *.git
@@ -18,7 +18,7 @@ then
     REMOTE=$(ssh chriswarbo.net "ls /opt/repos/")
     for repo in *.git
     do
-        if ! echo "$REMOTE" | grep "^$repo$"
+        if ! echo "$REMOTE" | grep "^$repo$" > /dev/null
         then
             echo "Can't find $repo on remote server, copying..."
             tar c "$repo" | gzip - | ssh chriswarbo.net "cd /opt/repos; tar xz"
@@ -26,15 +26,23 @@ then
     done
 fi
 
+# Since these hooks will try pushing changes to remote repos, even if there are
+# no changes it can still take a long time to wait for all of the connections to
+# be established.
+# By running in parallel, these waiting times can be overlapped, resulting in
+# less idle time.
+# However, we don't want to abuse remote services by attempting hundreds of
+# simultaneous connections, so rather than forking with `&` we use `sem` from
+# GNU parallel to prevent more than 8 tasks from running at once.
 echo "Running hooks"
 for repo in *.git
 do
-    pushd "$repo"
+    pushd "$repo" > /dev/null
     chmod +x hooks/post-receive
-    sh hooks/post-receive &
-    popd
+    sem --will-cite -j 8 sh hooks/post-receive
+    popd > /dev/null
 done
-wait
+sem --will-cite --wait
 
 echo "Copying HTML to remote"
 if ssh -q chriswarbo.net exit
@@ -45,7 +53,7 @@ then
         NAME=$(basename "$repo" .git)
         if [ -d "../git-html/$NAME" ]
         then
-            if ! echo "$REMOTE" | grep "^$repo$"
+            if ! echo "$REMOTE" | grep "^$NAME$" > /dev/null
             then
                 echo "Can't find $NAME on remote server, copying..."
                 (cd ../git-html
