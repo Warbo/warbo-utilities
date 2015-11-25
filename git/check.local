@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#! /usr/bin/env nix-shell
+#! nix-shell -i bash -p bash git2html
 
 echo "Putting hooks in place"
 for repo in *.git
@@ -14,9 +15,10 @@ echo "Checking connection to chriswarbo.net"
 if ssh -q chriswarbo.net exit
 then
     echo "Copying repos to chriswarbo.net"
+    REMOTE=$(ssh chriswarbo.net "ls /opt/repos/")
     for repo in *.git
     do
-        if ssh chriswarbo.net "test ! -d /opt/repos/$repo"
+        if ! echo "$REMOTE" | grep "^$repo$"
         then
             echo "Can't find $repo on remote server, copying..."
             tar c "$repo" | gzip - | ssh chriswarbo.net "cd /opt/repos; tar xz"
@@ -27,20 +29,23 @@ fi
 echo "Running hooks"
 for repo in *.git
 do
-    (cd "$repo"
-     chmod +x hooks/post-receive
-     sh hooks/post-receive)
+    pushd "$repo"
+    chmod +x hooks/post-receive
+    sh hooks/post-receive &
+    popd
 done
+wait
 
 echo "Copying HTML to remote"
 if ssh -q chriswarbo.net exit
 then
+    REMOTE=$(ssh chriswarbo.net "ls /opt/html/")
     for repo in *.git
     do
         NAME=$(basename "$repo" .git)
         if [ -d "../git-html/$NAME" ]
         then
-            if ssh chriswarbo.net "test ! -d /opt/html/$NAME"
+            if ! echo "$REMOTE" | grep "^$repo$"
             then
                 echo "Can't find $NAME on remote server, copying..."
                 (cd ../git-html
