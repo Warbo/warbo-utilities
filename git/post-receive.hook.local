@@ -20,5 +20,4 @@ NAME=$(basename "$PWD" .git)
 HTML="/home/chris/Programming/git-html"
 mkdir -p "$HTML/$NAME"
 
-nix-shell -p git2html --run \
-  "git2html -p '$NAME' -r '$PWD' -l 'http://chriswarbo.net/git/$NAME.git' '$HTML/$NAME'"
+git2html -p '$NAME' -r '$PWD' -l 'http://chriswarbo.net/git/$NAME.git' '$HTML/$NAME'
