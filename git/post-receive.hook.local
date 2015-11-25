@@ -5,9 +5,13 @@
 # shellcheck disable=SC2046
 unset $(git rev-parse --local-env-vars)
 
-# Push everything to chriswarbo.net and mirror to GitHub
+# Push everything to chriswarbo.net
+git push origin
+
+# Mirror elsewhere, e.g. GitHub
 git remote | while read -r REMOTE
 do
+  [[ "x$REMOTE" = "xorigin" ]] && continue
   git branch | cut -c 3- | while read -r BRANCH
   do
     echo "Pushing '$BRANCH' to '$REMOTE'"

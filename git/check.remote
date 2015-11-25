@@ -19,6 +19,17 @@
       git init --bare)
  done
 
+ echo "Make sure our repos are not mirrors"
+ for repo in *.git
+ do
+     (cd "$repo"
+      while read -r REMOTE
+      do
+          echo "Removing '$repo' remote '$REMOTE'" >> /dev/stderr
+          git remote rm "$REMOTE"
+      done < <(git remote))
+ done
+
  echo "Make sure each repo has its hooks in place"
  for repo in *.git
  do

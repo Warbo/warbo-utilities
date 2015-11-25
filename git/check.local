@@ -26,6 +26,28 @@ then
     done
 fi
 
+echo "Making sure local repos mirror origins"
+for repo in *.git
+do
+    pushd "$repo" > /dev/null
+    FORCE=0
+    FETCH=$(git config --get remote.origin.fetch) || FORCE=1
+    [[ "x$FETCH" = "x+refs/*:refs/*" ]]           || FORCE=1
+    [[ "$FORCE" -eq 0 ]] || {
+        echo "Forcing '$repo' to fetch everything from origin" >> /dev/stderr
+        git config remote.origin.fetch "+refs/*:refs/*"
+    }
+
+    FORCE=0
+    MIRROR=$(git config --get remote.origin.mirror) || FORCE=1
+    [[ "x$FETCH" = "xtrue" ]]                       || FORCE=1
+    [[ "$FORCE" -eq 0 ]] || {
+        echo "Forcing '$repo' to be a mirror" >> /dev/stderr
+        git config remote.origin.mirror true
+    }
+    popd > /dev/null
+done
+
 # Since these hooks will try pushing changes to remote repos, even if there are
 # no changes it can still take a long time to wait for all of the connections to
 # be established.
@@ -34,7 +56,7 @@ fi
 # However, we don't want to abuse remote services by attempting hundreds of
 # simultaneous connections, so rather than forking with `&` we use `sem` from
 # GNU parallel to prevent more than 8 tasks from running at once.
-echo "Running hooks"
+echo "Running hooks in parallel"
 for repo in *.git
 do
     pushd "$repo" > /dev/null

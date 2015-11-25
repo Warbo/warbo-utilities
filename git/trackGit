@@ -10,6 +10,7 @@ fi
 
 echo "Enter project name (.git will be appended automatically)"
 read name
+
 if [ ! -d "$REPOS/$name.git" ]
 then
     (cd "$REPOS"
@@ -20,7 +21,8 @@ fi
 echo "Pointing $name.git to chriswarbo.net"
 (cd "$REPOS/$name.git"
  git remote rm  origin
- git remote add origin "chris@chriswarbo.net:/opt/repos/$name.git")
+ git remote add origin "chris@chriswarbo.net:/opt/repos/$name.git"
+ )
 
 echo "Adding $REPOS/$name.git as a remote"
 (cd "$ROOT"
