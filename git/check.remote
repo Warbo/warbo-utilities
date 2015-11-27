@@ -22,12 +22,13 @@
  echo "Make sure our repos are not mirrors"
  for repo in *.git
  do
-     (cd "$repo"
-      while read -r REMOTE
-      do
-          echo "Removing '$repo' remote '$REMOTE'" >> /dev/stderr
-          git remote rm "$REMOTE"
-      done < <(git remote))
+     pushd "$repo" > /dev/null
+     git remote | while read -r REMOTE
+     do
+         echo "Removing '$repo' remote '$REMOTE'" >> /dev/stderr
+         git remote rm "$REMOTE"
+     done
+     popd > /dev/null
  done
 
  echo "Make sure each repo has its hooks in place"

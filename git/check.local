@@ -26,24 +26,17 @@ then
     done
 fi
 
-echo "Making sure local repos mirror origins"
 for repo in *.git
 do
     pushd "$repo" > /dev/null
-    FORCE=0
-    FETCH=$(git config --get remote.origin.fetch) || FORCE=1
-    [[ "x$FETCH" = "x+refs/*:refs/*" ]]           || FORCE=1
-    [[ "$FORCE" -eq 0 ]] || {
-        echo "Forcing '$repo' to fetch everything from origin" >> /dev/stderr
-        git config remote.origin.fetch "+refs/*:refs/*"
+    git config --get remote.origin.fetch && {
+        echo "Removing fetch refs from '$repo'" >> /dev/stderr
+        git config --unset remote.origin.fetch
     }
 
-    FORCE=0
-    MIRROR=$(git config --get remote.origin.mirror) || FORCE=1
-    [[ "x$FETCH" = "xtrue" ]]                       || FORCE=1
-    [[ "$FORCE" -eq 0 ]] || {
-        echo "Forcing '$repo' to be a mirror" >> /dev/stderr
-        git config remote.origin.mirror true
+    git config --get remote.origin.mirror && {
+        echo "Removing mirror status of '$repo'" >> /dev/stderr
+        git config --unset remote.origin.mirror
     }
     popd > /dev/null
 done
