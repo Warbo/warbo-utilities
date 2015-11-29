@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+cd /tmp
+
+function home {
+    nmcli d | grep "wlp2s0" | grep "aa.net.uk" > /dev/null
+}
+
+function recentQuota {
+    [[ -e quota.txt ]] && test $(find quota.txt -mmin -120)
+}
+
+function get {
+    wget -O quota.png "http://a.soulless.thn.aa.net.uk/info.cgi" > /dev/null &&
+    rm -f quota.txt &&
+    tesseract quota.png quota -psm 7 > /dev/null
+}
+
+# Don't run if we're not at home
+home || exit 0
+
+# Get our quota, unless we have a recent copy
+recentQuota || get
+
+# Show it
+cat quota.txt | grep '[0-9]'
