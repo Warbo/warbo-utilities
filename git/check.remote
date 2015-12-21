@@ -1,13 +1,13 @@
-#!/bin/sh
+#!/bin/bash
 
-(cd /opt/repos
+(cd /opt/repos || exit 1
  echo "Make sure each repo in /opt/repos is linked in /opt/git/"
  for repo in *.git
  do
      name=$(basename "$repo")
      if [ ! -h "/opt/git/$name" ]
      then
-         (cd /opt/git
+         (cd /opt/git &&
           ln -s "/opt/repos/$name" "$name")
      fi
  done
@@ -15,7 +15,7 @@
  echo "Make sure each repo has been initialised"
  for repo in *.git
  do
-     (cd "$repo"
+     (cd "$repo" &&
       git init --bare)
  done
 
@@ -35,7 +35,7 @@
  for repo in *.git
  do
      name=$(basename "$repo")
-     (cd "$repo/hooks"
+     (cd "$repo/hooks" || exit 1
       for hook in post-receive post-update
       do
           if [ ! -h "$hook" ]
@@ -49,13 +49,13 @@
  echo "Run the post-receive hook to ensure changes are served"
  for repo in *.git
  do
-     (cd "$repo"
+     (cd "$repo" || exit 1
       echo "$PWD"
       sh hooks/post-receive)
  done)
 
 # Make sure HTML is served
-(cd /opt/html
+(cd /opt/html || exit 1
  for repo in *
  do
      test -h "/opt/git/$repo" || (cd /opt/git && ln -s "../html/$repo" "$repo")

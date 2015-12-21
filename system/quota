@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-cd /tmp
+cd /tmp || exit 1
 
 function home {
     nmcli d | grep "wlp2s0" | grep "aa.net.uk" > /dev/null
 }
 
 function recentQuota {
-    [[ -e quota.txt ]] && test $(find quota.txt -mmin -120)
+    [[ -e quota.txt ]] && test "$(find quota.txt -mmin -120)"
 }
 
 function get {
@@ -23,4 +23,4 @@ home || exit 0
 recentQuota || get
 
 # Show it
-cat quota.txt | grep '[0-9]'
+grep '[0-9]' < quota.txt

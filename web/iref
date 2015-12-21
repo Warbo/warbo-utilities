@@ -1,5 +1,3 @@
 #!/bin/sh
-cd /home/chris/Downloads
-get_iplayer --no-purge --refresh > LIST
-cat LIST
-
+cd /home/chris/Downloads || exit 1
+get_iplayer --no-purge --refresh | tee LIST

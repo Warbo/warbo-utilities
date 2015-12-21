@@ -9,26 +9,26 @@ then
 fi
 
 echo "Enter project name (.git will be appended automatically)"
-read name
+read -r name
 
 if [ ! -d "$REPOS/$name.git" ]
 then
-    (cd "$REPOS"
+    (cd "$REPOS" || exit 1
      echo "Cloning $ROOT to $REPOS/$name.git"
      git clone --bare "$ROOT" "$name.git")
 fi
 
 echo "Pointing $name.git to chriswarbo.net"
-(cd "$REPOS/$name.git"
+(cd "$REPOS/$name.git" || exit 1
  git remote rm  origin
  git remote add origin "chris@chriswarbo.net:/opt/repos/$name.git"
  )
 
 echo "Adding $REPOS/$name.git as a remote"
-(cd "$ROOT"
+(cd "$ROOT" || exit 1
  git remote rm  origin
  git remote add origin "$REPOS/$name.git")
 
 echo "Propagating changes"
-(cd "$REPOS"
+(cd "$REPOS" || exit 1
  sh check.sh)

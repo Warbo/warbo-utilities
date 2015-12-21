@@ -6,8 +6,7 @@ for repo in *.git
 do
     if [ ! -h "$repo/hooks/post-receive" ]
     then
-        (cd "$repo/hooks"
-         ln -s ../../post-receive.hook post-receive)
+        (cd "$repo/hooks" && ln -s ../../post-receive.hook post-receive)
     fi
 done
 
@@ -71,8 +70,8 @@ then
             if ! echo "$REMOTE" | grep "^$NAME$" > /dev/null
             then
                 echo "Can't find $NAME on remote server, copying..."
-                (cd ../git-html
-                 tar c "$NAME" | gzip - | ssh chriswarbo.net "cd /opt/html; tar xz")
+                (cd ../git-html || exit 1
+                 tar c "$NAME" | gzip - | ssh chriswarbo.net "cd /opt/html && tar xz")
             fi
         fi
     done

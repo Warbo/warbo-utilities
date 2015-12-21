@@ -1,0 +1,10 @@
+#! /usr/bin/env nix-shell
+#! nix-shell -i bash -p bash uae
+
+DF0="/home/chris/System/Games/Morph/Morph - Disk 1 of 2.adf"
+DF1="/home/chris/System/Games/Morph/Morph - Disk 2 of 2.adf"
+
+# -x No X cursor
+# -G Don't launch GUI first
+# -T Use SHM extension for speed
+uae -x -G -T -m "$GAMES" -0 "$DF0" -1 "$DF1"

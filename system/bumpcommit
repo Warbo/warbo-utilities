@@ -17,7 +17,7 @@ function lineNum {
 }
 
 function firstAfter {
-    while read LINE
+    while read -r LINE
     do
         if [[ "$LINE" -gt "$1" ]]
         then

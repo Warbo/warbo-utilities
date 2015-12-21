@@ -22,7 +22,7 @@ do
     # Copy the project to a temp folder, for experimenting
     rm -rf "$TMPDIR/project"
     cp -r "$ABS" "$TMPDIR/project"
-    cd "$TMPDIR/project"
+    cd "$TMPDIR/project" || exit 1
 
     echo "In '$TMPDIR/project'"
 

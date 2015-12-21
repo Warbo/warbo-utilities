@@ -4,7 +4,7 @@ nmcli -a c show       |
     grep aa.net.uk    |
     sed 's/[ ]* / /g' |
     cut -d ' ' -f 3   |
-    while read line
+    while read -r line
     do
         test -n "$line" && nmcli -a c up "$line"
     done

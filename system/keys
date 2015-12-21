@@ -37,5 +37,8 @@ xmodmap -e "add Control = $spare_modifier"
 # Map space to an unused keycode
 xmodmap -e "keycode any = space"
 
+# Make Alt Gr space
+xmodmap -e "keycode 108 = space"
+
 # Use xcape to make tapping 'left hyper' produce a space
 xcape -e "$spare_modifier=space"

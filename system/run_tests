@@ -3,7 +3,7 @@ RUNNING=$(pgrep -cf once.sh)
 
 if [[ $RUNNING -eq 0 ]]
 then
-    cd ~/.tests
+    cd ~/.tests || exit 1
     ./once.sh
 else
     echo "Already running"
