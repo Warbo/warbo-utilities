@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+export DIR="Chaos Engine"
+
+HERE=$(dirname "$0")
+"$HERE/uae_launcher"

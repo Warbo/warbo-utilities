@@ -1,9 +1,7 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i bash -p bash uae
+#! nix-shell -i bash -p bash fs-uae
 
+export DIR="Stardust"
 DF0="/home/chris/System/Games/Workbench V3.1/WB-3_1.ADF"
 
-# -x No X cursor
-# -G Don't launch GUI first
-# -T Use SHM extension for speed
-uae -x -G -T -m 'SlamTilt':'/home/chris/System/Games/SlamTilt' -0 "$DF0"
+fs-uae -x -G -T --hard_drive_0_label=SlamTilt --hard_drive_0=/home/chris/System/Games

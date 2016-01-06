@@ -1,0 +1,7 @@
+#! /usr/bin/env nix-shell
+#! nix-shell -i bash -p bash uae
+
+export DIR="Super Stardust"
+
+HERE=$(dirname "$0")
+"$HERE"/uae_launcher

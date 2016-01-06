@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+export DIR="Clockwiser"
+
+HERE=$(dirname "$0")
+"$HERE/uae_launcher"

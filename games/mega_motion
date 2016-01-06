@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+export DIR="Mega Motion"
+
+HERE=$(dirname "$0")
+"$HERE/uae_launcher"

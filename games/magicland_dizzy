@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+export DIR="Magicland Dizzy"
+
+CHIPSET="ecs"
+MODEL="a600"
+HERE=$(dirname "$0")
+"$HERE/uae_launcher"

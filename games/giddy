@@ -1,0 +1,19 @@
+#! /usr/bin/env nix-shell
+#! nix-shell -i bash -p bash uae
+
+DF0="/home/chris/System/Games/WWGiddy/giddy1.adf"
+
+for F in "$DF0"
+do
+    [[ -e "$F" ]] || {
+        echo "Couldn't find '$F'" >> /dev/stderr
+        exit 1
+    }
+done
+
+# -x No X cursor
+# -G Don't launch GUI first
+# -T Use SHM extension for speed
+# -C 0 use 68000 CPU
+# -v 3 use ECS
+uae -x -T -G -0 "$DF0" -C 0 -v 3

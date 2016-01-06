@@ -3,7 +3,12 @@
 
 GAMES="'Games':'/home/chris/Backups/files_old/Random/Computing/Amiga/Software/AmigaOS/Games'"
 
-DF0="/home/chris/System/Games/Workbench V3.1/WB-3_1.ADF"
+DF0="/home/chris/System/Games/Workbench3.1/WB-3_1.ADF"
+
+[[ -e "$DF0" ]] || {
+    echo "Couldn't find disk '$DF0'" >> /dev/stderr
+    exit 1
+}
 
 # -x No X cursor
 # -G Don't launch GUI first
