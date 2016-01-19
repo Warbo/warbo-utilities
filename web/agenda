@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+CMD="gcalcli agenda"
+
+if command -v gcalcli > /dev/null
+then
+    $CMD
+else
+    nix-shell -p gcalcli --run "$CMD"
+fi
