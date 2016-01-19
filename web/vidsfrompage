@@ -1,0 +1,46 @@
+#! /usr/bin/env nix-shell
+#! nix-shell -i bash -p bash -p xidel jsbeautifier
+
+function getvid {
+    # Look for video URLs
+    INCOMING=$(cat)
+    echo "$INCOMING" | getfmt mp4 | findurl
+    echo "$INCOMING" | getfmt flv | findurl
+}
+
+function getfmt {
+    # Look for URLs of a particular video format
+    INPUT=$(cat)
+    while read -r CANDIDATE
+    do
+        # If we find '"foo.$1"' then use that, otherwise use the whole line
+        if ! echo "$CANDIDATE" | grep -io "\"[^\"]*\.${1}[^\"]*\""
+        then
+            echo "$CANDIDATE"
+        fi
+    done < <(echo "$INPUT" | grep -i "\.${1}")
+}
+
+function geteval {
+    # Send any obfuscated javascript through js-beautify, then look for videos
+    EVALS=$(grep "eval" | sed -e 's/<[^>]*>//g')
+    while read -r LINE
+    do
+        echo "$LINE" | js-beautify -i | getvid
+    done < <(echo "$EVALS")
+}
+
+function findurl {
+    # Try to narrow-down output lines to just URLs
+    grep -o 'http[^ "<>]*' | grep -o '[^"]*' | grep -v 'ads.ad-center.com'
+}
+
+# Loop over result links, getting videos and obfuscated javascript
+while read -r LNK
+do
+    CONTENT=$(curl -s "$LNK")
+    echo "$CONTENT" | getvid
+    echo "$CONTENT" | geteval
+done < <(curl -s "$1" |
+         xidel - -q --extract '//div[@class="linktitleurl"]/a/@href' |
+         grep -v '^/source/')
