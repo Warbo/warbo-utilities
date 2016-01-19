@@ -1,3 +1,15 @@
-#! /usr/bin/env nix-shell
-#! nix-shell -i bash -p bash dtach
+#!/usr/bin/env bash
+
+# DVTM doesn't like nix-shell for some reason; check dependencies manually
+
+command -v dtach > /dev/null || {
+  echo "Couldn't find dtach" >> /dev/stderr
+  exit 1
+}
+
+command -v dvtm > /dev/null || {
+  echo "Couldn't find dvtm" >> /dev/stderr
+  exit 1
+}
+
 dtach -A ~/.sesh -r winch sesh
