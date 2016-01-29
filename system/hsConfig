@@ -45,14 +45,10 @@ else
     CMD="cabal configure -v"
 fi
 
-# If we don't have shell.nix, make a temporary alternative
+echo "Configuring package"
 if [[ -e "shell.nix" ]]
 then
-    echo "Configuring package"
     nix-shell --run "$CMD"
 else
-    F=$(mktemp "hsConfigXXXXXX.nix")
-    genShell > "$F"
-    nix-shell --run "$CMD" "$F"
-    rm "$F"
+    nix-shell -E "$(cabal2nix --shell ./.)" --run "$CMD"
 fi
