@@ -49,6 +49,8 @@ done
 # simultaneous connections, so rather than forking with `&` we use `sem` from
 # GNU parallel to prevent more than 8 tasks from running at once.
 echo "Running hooks in parallel"
+
+nix-shell -p parallel -p bash --run bash << 'EOF'
 for repo in *.git
 do
     pushd "$repo" > /dev/null
@@ -57,6 +59,7 @@ do
     popd > /dev/null
 done
 sem --will-cite --wait
+EOF
 
 echo "Copying HTML to remote"
 if ssh -q chriswarbo.net exit
