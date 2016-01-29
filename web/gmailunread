@@ -1,75 +1,20 @@
-#!/usr/bin/env python
-"""Print an unread email count. Takes credentials from ~/.authinfo"""
+#!/usr/bin/env bash
 
-import os
-import sys
-import string
-import urllib2
-from   base64     import encodestring
-from   lxml       import etree
-from   subprocess import check_output
+GMAIL=$(ls ~/Mail/gmail/INBOX/new | wc -l)
+DUNDEE=$(ls ~/Mail/dundee/INBOX/new | wc -l)
 
-# Pass "-debug" to cause this to output
-debug = lambda x: {True:  sys.stdout.write(str(x)),
-                   False: None               }['-debug' in sys.argv]
+if [[ "$GMAIL" -eq 0 ]]
+then
+    GMAILCOL="gmail $GMAIL"
+else
+    GMAILCOL="gmail <fc=#44ff66>$GMAIL</fc>"
+fi
 
-def format(x, n):
-    """Optionally format the output for xmobar."""
-    active_col = '#44ff66'
-    if '-xmobar' in sys.argv and n > 0:
-        return ''.join([x,
-                        ' <fc=', active_col, '>',
-                        str(n),
-                        '</fc>'])
-    return x + ' ' + str(n)
+if [[ "$DUNDEE" -eq 0 ]]
+then
+    DUNDEECOL="dundee $DUNDEE"
+else
+    DUNDEECOL="dundee <fc=#44ff66>$DUNDEE</fc>"
+fi
 
-def shrt(s):
-    """Shorten an email address to a few characters."""
-    # Normalise all non-alphabetical characters to spaces
-    alpha = ''.join(map(lambda c: {True: c, False: ' '}[c.isalpha()], s))
-    # Split at spaces and take the first letter of each part
-    return ''.join(map(lambda s: s[0], alpha.split()))
-
-# Read credentials from ~/.authinfo
-logins = {}
-try:
-    with open(os.path.expanduser('~/.authinfo'), 'r') as f:
-        for line in f:
-            # username will follow "login", password will follow "password"
-            bits = line.split(' ')
-            if 'login' in bits and 'password' in bits:
-                get = lambda s: bits[bits.index(s) + 1]
-                if 'gmail' in get('login'):
-                    logins[get('login')] = get('password')
-except Exception as e:
-    print "ACCOUNT ERROR"
-    debug(e)
-    sys.exit(1)
-
-if len(logins) == 0:
-    print "NO ACCOUNTS"
-    sys.exit(1)
-
-# Get the mailbox info
-counts = {}
-for login in logins:
-    try:
-        # Authenticate with GMail
-        req  = urllib2.Request('https://mail.google.com/mail/feed/atom')
-        auth = encodestring((login + ':' + logins[login])).replace('\n', '')
-        req.add_header("Authorization", 'Basic ' + auth)
-
-        # Grab the ATOM data and parse it
-        result = urllib2.urlopen(req).read()
-        f      = etree.fromstring(result)
-        n      = {'atom': 'http://purl.org/atom/ns#'}
-        counts[shrt(login)] = [int(x.text) for x in f.xpath('//atom:fullcount',
-                                                            namespaces=n)].pop()
-    except Exception as e:
-        print 'MAIL ERROR'
-        debug(e)
-        sys.exit(1)
-
-# Print the results (pipe-separated)
-output = [format(account, counts[account]) for account in counts]
-print ' | '.join(output)
+echo "$GMAILCOL | $DUNDEECOL"
