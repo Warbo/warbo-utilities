@@ -1,9 +1,20 @@
 #!/usr/bin/env bash
-CMD="gcalcli agenda"
+CMD="gcalcli --military --nocolor agenda"
 
 if command -v gcalcli > /dev/null
 then
-    $CMD
+    RESULT=$($CMD)
+    CODE=$?
 else
-    nix-shell -p gcalcli --run "$CMD"
+    RESULT=$(nix-shell -p gcalcli --run "$CMD")
+    CODE=$?
 fi
+
+if [[ "x$1" = "xhead" ]]
+then
+    echo "$RESULT" | grep '[0-9]' | head -n1 | sed -e 's/  */ /g'
+else
+    echo "$RESULT"
+fi
+
+exit "$CODE"
