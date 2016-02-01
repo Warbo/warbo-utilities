@@ -3,13 +3,10 @@
 
 DF0="/home/chris/System/Games/WWGiddy/giddy1.adf"
 
-for F in "$DF0"
-do
-    [[ -e "$F" ]] || {
-        echo "Couldn't find '$F'" >> /dev/stderr
-        exit 1
-    }
-done
+[[ -e "$DF0" ]] || {
+    echo "Couldn't find '$F'" >> /dev/stderr
+    exit 1
+}
 
 # -x No X cursor
 # -G Don't launch GUI first
