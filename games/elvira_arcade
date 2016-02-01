@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-
-export DIR="Elvira the Arcade Game"
-
-CHIPSET="ecs"
-MODEL="a500"
-
-HERE=$(dirname "$0")
-"$HERE/uae_launcher"
