@@ -3,7 +3,10 @@
 export DIR="Magicland Dizzy"
 
 # shellcheck disable=SC2034
-CHIPSET="ecs"
-MODEL="a600"
+{
+    CHIPSET="ecs"
+    MODEL="a600"
+}
+
 HERE=$(dirname "$0")
 "$HERE/uae_launcher"
