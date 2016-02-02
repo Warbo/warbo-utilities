@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-GMAIL=$(find ~/Mail/gmail/INBOX/new | wc -l)
-DUNDEE=$(find ~/Mail/dundee/INBOX/new | wc -l)
+ GMAIL=$(find ~/Mail/gmail/INBOX/new  -type f | wc -l)
+DUNDEE=$(find ~/Mail/dundee/INBOX/new -type f | wc -l)
 
 if [[ "$GMAIL" -eq 0 ]]
 then
