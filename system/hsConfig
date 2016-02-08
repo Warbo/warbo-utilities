@@ -40,9 +40,9 @@ genShell   | writeFile "shell.nix"
 # Coverage can cause instability, so only use it when there are tests
 if haveTests
 then
-    CMD="cabal configure --enable-tests --enable-coverage -v"
+    CMD="cabal configure --enable-tests --enable-coverage --enable-benchmarks -v"
 else
-    CMD="cabal configure -v"
+    CMD="cabal configure --enable-benchmarks -v"
 fi
 
 echo "Configuring package"
