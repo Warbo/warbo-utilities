@@ -16,21 +16,23 @@ OUT=$("$CMD" "$DOC") || {
     exit 1
 }
 
-{ echo "$OUT" | grep "FOUND TITLE"; } || {
+{ echo "$OUT" | grep "FOUND TITLE"; } > /dev/null || {
     echo "Didn't find title in '$OUT'"
     exit 1
 }
 
-{ echo "$OUT" | grep "FOUND TITLE" | grep -- "$TTL"; } || {
+{ echo "$OUT" | grep "FOUND TITLE" | grep -- "$TTL"; } > /dev/null || {
     echo "Didn't find title '$TTL' in '$OUT'"
     exit 1
 }
 
-{ echo "$OUT" | grep "FOUND BIBTEX"; } || {
+{ echo "$OUT" | grep "FOUND BIBTEX"; } > /dev/null || {
     echo "Didn't find BibTeX '$OUT'"
     exit 1
 }
 
+echo "START OUTPUT"
 echo "$OUT"
+echo "END OUTPUT"
 
 exit 0
