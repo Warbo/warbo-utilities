@@ -1,9 +1,0 @@
-#! /usr/bin/env nix-shell
-#! nix-shell -i bash -p bash uae
-
-DF0="/home/chris/System/Games/Super Obliteration/Super Obliteration.adf"
-
-# -x No X cursor
-# -G Don't launch GUI first
-# -T Use SHM extension for speed
-uae -x -G -T -0 "$DF0"

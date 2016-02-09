@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-
-export DIR="Frontier"
-
-export EXTRA="--joystick_port_1=nothing"
-
-HERE=$(dirname "$0")
-"$HERE/uae_launcher"

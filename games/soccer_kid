@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-export DIR="Soccer Kid"
-
-HERE=$(dirname "$0")
-"$HERE/uae_launcher"
