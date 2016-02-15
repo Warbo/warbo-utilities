@@ -37,10 +37,17 @@ function haveTests {
 genDefault | writeFile "default.nix"
 genShell   | writeFile "shell.nix"
 
-# Coverage can cause instability, so only use it when there are tests
+# Coverage can cause instability, so only use it when opted in
+if [[ -n "$COVERAGE" ]]
+then
+    COVERAGEOPT="--enable-coverage"
+else
+    COVERAGEOPT=""
+fi
+
 if haveTests
 then
-    CMD="cabal configure --enable-tests --enable-coverage --enable-benchmarks -v"
+    CMD="cabal configure --enable-tests $COVERAGEOPT --enable-benchmarks -v"
 else
     CMD="cabal configure --enable-benchmarks -v"
 fi
