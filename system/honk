@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+amixer sset Master unmute
+aplay ~/.nix-profile/share/sounds/purple/alert.wav
