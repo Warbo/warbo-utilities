@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-RUNNING=$(pgrep -cf once.sh)
+RUNNING=$(pgrep -cf run)
 
 if [[ $RUNNING -eq 0 ]]
 then
-    cd ~/.tests || exit 1
-    ./once.sh
+    cd ~/System/Tests || exit 1
+    run
 else
     echo "Already running"
 fi
