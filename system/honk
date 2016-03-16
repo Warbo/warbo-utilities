@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-amixer sset Master unmute
-aplay ~/.nix-profile/share/sounds/purple/alert.wav
+amixer sset Master unmute > /dev/null
+aplay ~/.nix-profile/share/sounds/purple/alert.wav > /dev/null 2>&1
