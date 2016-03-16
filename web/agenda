@@ -6,14 +6,14 @@ DELTA=$((60 * 30))
 THEN=$((NOW - DELTA))
 DATE=$(date -d "@$THEN" "+%Y-%m-%dT%H:%M")
 
-CMD="gcalcli --military --nocolor agenda '$DATE'"
+CMD=(gcalcli --military --nocolor agenda "$DATE")
 
 if command -v gcalcli > /dev/null
 then
-    RESULT=$($CMD)
+    RESULT=$("${CMD[@]}")
     CODE=$?
 else
-    RESULT=$(nix-shell -p gcalcli --run "$CMD")
+    RESULT=$(nix-shell -p gcalcli --run "${CMD[@]}")
     CODE=$?
 fi
 
