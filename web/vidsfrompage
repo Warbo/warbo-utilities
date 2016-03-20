@@ -35,12 +35,17 @@ function findurl {
     grep -o 'http[^ "<>]*' | grep -o '[^"]*' | grep -v 'ads.ad-center.com'
 }
 
+function getTopUrl {
+    PAGE=$(curl -s "$1")
+    IFRAME=$(echo "$PAGE" | xidel - -q --extract \
+                                  '//div[@class="emd_player"]//iframe/@src')
+    echo "$IFRAME" | grep -v '^/source/'
+}
+
 # Loop over result links, getting videos and obfuscated javascript
 while read -r LNK
 do
     CONTENT=$(curl -s "$LNK")
     echo "$CONTENT" | getvid
     echo "$CONTENT" | geteval
-done < <(curl -s "$1" |
-         xidel - -q --extract '//div[@class="linktitleurl"]/a/@href' |
-         grep -v '^/source/')
+done < <(getTopUrl "$1")

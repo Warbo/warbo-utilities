@@ -3,6 +3,8 @@
 
 [[ -z "$DEBUG" ]] || set -x
 
+BASE=$(dirname "$(readlink "$0")")
+
 function search {
     # Poor man's URL escaping
     echo "$@" | sed -e 's/ /+/g'
@@ -34,7 +36,7 @@ function prefixLinks {
 function getLinks {
     while read -r URL2
     do
-        vidsfrompage "$URL2"
+        "$BASE/vidsfrompage" "$URL2"
     done
 }
 
