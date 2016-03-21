@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+function msg {
+    echo -e "$1" >> /dev/stderr
+}
+
+function normalise {
+    # Turn uppercase to lowercase and only keep letters
+    echo "$1" | tr '[:upper:]' '[:lower:]' | tr -d -c '[:lower:]'
+}
+
+function related {
+    REPO_NORM=$(normalise "$1")
+    TEST_NORM=$(normalise "$2")
+
+    if echo "$REPO_NORM" | grep -F "$TEST_NORM" > /dev/null
+    then
+        msg "Repo name '$1' contains test name '$2'"
+        return 0
+    fi
+
+    if echo "$TEST_NORM" | grep -F "$REPO_NORM" > /dev/null
+    then
+        msg "Test name '$2' contains repo name '$1'"
+        return 0
+    fi
+
+    return 1
+}
+
+REPO=$(basename "$1" .git)
+msg "Looking for test results related to git repo '$1'"
+
+for RESULT in ~/System/Tests/results/pass/*
+do
+    NAME=$(basename "$RESULT")
+    related "$REPO" "$NAME" && echo "$RESULT"
+done
