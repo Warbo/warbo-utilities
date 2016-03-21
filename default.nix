@@ -7,7 +7,7 @@ stdenv.mkDerivation {
   buildPhase   = "";
   installPhase = ''
     mkdir -p "$out/bin"
-    for DIR in svn system web git
+    for DIR in svn system web git development
     do
         cp "$DIR/"* "$out/bin/"
     done
