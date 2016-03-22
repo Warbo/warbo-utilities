@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+pushd "$1" > /dev/null
+shift 1
+
+"$@"
+CODE="$?"
+
+popd > /dev/null
+
+exit "$CODE"
