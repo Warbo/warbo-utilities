@@ -25,13 +25,24 @@ function related {
         return 0
     fi
 
+    if cat "$TEST_BASE"/scripts/"$2" |
+       tr '[:upper:]' '[:lower:]'    |
+       tr -dc '[:lower:]'            |
+       grep "$REPO_NORM" > /dev/null
+    then
+        msg "Repo name '$1' seems to appear in test '$2'"
+        return 0
+    fi
+
     return 1
 }
 
 REPO=$(basename "$1" .git)
 msg "Looking for test results related to git repo '$1'"
 
-for RESULT in ~/System/Tests/results/pass/*
+TEST_BASE="$HOME/System/Tests"
+
+for RESULT in "$TEST_BASE"/results/pass/*
 do
     NAME=$(basename "$RESULT")
     related "$REPO" "$NAME" && echo "$RESULT"
