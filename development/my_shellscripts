@@ -89,6 +89,7 @@ function skip {
         skipExt lhs    |
         skipExt rb     |
         skipExt pl     |
+        skipExt md     | # Important as we might find shebangs inside
         skipExt conf
 }
 
@@ -99,7 +100,7 @@ function ext {
 function getAll {
     for D in System/Tests System/Programs/bin blog warbo-utilities Programming Writing
     do
-        locate "$HOME/$D/*" | skip | while read -r "$LINE"
+        locate "$HOME/$D/*" | skip | while read -r LINE
         do
             ABS=$(readlink -f "$LINE")
             keep "$ABS" && echo "$ABS"
