@@ -45,7 +45,10 @@ function isFile {
 }
 
 function scriptFile {
-    file "$1" | grep "shell script, ASCII text executable" > /dev/null
+    # We can't trust nix-shell scripts, as they might invoke anything
+    file "$1" | grep "nix-shell" > /dev/null && return 1
+    # Otherwise, "shell script" is a good indicator
+    grep "shell script, ASCII text executable" > /dev/null
 }
 
 function keep {
