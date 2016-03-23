@@ -25,8 +25,8 @@ function related {
         return 0
     fi
 
-    if tr '[:upper:]' '[:lower:]' < cat "$TEST_BASE"/scripts/"$2" |
-       tr -dc '[:lower:]'                                         |
+    if tr '[:upper:]' '[:lower:]' < "$TEST_BASE"/scripts/"$2" |
+       tr -dc '[:lower:]'                                     |
        grep "$REPO_NORM" > /dev/null
     then
         msg "Repo name '$1' seems to appear in test '$2'"
