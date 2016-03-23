@@ -93,6 +93,7 @@ function skip {
             -e '\.v.*$'                                   \
             -e '\.lhs$'                                   \
             -e '\.rb$'                                    \
+            -e '\.ps$'                                    \
             -e '\.php$'                                   \
             -e '\.pl$'                                    \
             -e '\.md$'                                    \
