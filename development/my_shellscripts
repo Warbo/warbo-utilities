@@ -65,32 +65,35 @@ function skipExt {
 }
 
 function skip {
-    grep -v '/\.git'           |
-        grep -v '/\.svn'           |
-        grep -v 'Tests/results/'   |
-        grep -v 'Programming/ATS/' |
-        grep -v '/test-data/'      |
-        grep -v '/mc-aixi-ctw/'    |
-        grep -v '/CIL'             |
-        skipExt nix    |
-        skipExt agda.* |
-        skipExt hs     |
-        skipExt png    |
-        skipExt html   |
-        skipExt c      |
-        skipExt o      |
-        skipExt h      |
-        skipExt cpp    |
-        skipExt py.*   |
-        skipExt deb    |
-        skipExt gz     |
-        skipExt txt    |
-        skipExt v.*    |
-        skipExt lhs    |
-        skipExt rb     |
-        skipExt pl     |
-        skipExt md     | # Important as we might find shebangs inside
-        skipExt conf
+    grep -v -e '/\.git'                                   \
+            -e '/\.svn'                                   \
+            -e '/NotMine/'                                \
+            -e 'Tests/results/'                           \
+            -e '/test-data/'                              \
+            -e '/git-html'                                \
+            -e '/Programming/repos/'                      \
+            -e '/haskell-te/cache/'                       \
+            -e '\.nix$'                                   \
+            -e '\.lyx$'                                   \
+            -e '\.agda.*$'                                \
+            -e '\.hs$'                                    \
+            -e '\.png$'                                   \
+            -e '\.html$'                                  \
+            -e '\.c$'                                     \
+            -e '\.o$'                                     \
+            -e '\.h$'                                     \
+            -e '\.cpp$'                                   \
+            -e '\.py.*$'                                  \
+            -e '\.deb$'                                   \
+            -e '\.gz$'                                    \
+            -e '\.txt$'                                   \
+            -e '\.v.*$'                                   \
+            -e '\.lhs$'                                   \
+            -e '\.rb$'                                    \
+            -e '\.php$'                                   \
+            -e '\.pl$'                                    \
+            -e '\.md$'                                    \
+            -e '\.conf$'
 }
 
 function ext {
@@ -100,7 +103,7 @@ function ext {
 function getAll {
     for D in System/Tests System/Programs/bin blog warbo-utilities Programming Writing
     do
-        locate "$HOME/$D/*" | skip | while read -r LINE
+        locate -e "$HOME/$D/*" | skip | while read -r LINE
         do
             ABS=$(readlink -f "$LINE")
             keep "$ABS" && echo "$ABS"
