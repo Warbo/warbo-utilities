@@ -10,25 +10,21 @@ git remote | while read -r REMOTE
 do
   git branch | cut -c 3- | while read -r BRANCH
   do
-    echo "Pushing '$BRANCH' to '$REMOTE'"
+    echo "Pushing '$BRANCH' to '$REMOTE'" 1>&2
     git push "$REMOTE" "$BRANCH"
   done
 done
 
-# Regenerate HTML pages
+echo "Scheduling HTML generation" 1>&2
 NAME=$(basename "$PWD" .git)
 HTML="/home/chris/Programming/git-html"
 mkdir -p "$HTML/$NAME"
 
-nix-shell -p git2html --run \
+ts nix-shell -p git2html --run \
   "git2html -p '$NAME' -r '$PWD' -l 'http://chriswarbo.net/git/$NAME.git' '$HTML/$NAME'"
 
-# Make the READMEs on chriswarbo.net update next time they're pushed
+echo "Marking chriswarbo.net/essays/repos as needing regeneration" 1>&2
 touch /home/chris/blog/essays/repos/index.md
 
-# Make any related-looking tests update next time they're run
-results_related_to "$PWD" | while read -r RESULT
-do
-    echo "Removing '$RESULT', to force test re-run"
-    rm "$RESULT"
-done
+echo "Scheduling removal of related-looking test results" 1>&2
+ts remove_related_results "$PWD"
