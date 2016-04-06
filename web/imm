@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 nix-shell --show-trace --pure \
           -p '(haskellPackages.ghcWithPackages (h: [ h.imm ]))' \
-          --run "imm $*"
+          --run "export LANG='en_US.UTF-8'; imm $*"
