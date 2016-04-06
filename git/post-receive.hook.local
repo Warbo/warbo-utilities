@@ -10,8 +10,8 @@ git remote | while read -r REMOTE
 do
   git branch | cut -c 3- | while read -r BRANCH
   do
-    echo "Pushing '$BRANCH' to '$REMOTE'" 1>&2
-    git push "$REMOTE" "$BRANCH"
+    echo "Scheduling push of '$BRANCH' to '$REMOTE'" 1>&2
+    ts git push "$REMOTE" "$BRANCH"
   done
 done
 
