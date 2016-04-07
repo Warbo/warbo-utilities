@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i bash -p git2html git bash
+#! nix-shell -i bash -p git2html git ts
 
 # Fiddle environment to prevent problems
 # shellcheck disable=SC2046
