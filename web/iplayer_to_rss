@@ -1,0 +1,107 @@
+#! /usr/bin/env nix-shell
+#! nix-shell -i bash -p xidel
+
+set -e
+
+function fetchProgrammes {
+    # Fetch the URLs of programmes found at the given URL, followed by their
+    # titles. For example:
+    #
+    # http://programme-page-for-click
+    # http://programme-page-for-springwatch
+    #
+    # Click - 25th May 2016
+    # Springwatch 2016 Episode 3
+    echo "Fetching '$1'" 1>&2
+    xidel -q \
+          -e '//li[contains(@class,"programme")]/div/a/resolve-uri(@href)' \
+          -e '//li[contains(@class,"programme")]/div/a/@title' \
+          "$1"
+}
+
+function formattedProgrammes {
+    # Fetch the URLs and titles of programmes on the given page. For example:
+    #
+    # http://programme-page-for-click	Click - 25th May 2016
+    # http://programme-page-for-springwatch 	Springwatch 2016 Episode 3
+
+    OUTPUT=$(fetchProgrammes "$1")
+    URLS=$(echo "$OUTPUT" | grep "^http")
+    TTLS=$(echo "$OUTPUT" | grep -v "^http" | grep "^.")
+
+    assertSameLength "$URLS" "$TTLS"
+
+    paste <(echo "$URLS") <(echo "$TTLS")
+}
+
+function assertSameLength {
+    # Assert that both arguments contain the same number of lines
+    COUNT1=$(echo "$1" | wc -l)
+    COUNT2=$(echo "$2" | wc -l)
+
+    echo "Got lists of '$COUNT1' and '$COUNT2' elements" 1>&2
+    [[ "$COUNT1" -eq "$COUNT2" ]] || {
+        echo -e "Found different length lists. First:\n$1\n\nSecond:\n$2" 1>&2
+        exit 2
+    }
+}
+
+function listToFeed {
+    CHANNELURL=$(echo "$2" | xmlEscape)
+    echo '<rss version="2.0">'
+    echo   '<channel>'
+    echo     "<title>$1</title>"
+    echo     "<link>$CHANNELURL</link>"
+
+    while read -r LINE
+    do
+        THISURL=$(echo "$LINE" | cut -f 1)
+        THISTTL=$(echo "$LINE" | cut -f 2-)
+        writeItem "$THISURL" "$THISTTL"
+    done < <(formattedProgrammes "$2")
+
+    echo   '</channel>'
+    echo '</rss>'
+}
+
+function xmlEscape {
+    # From http://daemonforums.org/showthread.php?t=4054
+    sed -e 's~&~\&amp;~g' -e 's~<~\&lt;~g' -e 's~>~\&gt;~g'
+}
+
+function firstShown {
+    sleep 1
+    xidel -e '//span[@class="release"]' "$1"
+}
+
+function writeItem {
+    CACHEDIR="$HOME/.cache/iplayer_feeds"
+    mkdir -p "$CACHEDIR"
+    CACHED=$(grep -rlF "$1" "$CACHEDIR" | head -n1)
+    if [[ -n "$CACHED" ]]
+    then
+        cat "$CACHED"
+    else
+        HASH=$(echo "$1" | md5sum | cut -d ' ' -f 1)
+        NAME=$(echo "$2" | tr '[:upper:]' '[:lower:]' | tr -dc '[:lower:]')
+        FILE="$HASH_$NAME.xml"
+        writeItemReal "$1" "$2" | tee "$CACHEDIR/$FILE"
+    fi
+}
+
+function writeItemReal {
+    echo "Writing item for '$1' '$2'" 1>&2
+    SAFEURL=$(echo "$1" | xmlEscape)
+    SAFETTL=$(echo "$2" | xmlEscape)
+    DATE=$(firstShown "$1" | cut -d : -f 2-)
+    PUBDATE=$(date --date="$DATE" --rfc-2822)
+    echo '<item>'
+    echo   "<title>$SAFETTL</title>"
+    echo   "<link>$SAFEURL</link>"
+    echo   "<guid isPermaLink=\"true\">$SAFEURL</guid>"
+    echo   "<pubDate>$PUBDATE</pubDate>"
+    echo "</item>"
+}
+
+listToFeed "iPlayer Comedy" \
+           "http://www.bbc.co.uk/iplayer/categories/comedy/all?sort=dateavailable"
