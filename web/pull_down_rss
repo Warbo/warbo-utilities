@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+# Grabs RSS feeds and dumps them in ~/.cache
+# Used to work around things imm doesn't support (e.g. HTTPS)
+
+function getYouTube {
+    wget -O "$1.atom" "http://www.youtube.com/feeds/videos.xml?channel_id=$2"
+    nix-shell -p libxslt --run \
+      "xsltproc ~/System/Programs/atom2rss-exslt.xsl '$1.atom' > '$1.rss'"
+}
+
+mkdir -p ~/.cache/rss
+cd ~/.cache/rss
+
+getYouTube standupmaths  "UCSju5G2aFaWMqn-_0YBtq5A"
+getYouTube numberphile   "UCoxcjq-8xIDTYp3uz647V5A"
+getYouTube computerphile "UC9-y-6csu5WGm29I7JiwpnA"
+
+iplayer_to_rss

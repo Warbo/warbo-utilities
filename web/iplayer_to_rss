@@ -75,16 +75,14 @@ function firstShown {
 }
 
 function writeItem {
-    CACHEDIR="$HOME/.cache/iplayer_feeds"
-    mkdir -p "$CACHEDIR"
-    CACHED=$(grep -rlF "$1" "$CACHEDIR" | head -n1)
+    CACHED=$(grep -rlF "$1" "$CACHEDIR" | grep -v ".rss" | head -n1)
     if [[ -n "$CACHED" ]]
     then
         cat "$CACHED"
     else
         HASH=$(echo "$1" | md5sum | cut -d ' ' -f 1)
         NAME=$(echo "$2" | tr '[:upper:]' '[:lower:]' | tr -dc '[:lower:]')
-        FILE="$HASH_$NAME.xml"
+        FILE="${HASH}_${NAME}.xml"
         writeItemReal "$1" "$2" | tee "$CACHEDIR/$FILE"
     fi
 }
@@ -98,10 +96,18 @@ function writeItemReal {
     echo '<item>'
     echo   "<title>$SAFETTL</title>"
     echo   "<link>$SAFEURL</link>"
+    echo   "<description><a href=\"$SAFEURL\">link</a></description>"
     echo   "<guid isPermaLink=\"true\">$SAFEURL</guid>"
     echo   "<pubDate>$PUBDATE</pubDate>"
     echo "</item>"
 }
 
+CACHEDIR="$HOME/.cache/iplayer_feeds"
+mkdir -p "$CACHEDIR"
+
 listToFeed "iPlayer Comedy" \
-           "http://www.bbc.co.uk/iplayer/categories/comedy/all?sort=dateavailable"
+           "http://www.bbc.co.uk/iplayer/categories/comedy/all?sort=dateavailable" > "$CACHEDIR/comedy.rss"
+
+listToFeed "iPlayer Films" "http://www.bbc.co.uk/iplayer/categories/films/all?sort=dateavailable" > "$CACHEDIR/films.rss"
+
+listToFeed "iPlayer Sci/Nat" "http://www.bbc.co.uk/iplayer/categories/science-and-nature/all?sort=dateavailable" > "$CACHEDIR/scinat.rss"
