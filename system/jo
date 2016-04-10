@@ -4,7 +4,7 @@ CMD="x2x -west -to :0"
 if ssh jo@debian true 1> /dev/null 2> /dev/null
 then
     echo "Found debian, starting x2x"
-    ssh -X jo@debian "$CMD"
+    ssh -Y jo@debian "$CMD"
 else
     echo "Couldn't connect to debian, trying via raspberrypi"
     ssh -L20000:jo@debian:22 pi@raspberrypi
