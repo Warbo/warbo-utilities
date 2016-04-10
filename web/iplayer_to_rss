@@ -74,8 +74,14 @@ function firstShown {
     xidel -e '//span[@class="release"]' "$1"
 }
 
+function findCached {
+    MATCHES=$(grep -rlF "$1" "$CACHEDIR")
+    FOUND=$(echo "$MATCHES" | grep -v "\.rss$" | head -n1)
+    echo "$FOUND"
+}
+
 function writeItem {
-    CACHED=$(grep -rlF "$1" "$CACHEDIR" | grep -v ".rss" | head -n1)
+    CACHED=$(findCached "$1")
     if [[ -n "$CACHED" ]]
     then
         cat "$CACHED"
@@ -91,8 +97,19 @@ function writeItemReal {
     echo "Writing item for '$1' '$2'" 1>&2
     SAFEURL=$(echo "$1" | xmlEscape)
     SAFETTL=$(echo "$2" | xmlEscape)
-    DATE=$(firstShown "$1" | cut -d : -f 2-)
-    PUBDATE=$(date --date="$DATE" --rfc-2822)
+    # Strip off "First shown:" and "HH:MMpm"
+    DATE=$(firstShown "$1" | cut -d : -f 2- |
+                             sed -e 's/[0-9][0-9]*:[0-9][0-9].m//g' |
+                             sed -e 's/^[ ]*//g')
+    echo "Got date '$DATE'" 1>&2
+    if PUBDATE=$(date --date="$DATE" --rfc-2822)
+    then
+        # Looks like a complete date
+        true
+    else
+        # Probably just a year, e.g. for a film
+        PUBDATE=$(date --date="1 Jan$DATE" --rfc-2822)
+    fi
     echo '<item>'
     echo   "<title>$SAFETTL</title>"
     echo   "<link>$SAFEURL</link>"
