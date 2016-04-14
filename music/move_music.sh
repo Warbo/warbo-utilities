@@ -1,6 +1,8 @@
 #!/bin/bash
 shopt -s nullglob
 
+BASE=$(dirname "$(readlink -f "$0")")
+
 function find_dupe_artists {
     # For each directory at the artist level, we 'simplify' the name to see if
     # it collides with another, eg. "AC-DC" and "ACDC" both become "acdc"
@@ -9,7 +11,7 @@ function find_dupe_artists {
     for INIT in A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
     do
         echo "$INIT"
-        ./guess_dupes.sh < <(ls "Music/Commercial/$INIT/")
+        "$BASE/guess_dupes.sh" < <(ls "Music/Commercial/$INIT/")
     done
 }
 
@@ -26,7 +28,7 @@ function find_dupe_dirs {
                 echo "Warning: '$ARTIST' is not a directory" >> /dev/stderr
                 continue
             }
-            ./guess_dupes.sh < <(find "$ARTIST" -type d)
+            "$BASE/guess_dupes.sh" < <(find "$ARTIST" -type d)
         done
     done
 }
@@ -40,7 +42,7 @@ function find_dupe_files {
         do
             [[ -d "$ARTIST" ]] || continue
             echo "Looking for dupes in '$ARTIST'" >> /dev/stderr
-            DUPES=$(./guess_dupes.sh < <(find "$ARTIST" -type f))
+            DUPES=$("$BASE/guess_dupes.sh" < <(find "$ARTIST" -type f))
             echo "Possible dupes:" >> /dev/stderr
             echo "$DUPES"          >> /dev/stderr
             echo "Checking CRCs"   >> /dev/stderr
@@ -73,12 +75,12 @@ function fdupes_per_artist {
     done
 }
 
-#./move_contents.sh
-#./delete_crap.sh
-#./remove_empties.sh
+#"$BASE/move_contents.sh"
+#"$BASE/delete_crap.sh"
+#"$BASE/remove_empties.sh"
 #find_dupe_artists
 find_dupe_files
 #fdupes_per_artist
-#./no_discs.sh
-#./free_out_of_commercial.sh
-#./normalise_whitespace.sh
+#"$BASE/no_discs.sh"
+#"$BASE/free_out_of_commercial.sh"
+#"$BASE/normalise_whitespace.sh"
