@@ -1,6 +1,14 @@
 #!/usr/bin/env python
 
+from shutil     import move
 from subprocess import check_output
+from os         import makedirs
+from os.path    import basename, isfile, isdir, dirname
+import sys
+from __future__ import print_function
+
+def msg(m):
+    print(m, file=sys.stderr)
 
 # Read in cached CRCs
 crcmap = {}
@@ -11,9 +19,9 @@ try:
             if len(bits) == 2:
                 crcmap[bits[1]] = bits[0]
             else:
-                print ("Dodgy line in .crcs: " + line)
+                msg("Dodgy line in .crcs: " + line)
 except IOError:
-    print "No .crcs cache found"
+    msg("No .crcs cache found")
 
 def get_crc(path):
     # Use cached version if available
@@ -21,6 +29,7 @@ def get_crc(path):
         return crcmap[line]
 
     # Calculate CRC
+    msg("Calculating CRC of " + path)
     output = check_output(["avconv", "-i", path, "-f", "crc", "-"])
     crc    = filter(lambda l: "CRC" in l, output.splitlines())[0]
 
@@ -31,47 +40,37 @@ def get_crc(path):
 
     return crc
 
-# function compare_files {
-#     [[ -e "$1" ]] || {
-#         echo "Can't compare non-existent '$1' to '$2'" >> /dev/stderr
-#         return 1
-#     }
-#     [[ -e "$2" ]] || {
-#         echo "Can't compare '$1' to non-existent '$2'" >> /dev/stderr
-#         return 1
-#     }
-#     IS_AUDIO=0
-#     LOWER1=$(echo "$1" | tr '[:upper:]' '[:lower:]')
-#     LOWER2=$(echo "$2" | tr '[:upper:]' '[:lower:]')
+def compare_files(f1, f2):
+    if not isfile(f1):
+        msg("Can't compare non-existent '" + f1 + "' to '" + f2 + "'")
+        sys.exit(1)
+    if not isfile(f2):
+        msg("Can't compare non-existent '" + f2 + "' to '" + f1 + "'")
+        sys.exit(1)
 
-#     for EXT in mp3 wma aac ogg m4a
-#     do
-#         if [[ "$LOWER1" =~ "$EXT"$ ]] && [[ "$LOWER2" =~ "$EXT"$ ]]
-#         then
-#             IS_AUDIO=1
-#         fi
-#     done
+    is_audio = False
+    lower1 = f1.lower()
+    lower2 = f2.lower()
 
-#     if [[ "$IS_AUDIO" -eq 1 ]]
-#     then
-#         SRC=$(get_crc "$1")
-#         DST=$(get_crc "$2")
-#         if [[ "x$SRC" = "x$DST" ]]
-#         then
-#             echo "$1 is a duplicate of $2"
-#             if [[ -d "DUPES" ]]
-#             then
-#                 D=$(dirname "$2")
-#                 mkdir -p "DUPES/$D"
-#                 mv -v "$2" "DUPES/$D/"
-#             fi
-#         else
-#             echo "$1 doesn't match CRC of $2"
-#         fi
-#     else
-#         echo "Path $1 looks like a dupe of $2"
-#     fi
-# }
+    for ext in ["mp3", "wma", "aac", "ogg", "m4a"]:
+        if lower1.endswith(ext) and lower2.endswith(ext):
+            is_audio = True
+
+    if is_audio:
+        src = get_crc(f1)
+        dst = get_crc(f2)
+        if src == dst:
+            print(f1 + " is a duplicate of " + f2)
+            if isdir("DUPES"):
+                d = dirname(f2)
+                fname = basename(f2)
+                makedirs("DUPES/" + d)
+                msg("Moving '" + f2 + "' to 'DUPES/" + d + "/" + fname + "'")
+                #move(f2, "DUPES/" + d + "/" + fname)
+        else:
+            print(f1 + " doesn't match CRC of " + f2)
+    else:
+        print("Path '" + f1 + "' looks like a dupe of '" + f2 + "'")
 
 # function move_if_no_conflict {
 #     # Takes the initial (subdir of Music/Commercial), the directory we might be
