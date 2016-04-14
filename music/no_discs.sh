@@ -27,15 +27,13 @@ do
             do
                 if [[ "x${NOLOWER} (disc ${DISC})" = "x$LOWER" ]]
                 then
-                    echo "Moving '$NAME' to '$NODISC'" >> /dev/stderr
                     DIR=$(dirname "$ALBUM")
                     pushd "$DIR" > /dev/null
                     mkdir -p "$NODISC"
                     for TRACK in "$NAME"/*
                     do
-                        mv -v "$TRACK" "$NODISC"/
+                        echo "mv -v '$PWD/$TRACK' '$PWD/$NODISC/'"
                     done
-                    rmdir "$NAME"
                     popd > /dev/null
                 fi
             done

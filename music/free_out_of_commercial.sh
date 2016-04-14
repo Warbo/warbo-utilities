@@ -20,8 +20,7 @@ function free_out_of_commercial {
     do
         PARENT=$(dirname "$DIR")
         mkdir -p ../Free/"$PARENT"
-        echo "Moving '$DIR' to ../Free/$DIR"
-        mv -v "$DIR" ../Free/"$DIR"
+        echo "mv -v 'PWD/$DIR' '$PWD/../Free/$DIR'"
     done < <(free_dirs)
     popd > /dev/null
 }
