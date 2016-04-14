@@ -34,7 +34,7 @@ except IOError:
 def get_crc(path):
     # Use cached version if available
     if path in crcmap:
-        return crcmap[line]
+        return crcmap[path]
 
     # Calculate CRC
     msg("Calculating CRC of " + path)
@@ -42,7 +42,7 @@ def get_crc(path):
     crc    = filter(lambda l: "CRC" in l, output.splitlines())[0]
 
     # Cache for future reference
-    crcs[path] = crc
+    crcmap[path] = crc
     with open(".crcs", "a") as f:
         f.write(crc + "\t" + path + "\n")
 
@@ -75,15 +75,17 @@ def compare_files(f1, f2):
                 makedirs("DUPES/" + d)
                 do_move(f2, "DUPES/" + d + "/" + fname)
         else:
-            print(f1 + " doesn't match CRC of " + f2)
+            msg(f1 + " doesn't match CRC of " + f2)
     else:
         print("Path '" + f1 + "' looks like a dupe of '" + f2 + "'")
 
 # Read lines from stdin like "COMPARE\tfoo\tbar" and compare foo with bar
 for line in sys.stdin:
-    if line.startswith("COMPARE"):
-        bits = line.split('\t')
+    if line.startswith("COMPARE\t"):
+        bits = line.split("\t")
         if len(bits) == 3:
             compare_files(bits[1], bits[2][:-1]) # Chomp newline
         else:
             msg("Dodgy stdin line: " + line)
+    else:
+        print(line)

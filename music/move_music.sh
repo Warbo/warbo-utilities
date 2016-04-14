@@ -44,7 +44,7 @@ function find_dupe_files {
             echo "Looking for dupes in '$ARTIST'" >> /dev/stderr
             DUPES=$("$BASE/guess_dupes.sh" < <(find "$ARTIST" -type f))
             echo "Possible dupes:" >> /dev/stderr
-            echo "$DUPES"          >> /dev/stderr
+            echo "$DUPES"
             echo "Checking CRCs"   >> /dev/stderr
             while read -r LINE
             do
@@ -57,11 +57,10 @@ function find_dupe_files {
                     echo "COMPARE	$TRACK	$NAME"
                 done < <(echo "$AFTER" | head -n "$END"        |
                                          grep -v "looks like:" |
-                                         grep -v "^END$")      |
-                    "$BASE/compare_crcs.py"
+                                         grep -v "^END$")
             done < <(echo "$DUPES" | grep -n "looks like")
         done
-    done
+    done | "$BASE/compare_crcs.py"
 }
 
 function fdupes_per_artist {
