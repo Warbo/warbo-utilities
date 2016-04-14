@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import re
 from shutil     import move
 from subprocess import check_output
 from os         import listdir, makedirs
 from os.path    import basename, dirname, exists, isfile, isdir
 import sys
-from __future__ import print_function
+
 
 def msg(m):
     print(m, file=sys.stderr)
@@ -83,6 +84,6 @@ for line in sys.stdin:
     if line.startswith("COMPARE"):
         bits = line.split('\t')
         if len(bits) == 3:
-            compare_files(bits[1], bits[2])
+            compare_files(bits[1], bits[2][:-1]) # Chomp newline
         else:
             msg("Dodgy stdin line: " + line)

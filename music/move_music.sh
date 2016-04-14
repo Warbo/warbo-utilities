@@ -57,7 +57,8 @@ function find_dupe_files {
                     echo "COMPARE	$TRACK	$NAME"
                 done < <(echo "$AFTER" | head -n "$END"        |
                                          grep -v "looks like:" |
-                                         grep -v "^END$")
+                                         grep -v "^END$")      |
+                    "$BASE/compare_crcs.py"
             done < <(echo "$DUPES" | grep -n "looks like")
         done
     done
