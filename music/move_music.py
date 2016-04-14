@@ -1,14 +1,19 @@
 #!/usr/bin/env python
 
+import re
 from shutil     import move
 from subprocess import check_output
-from os         import makedirs
-from os.path    import basename, isfile, isdir, dirname
+from os         import listdir, makedirs
+from os.path    import basename, dirname, exists, isfile, isdir
 import sys
 from __future__ import print_function
 
 def msg(m):
     print(m, file=sys.stderr)
+
+def do_move(src, dest):
+    msg("Moving '" + src + "' to '" + dest + "'")
+    #move(src, dest)
 
 # Read in cached CRCs
 crcmap = {}
@@ -65,53 +70,42 @@ def compare_files(f1, f2):
                 d = dirname(f2)
                 fname = basename(f2)
                 makedirs("DUPES/" + d)
-                msg("Moving '" + f2 + "' to 'DUPES/" + d + "/" + fname + "'")
-                #move(f2, "DUPES/" + d + "/" + fname)
+                do_move(f2, "DUPES/" + d + "/" + fname)
         else:
             print(f1 + " doesn't match CRC of " + f2)
     else:
         print("Path '" + f1 + "' looks like a dupe of '" + f2 + "'")
 
-# function move_if_no_conflict {
-#     # Takes the initial (subdir of Music/Commercial), the directory we might be
-#     # moving from and a path within that directory. For example:
-#     #
-#     # move_if_no_conflict "A" "MyMusic" "Ayreon/Into the Electric Castle"
-#     #
-#     # If "Music/Commercial/A/Ayreon/Into the Electric Castle" does not exist,
-#     # then "MyMusic/Ayreon/Into the Electric Castle" will be moved there.
-#     #
-#     # If it does exist, and both are directories, then move_if_no_conflict will
-#     # be called recursively on all of the contents (using the same initial and
-#     # source, ie. "A" and "MyMusic" in this example)
-#     #
-#     # If it does exist, is not a directory, and the path appears to be an audio
-#     # file (eg. ending in "mp3"), then we take the CRC checksum of both audio
-#     # streams and, if they match, report the duplicate for deletion.
-#     INITIAL="$1"
-#     SOURCE="$2"
-#     THEPATH="$3"
-#     if [ -e "Music/Commercial/$INITIAL/$THEPATH" ]
-#     then
-#         if [ -d "Music/Commercial/$INITIAL/$THEPATH" ]
-#         then
-#             if [ -d "$SOURCE/$THEPATH" ]
-#             then
-#                 for INNER in "$SOURCE/$THEPATH"/*
-#                 do
-#                     RELATIVE=$(echo "$INNER" | sed -e 's@^[^/]*/@@')
-#                     move_if_no_conflict "$INITIAL" "$SOURCE" "$RELATIVE"
-#                 done
-#             else
-#                 echo "Directory/non-directory mixup for $THEPATH"
-#             fi
-#         else
-#             compare_files "$SOURCE/$THEPATH" "Music/Commercial/$INITIAL/$THEPATH"
-#         fi
-#     else
-#         mv -nv "$SOURCE/$THEPATH" "Music/Commercial/$INITIAL/$THEPATH"
-#     fi
-# }
+def move_if_no_conflict(initial, source, thepath)
+    # Takes the initial (subdir of Music/Commercial), the directory we might be
+    # moving from and a path within that directory. For example:
+    #
+    # move_if_no_conflict("A", "MyMusic", "Ayreon/Into the Electric Castle")
+    #
+    # If "Music/Commercial/A/Ayreon/Into the Electric Castle" does not exist,
+    # then "MyMusic/Ayreon/Into the Electric Castle" will be moved there.
+    #
+    # If it does exist, and both are directories, then move_if_no_conflict will
+    # be called recursively on all of the contents (using the same initial and
+    # source, ie. "A" and "MyMusic" in this example)
+    #
+    # If it does exist, is not a directory, and the path appears to be an audio
+    # file (eg. ending in "mp3"), then we take the CRC checksum of both audio
+    # streams and, if they match, report the duplicate for deletion.
+    if exists("Music/Commercial/" + initial + "/" + thepath):
+        if isdir("Music/Commercial/" + initial + "/" + thepath):
+            if isdir(source + "/" + thepath):
+                for inner in listdir(source + "/" + thepath):
+                    relative = re.sub('^[^/]*/', '', inner)
+                    move_if_no_conflict(initial, source, relative)
+            else:
+                print("Directory/non-directory mixup for " + thepath)
+        else:
+            compare_files(source + "/" + thepath,
+                          "Music/Commercial/" + initial + "/" + thepath)
+    else:
+        do_ move(source + "/" + thepath,
+                 "Music/Commercial/" + initial + "/" + thepath)
 
 # function move_contents {
 #     echo "Moving non-conflicting artist contents"
