@@ -72,7 +72,7 @@ def compare_files(f1, f2):
             if isdir("DUPES"):
                 d = dirname(f2)
                 fname = basename(f2)
-                makedirs("DUPES/" + d)
+                print("mkdir -p " + shellquote("DUPES/" + d))
                 do_move(f2, "DUPES/" + d + "/" + fname)
         else:
             msg(f1 + " doesn't match CRC of " + f2)
