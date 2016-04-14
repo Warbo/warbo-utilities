@@ -96,7 +96,7 @@ def move_if_no_conflict(initial, source, thepath)
         if isdir("Music/Commercial/" + initial + "/" + thepath):
             if isdir(source + "/" + thepath):
                 for inner in listdir(source + "/" + thepath):
-                    relative = re.sub('^[^/]*/', '', inner)
+                    relative = mkrelative(inner)
                     move_if_no_conflict(initial, source, relative)
             else:
                 print("Directory/non-directory mixup for " + thepath)
@@ -107,21 +107,18 @@ def move_if_no_conflict(initial, source, thepath)
         do_ move(source + "/" + thepath,
                  "Music/Commercial/" + initial + "/" + thepath)
 
-# function move_contents {
-#     echo "Moving non-conflicting artist contents"
-#     for INIT in A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
-#     do
-#         echo "$INIT"
-#         for COLLECTION in "LozMusic" "LozMusic2" "Jo Tidy Music" "JamesMusic" "Riffs"
-#         do
-#             for DIR in "$COLLECTION/$INIT"*
-#             do
-#                 RELATIVE=$(echo "$DIR" | sed -e 's@^[^/]*/@@')
-#                 move_if_no_conflict "$INIT" "$COLLECTION" "$RELATIVE"
-#             done
-#         done
-#     done
-# }
+def mkrelative(s):
+    return re.sub('^[^/]*/', '', s)
+
+def move_contents():
+    print("Moving non-conflicting artist contents")
+    for init in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+        print(init)
+        for collection in ["LozMusic", "LozMusic2", "Jo Tidy Music", "JamesMusic", "Riffs"]:
+            for the_dir in filter(lambda f: f.startswith(init),
+                                  listdir(collection + "/")):
+                relative = mkrelative(the_dir)
+                move_if_no_conflict(init, collection, relative)
 
 # function remove_empties {
 #     echo "Removing empty directories in Music/"
