@@ -11,7 +11,7 @@ function find_dupe_artists {
     for INIT in A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
     do
         echo "$INIT"
-        "$BASE/guess_dupes.sh" < <(ls "Music/Commercial/$INIT/")
+        ls "Music/Commercial/$INIT/" | "$BASE/guess_dupes.sh"
     done
 }
 
@@ -28,7 +28,7 @@ function find_dupe_dirs {
                 echo "Warning: '$ARTIST' is not a directory" >> /dev/stderr
                 continue
             }
-            "$BASE/guess_dupes.sh" < <(find "$ARTIST" -type d)
+            find "$ARTIST" -type d | "$BASE/guess_dupes.sh"
         done
     done
 }
@@ -42,23 +42,23 @@ function find_dupe_files {
         do
             [[ -d "$ARTIST" ]] || continue
             echo "Looking for dupes in '$ARTIST'" >> /dev/stderr
-            DUPES=$("$BASE/guess_dupes.sh" < <(find "$ARTIST" -type f))
+            DUPES=$(find "$ARTIST" -type f | "$BASE/guess_dupes.sh")
             echo "Possible dupes:" >> /dev/stderr
             echo "$DUPES"
             echo "Checking CRCs"   >> /dev/stderr
-            while read -r LINE
+            echo "$DUPES" | grep -n "looks like" | while read -r LINE
             do
                 NUM=$(echo "$LINE" | cut -d ':' -f1)
                 AFTER=$(echo "$DUPES" | tail -n +"$NUM")
                 END=$(echo "$AFTER" | grep -n "^END$" | cut -d ':' -f1 | head -n1)
                 TRACK=$(echo "$LINE" | sed -e 's/ looks like://g' | cut -d ':' -f 2-)
-                while read -r NAME
+                echo "$AFTER" | head -n "$END"        |
+                                grep -v "looks like:" |
+                                grep -v "^END$"       | while read -r NAME
                 do
                     echo "COMPARE	$TRACK	$NAME"
-                done < <(echo "$AFTER" | head -n "$END"        |
-                                         grep -v "looks like:" |
-                                         grep -v "^END$")
-            done < <(echo "$DUPES" | grep -n "looks like")
+                done
+            done
         done
     done | "$BASE/compare_crcs.py"
 }
