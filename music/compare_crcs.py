@@ -8,7 +8,6 @@ from os         import listdir, makedirs
 from os.path    import basename, dirname, exists, isfile, isdir
 import sys
 
-
 def msg(m):
     print(m, file=sys.stderr)
 
@@ -51,10 +50,10 @@ def get_crc(path):
 def compare_files(f1, f2):
     if not isfile(f1):
         msg("Can't compare non-existent '" + f1 + "' to '" + f2 + "'")
-        sys.exit(1)
+        raise
     if not isfile(f2):
         msg("Can't compare non-existent '" + f2 + "' to '" + f1 + "'")
-        sys.exit(1)
+        raise
 
     is_audio = False
     lower1 = f1.lower()
@@ -84,7 +83,10 @@ for line in sys.stdin:
     if line.startswith("COMPARE\t"):
         bits = line.split("\t")
         if len(bits) == 3:
-            compare_files(bits[1], bits[2][:-1]) # Chomp newline
+            try:
+                compare_files(bits[1], bits[2][:-1]) # Chomp newline
+            except:
+                msg("Exception raised, skipping")
         else:
             msg("Dodgy stdin line: " + line)
     else:

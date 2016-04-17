@@ -6,4 +6,5 @@ find "Music" -iname "*.db"   \
          -or -iname "*.jpeg" \
          -or -iname "*.url"  \
          -or -iname "*.txt"  \
-         -or -iname "*.ini"
+         -or -iname "*.ini"  \
+         -or -iname "*.onetoc2"
