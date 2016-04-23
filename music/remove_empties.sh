@@ -5,3 +5,6 @@ do
     ESCAPED=$(echo "$D" | sed -e "@'@'\\''@g")
     echo "rmdir '$ESCAPED'"
 done
+
+echo "Looking for empty files in Music/"
+find "Music" -type f -empty
