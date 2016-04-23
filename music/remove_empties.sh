@@ -1,3 +1,7 @@
 #!/usr/bin/env bash
-echo "Removing empty directories in Music/"
-find "Music" -type d -exec rmdir --ignore-fail-on-non-empty {} \;
+echo "Looking for empty directories in Music/"
+find "Music" -type d -empty | while read -r D
+do
+    ESCAPED=$(echo "$D" | sed -e "@'@'\\''@g")
+    echo "rmdir '$ESCAPED'"
+done
