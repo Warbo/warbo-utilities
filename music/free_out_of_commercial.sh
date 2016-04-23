@@ -9,6 +9,7 @@ function free_dirs {
     find . -type d -name 'Final Fantasy VII*'
     find . -type d -name 'Newgrounds Audio Portal*'
     find . -type d -name 'Sonic the Hedgehog 2*'
+    find . -type d -name '*ocremix.org*'
 }
 
 function free_out_of_commercial {
