@@ -31,11 +31,10 @@ do
             echo "Using cache for '$ARTIST'" 1>&2
         else
             echo "Searching for '$ARTIST' on metal-archives.com" 1>&2
-            sleep 2
+            sleep 1
             curl --get --data-urlencode "field=name"      \
                        --data-urlencode "query=44 magnum" \
                  "http://www.metal-archives.com/search/ajax-band-search/" > "$CACHED"
-            exit 0
         fi
     done
 done
