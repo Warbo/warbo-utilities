@@ -17,7 +17,7 @@ do
 
     echo "Checking $INIT..." 1>&2
 
-    for D2 in "$D1"
+    for D2 in "$D1/"*
     do
         echo "$D2"
         break
