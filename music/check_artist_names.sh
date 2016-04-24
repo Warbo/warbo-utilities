@@ -69,7 +69,7 @@ function haveMetalArchive {
 
     echo "Directory country '$COUNTRY'"
     echo "Result countries: "
-    jq '.aaData | map(.[3])' < "$ARCHIVE"
+    jq '.aaData | map(.[2])' < "$ARCHIVE"
     return 1
 }
 
