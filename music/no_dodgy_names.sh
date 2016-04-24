@@ -25,3 +25,10 @@ do
     DEST=$(echo "$DIR" | sed -e 's@ (PREVIEW_ buy it at www.magnatune.com)@@g' | esc)
     echo "mv -v '$SRC' '$DEST'"
 done
+
+find Music/Commercial -type f -name '*magnatune.com*' | while read -r F
+do
+     SRC=$(echo "$F" | esc)
+    DEST=$(echo "$F" | sed -e 's@ (PREVIEW_ buy it at www.magnatune.com)@@g' | esc)
+    echo "mv -v '$SRC' '$DEST'"
+done
