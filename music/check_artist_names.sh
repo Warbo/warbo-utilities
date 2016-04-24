@@ -19,12 +19,22 @@ do
 
     for D2 in "$D1/"*
     do
-        echo "$D2"
-        break
         [[ -d "$D2" ]] || {
             echo "Error: '$D2' isn't a directory" 1>&2
             continue
         }
+
+        ARTIST=$(basename "$D2")
+        CACHED="$CACHE_DIR/$INIT/$ARTIST"
+        if [[ -f "$CACHED" ]]
+        then
+            echo "Using cache for '$ARTIST'" 1>&2
+        else
+            echo "Looking up '$ARTIST'" 1>&2
+            sleep 2
+            curl --get --data-urlencode "query=artist:$ARTIST" \
+                 "http://musicbrainz.org/ws/2/artist/" > "$CACHED"
+            exit 0
+        fi
     done
-    break
 done
