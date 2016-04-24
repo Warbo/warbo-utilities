@@ -3,6 +3,10 @@ set -e
 
 # Check each directory at the artist level against external metadata databases
 
+function stripSpace {
+    sed -e 's/[[:space:]]*$//g' | sed -e 's/^[[:space:]]*//g'
+}
+
 function assertDir {
     [[ -d "$1" ]] || {
         echo "Error: '$1' isn't a directory" 1>&2
@@ -31,14 +35,41 @@ function metalArchiveFor {
 }
 
 function haveMetalArchive {
-    ARCHIVE=$(metalArchiveFor "$1") || return 1
+    if echo "$1" | grep '([^)]*)$' > /dev/null
+    then
+        BANDNAME=$(echo "$1" | rev | cut -d '(' -f 2- | rev | stripSpace)
+        COUNTRY=$(echo "$1" | rev | cut -d '(' -f 1  | rev | tr -d ')' | stripSpace)
+    else
+        BANDNAME="$1"
+        COUNTRY=""
+    fi
+
+    ARCHIVE=$(metalArchiveFor "$BANDNAME") || return 1
     MATCHES=$(jq '.iTotalRecords' < "$ARCHIVE")
     if [[ "$MATCHES" -eq 1 ]]
     then
+        # One match; assume it's exact (for now)
         return 0
     fi
 
-    echo "Found '$MATCHES' results for '$ARTIST'" 1>&2
+    if [[ "$MATCHES" -eq 0 ]]
+    then
+         # No matches, so nothing we can do. Remove error message when we have
+         # more backends
+         echo "Error: No matches for '$BANDNAME' on metal-archives" 1>&2
+         return 1
+    fi
+
+    if [[ "$MATCHES" -gt 0 ]] && [[ -z "$COUNTRY" ]]
+    then
+        # We have multiple matches, but no way to distinguish them
+        echo "Error: $MATCHES matches for '$BANDNAME' on metal archives (maybe add country?)" 1>&2
+        return 1
+    fi
+
+    echo "Directory country '$COUNTRY'"
+    echo "Result countries: "
+    jq '.aaData | map(.[3])' < "$ARCHIVE"
     return 1
 }
 
