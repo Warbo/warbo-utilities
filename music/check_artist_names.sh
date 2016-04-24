@@ -15,7 +15,7 @@ function metalArchiveFor {
     CACHED="$CACHE_DIR/$INIT/$1"
     if [[ -f "$CACHED" ]]
     then
-        echo "Using cache for '$1'" 1>&2
+        true
     else
         echo "Searching for '$1' on metal-archives.com" 1>&2
         sleep 1
@@ -24,7 +24,7 @@ function metalArchiveFor {
              "http://www.metal-archives.com/search/ajax-band-search/" > "$CACHED"
     fi
     [[ -f "$CACHED" ]] || {
-        echo "Couldn't find metal-archives data for '$1'" 1>&2
+        echo "Error: Couldn't find metal-archives data for '$1'" 1>&2
         return 1
     }
     echo "$CACHED"
@@ -35,7 +35,6 @@ function haveMetalArchive {
     MATCHES=$(jq '.iTotalRecords' < "$ARCHIVE")
     if [[ "$MATCHES" -eq 1 ]]
     then
-        echo "Found '$ARTIST' on metal-archives.com" 1>&2
         return 0
     fi
 
@@ -56,8 +55,6 @@ do
     assertDir "$D1" || continue
     INIT=$(basename "$D1")
     mkdir -p "$CACHE_DIR/$INIT"
-
-    echo "Checking $INIT..." 1>&2
 
     for D2 in "$D1/"*
     do
