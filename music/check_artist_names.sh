@@ -33,7 +33,7 @@ do
             echo "Searching for '$ARTIST' on metal-archives.com" 1>&2
             sleep 1
             curl --get --data-urlencode "field=name"      \
-                       --data-urlencode "query=44 magnum" \
+                       --data-urlencode "query=$ARTIST" \
                  "http://www.metal-archives.com/search/ajax-band-search/" > "$CACHED"
         fi
     done
