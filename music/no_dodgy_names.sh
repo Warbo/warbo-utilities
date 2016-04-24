@@ -3,7 +3,7 @@
 set -e
 
 function esc {
-    sed -e "s@'@'\\''@g"
+    sed -e "s@'@'\\\\''@g"
 }
 
 find Music/Commercial -name 'http___music.download.com' | while read -r DIR
