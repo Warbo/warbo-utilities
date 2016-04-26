@@ -3,7 +3,13 @@
 #set -x
 # Analyse results of proc_trace.sh
 
+function msg {
+    echo -e "$*" 1>&2
+}
+
+msg "Reading input..."
 INPUT=$(cat)
+msg "Finished reading input"
 
 # PID to use for the top-level process
 TOP=0
@@ -18,18 +24,21 @@ function get_top_pid {
             TOP="$PIDGTP"
             return
         fi
-    done < <(echo "$INPUT" | grep -o "^\[pid [0-9]*\]" | grep -o "[0-9]*")
+    done < <(echo "$INPUT" | grep -o "^\[pid *[0-9]*\]" | grep -o "[0-9]*")
 }
+
+msg "Finding top-level process ID"
 get_top_pid
+msg "Found top-level PID: $TOP"
 
 function strip_prefix {
-    echo "$1" | sed -e 's/\[pid [0-9]*\] //g'
+    echo "$1" | sed -e 's/\[pid *[0-9]*\] //g'
 }
 
 function pid_of {
     # Try to infer which process a line comes from. This is either a [pid 1234]
     # prefix, or no prefix if the line comes from the top process
-    if PRE=$(echo "$1" | grep -o "^\[pid [0-9]*\]")
+    if PRE=$(echo "$1" | grep -o "^\[pid *[0-9]*\]")
     then
         echo "$PRE" | grep -o "[0-9]*"
     else
@@ -176,15 +185,13 @@ function time_to_row {
 
 function get_all_pids {
     # Fill PIDS with all PIDs that were logged
-    while read -r LINEGAP
-    do
-        PIDGAP=$(pid_of "$LINEGAP")
-        contains_element "$PIDGAP" "${PIDS[@]}" || PIDS+=("$PIDGAP")
-    done < <(echo "$INPUT")
+    echo "$TOP"
+    echo "$INPUT" | grep -o '\[pid *[0-9]*\]' | grep -o '[0-9]*' | sort -u
 }
 
-PIDS=()
-get_all_pids
+msg "Looking up all process IDs"
+readarray PIDS < <(get_all_pids)
+msg "Got all PIDs"
 
 function name_of {
     FOUND=$(lines_of "$1" |
@@ -245,4 +252,6 @@ function make_csv {
     rows_with_heading | sed -e 's/,$//g'
 }
 
+msg "Making CSV"
 make_csv
+msg "Finished"
