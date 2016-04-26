@@ -1,6 +1,6 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i bash -p bash bc
-#set -x
+set -e
 # Analyse results of proc_trace.sh
 
 function msg {
@@ -8,7 +8,7 @@ function msg {
 }
 
 msg "Reading input..."
-INPUT=$(cat)
+INPUT=$(cat | grep -e "^\(\[\|[0-9]\)")
 msg "Finished reading input"
 
 # PID to use for the top-level process
@@ -48,28 +48,31 @@ function pid_of {
 
 function lines_of {
     # Returns lines associated with the given PID
-    while read -r LINELO
-    do
-        PIDLO=$(pid_of "$LINELO")
-        [[ "$1" -eq "$PIDLO" ]] && echo "$LINELO"
-    done < <(echo "$INPUT")
+    if [[ "$1" -eq "$TOP" ]]
+    then
+        echo "$INPUT" | grep -v "^\[pid *[0-9]*\]"
+    else
+        echo "$INPUT" | grep "^\[pid *$1\]"
+    fi
 }
 
 function time_of {
     # Get the timestamp from a line
-    strip_prefix "$1" | cut -d ' ' -f 1
+    echo "$1" | sed -e 's/\[pid *[0-9]*\] //g' | cut -d ' ' -f 1
 }
 
 function find_creation {
     # Find the line (if any) where the given PID was spawned
-    echo "$INPUT" | grep "clone(.*) = $1"
+    echo "$INPUT" | grep "clone(.*) = $1" | head -n1
 }
 
 function creation_time {
     if [[ "$1" -eq "$TOP" ]]
     then
+        msg "creation_time of top PID ($1)"
         time_of "$(echo "$INPUT" | head -n1)"
     else
+        msg "creation_time '$1'"
         time_of "$(find_creation "$1")"
     fi
 }
@@ -98,11 +101,13 @@ function contains_element {
 
 function gte {
     # $1 >= $2
+    msg "gte '$1' '$2'"
     (( $(echo "$1 >= $2" | bc -l) ))
 }
 
 function is_alive_at {
     # Is PID $1 alive at time $2?
+    msg "is_alive_at '$1' '$2'"
     gte "$2" "$(creation_time "$1")" &&
     gte "$(destruction_time "$1")" "$2"
 }
@@ -123,49 +128,13 @@ function all_lines {
 
 function all_times {
     # All times, in order
-    while read -r LINEAT
-    do
-        time_of "$LINEAT"
-    done < <(all_lines) | sort -gu
+    all_lines | sed -e 's/\[pid *[0-9]*\] //g' | cut -d ' ' -f 1 | sort -gu
 }
 
 function higher {
     # Should PID $1 appear above PID $2?
+    msg "higher '$1' '$2'"
     gte "$(creation_time "$1")" "$(creation_time "$2")"
-}
-
-function pids_alive_at {
-    for PIDAA in "${PIDS[@]}"
-    do
-        is_alive_at "$PIDAA" "$1" && echo "$PIDAA"
-    done
-}
-
-function height_at {
-    # Simpler: have spreadsheet chart plotter do the stacking
-    if is_alive_at "$1" "$2"
-    then
-        echo "1"
-    else
-        echo "0"
-    fi
-    return
-
-    # How high should PID $1 appear at time $2, when stacked up?
-    if is_alive_at "$1" "$2"
-    then
-        HEIGHT=0 # Start at 0, we will bump ourselves up to 1
-        while read -r LINEHA
-        do
-            if higher "$1" "$LINEHA"
-            then
-                HEIGHT=$(( HEIGHT + 1 ))
-            fi
-        done < <(pids_alive_at "$2")
-        echo "$HEIGHT"
-    else
-        echo "0"
-    fi
 }
 
 function time_to_row {
@@ -175,7 +144,7 @@ function time_to_row {
     do
         if is_alive_at "$PIDTTR" "$1"
         then
-            printf "%s," "$(height_at "$PIDTTR" "$1")"
+            printf "1,"
         else
             printf "0,"
         fi
@@ -190,7 +159,7 @@ function get_all_pids {
 }
 
 msg "Looking up all process IDs"
-readarray PIDS < <(get_all_pids)
+readarray -t PIDS < <(get_all_pids)
 msg "Got all PIDs"
 
 function name_of {
@@ -230,6 +199,7 @@ function make_heading {
     printf "Time,"
     for PIDMH in "${PIDS[@]}"
     do
+        printf "." 1>&2
         COL=$(name_of "$PIDMH")
         printf "%s," "$COL"
     done
@@ -244,8 +214,12 @@ function all_rows {
 }
 
 function rows_with_heading {
+    printf "Heading..." 1>&2
     make_heading
+    msg ""
+    msg "Heading finished. Rows..."
     all_rows
+    msg "Rows finished"
 }
 
 function make_csv {
