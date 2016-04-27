@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 CMD="x2x -west -to :0"
 
-if ssh jo@debian true 1> /dev/null 2> /dev/null
+if [[ -z "$JO_HOST" ]]
 then
-    echo "Found debian, starting x2x"
-    ssh -Y jo@debian "$CMD"
+   JO_HOST=debian
+fi
+
+if ssh jo@"$JO_HOST" true 1> /dev/null 2> /dev/null
+then
+    echo "Found $JO_HOST, starting x2x"
+    ssh -Y jo@"$JO_HOST" "$CMD"
 else
-    echo "Couldn't connect to debian, trying via raspberrypi"
-    ssh -L20000:jo@debian:22 pi@raspberrypi
-    ssh -p 20000 -X localhost "$CMD"
+    echo "Couldn't connect to $JO_HOST" 1>&2
+    exit 1
 fi
