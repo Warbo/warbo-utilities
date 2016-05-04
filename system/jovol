@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 
-if ssh jo@debian true
+[[ -n "$JO_HOST" ]] || {
+    JO_HOST=debian
+}
+
+if ssh jo@"$JO_HOST" true
 then
-    ssh jo@debian -t "./vol"
+    ssh jo@"$JO_HOST" -t "./vol"
 else
-    ssh pi@raspberrypi -t 'ssh -t jo@debian "./vol"'
+    echo "Couldn't connect to '$JO_HOST'" 1>&2
+    exit 1
 fi
