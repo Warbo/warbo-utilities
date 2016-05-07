@@ -9,5 +9,5 @@ echo "Looking for possible dupes in Music/Commercial"
 for INIT in A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
 do
     echo "$INIT"
-    ls "Music/Commercial/$INIT/" | "$BASE/guess_dupes.sh"
+    ls "Music/Commercial/$INIT/" | "$BASE/list_dupe_guesses.sh"
 done
