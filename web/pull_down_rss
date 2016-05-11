@@ -3,18 +3,23 @@
 # Grabs RSS feeds and dumps them in ~/.cache
 # Used to work around things imm doesn't support (e.g. HTTPS)
 
+function stripNonAscii {
+    tr -cd '[:print:]\n'
+}
+
 function atomToRss {
     nix-shell -p libxslt --run \
               "xsltproc ~/System/Programs/atom2rss-exslt.xsl '$1.atom' > '$1.rss'"
 }
 
 function getAtom {
-    wget -O "$1.atom" "$2"
+    wget -O - "$2" | stripNonAscii > "$1.atom"
     atomToRss "$1"
 }
 
 function getYouTube {
-    wget -O "$1.atom" "http://www.youtube.com/feeds/videos.xml?channel_id=$2"
+    wget -O - "http://www.youtube.com/feeds/videos.xml?channel_id=$2" |
+        stripNonAscii > "$1.atom"
     atomToRss "$1"
 }
 
