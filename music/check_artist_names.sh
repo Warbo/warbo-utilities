@@ -5,10 +5,6 @@ BASE=$(dirname "$(readlink -f "$0")")
 
 # Check each directory at the artist level against external metadata databases
 
-function stripSpace {
-    sed -e 's/[[:space:]]*$//g' | sed -e 's/^[[:space:]]*//g'
-}
-
 function assertDir {
     [[ -d "$1" ]] || {
         echo "Error: '$1' isn't a directory" 1>&2

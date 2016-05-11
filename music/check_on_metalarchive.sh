@@ -19,6 +19,10 @@ function metalArchiveFor {
     echo "$CACHED"
 }
 
+function stripSpace {
+    sed -e 's/[[:space:]]*$//g' | sed -e 's/^[[:space:]]*//g'
+}
+
 function haveMetalArchive {
     # If the given directory name ends in (foo) split it off as a country code
     if echo "$1" | grep '([^)]*)$' > /dev/null
