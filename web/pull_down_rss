@@ -3,17 +3,31 @@
 # Grabs RSS feeds and dumps them in ~/.cache
 # Used to work around things imm doesn't support (e.g. HTTPS)
 
+function atomToRss {
+    nix-shell -p libxslt --run \
+              "xsltproc ~/System/Programs/atom2rss-exslt.xsl '$1.atom' > '$1.rss'"
+}
+
+function getAtom {
+    wget -O "$1.atom" "$2"
+    atomToRss "$1"
+}
+
 function getYouTube {
     wget -O "$1.atom" "http://www.youtube.com/feeds/videos.xml?channel_id=$2"
-    nix-shell -p libxslt --run \
-      "xsltproc ~/System/Programs/atom2rss-exslt.xsl '$1.atom' > '$1.rss'"
+    atomToRss "$1"
 }
 
 mkdir -p ~/.cache/rss
 cd ~/.cache/rss
 
-getYouTube standupmaths  "UCSju5G2aFaWMqn-_0YBtq5A"
-getYouTube numberphile   "UCoxcjq-8xIDTYp3uz647V5A"
-getYouTube computerphile "UC9-y-6csu5WGm29I7JiwpnA"
+getAtom kurzweilai "http://www.kurzweilai.net/feed/atom"
+
+getYouTube standupmaths   "UCSju5G2aFaWMqn-_0YBtq5A"
+getYouTube numberphile    "UCoxcjq-8xIDTYp3uz647V5A"
+getYouTube computerphile  "UC9-y-6csu5WGm29I7JiwpnA"
+getYouTube vsauce         "UC6nSFpj9HTCZ5t-N3Rm3-HA"
+getYouTube veritasium     "UCHnyfMqiRRG1u-2MsSQLbXA"
+getYouTube periodicvideos "UCtESv1e7ntJaLJYKIO1FoYw"
 
 iplayer_to_rss
