@@ -22,9 +22,22 @@ function haveMetalArchive {
     "$HMA" "$1"
 }
 
+function haveLastFm {
+    HLF="$BASE/check_on_lastfm.sh"
+    [[ -e "$HLF" ]] || {
+        echo "Couldn't find script '$HLF', aborting" 1>&2
+        exit 1
+    }
+    "$HLF" "$1"
+}
+
 function checkArtistDir {
     ARTIST=$(basename "$1")
-    haveMetalArchive "$ARTIST"
+    if haveMetalArchive "$ARTIST"
+    then
+        return 0
+    fi
+    haveLastFm "$ARTIST"
 }
 
 for D1 in Music/Commercial/*
