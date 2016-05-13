@@ -7,4 +7,4 @@
 #play -n synth '7:00:00' pinknoise band -n 1200 200 tremolo 20 .1
 
 # Pink noise, filtered to overlap voices
-play -c 2 -n synth pinknoise
+play -c 2 -n synth pinknoise 1> /dev/null 2> /dev/null
