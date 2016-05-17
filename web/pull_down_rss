@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#! /usr/bin/env nix-shell
+#! nix-shell -p libxslt xmlstarlet -i bash
 
 # Grabs RSS feeds and dumps them in ~/.cache
 # Used to work around things imm doesn't support (e.g. HTTPS)
@@ -7,9 +8,13 @@ function stripNonAscii {
     tr -cd '[:print:]\n'
 }
 
+function fixRss {
+    xml ed -u "//author" -v "$1"
+}
+
 function atomToRss {
-    nix-shell -p libxslt --run \
-              "xsltproc ~/System/Programs/atom2rss-exslt.xsl '$1.atom' > '$1.rss'"
+    xsltproc ~/System/Programs/atom2rss-exslt.xsl "$1.atom" |
+        fixRss "$1" > "$1.rss"
 }
 
 function getAtom {
@@ -24,7 +29,7 @@ function getYouTube {
 }
 
 function getRss {
-    wget -O - "$2" | stripNonAscii > "$1.rss"
+    wget -O - "$2" | stripNonAscii | fixRss "$1" > "$1.rss"
 }
 
 mkdir -p ~/.cache/rss
