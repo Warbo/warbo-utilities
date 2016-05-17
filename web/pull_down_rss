@@ -9,7 +9,14 @@ function stripNonAscii {
 }
 
 function fixRss {
-    xml ed -u "//author" -v "$1"
+    # Set the author to $1, to avoid newlines
+    xmlstarlet ed -u "//author" -v "$1" |
+
+    # Append today as the pubDate, then remove all but the first pubDate (i.e.
+    # append today as the pubDate, if none is given)
+    xmlstarlet ed -s //item -t elem -n pubDate             \
+                  -v "$(date -d "today 00:00" --rfc-2822)" \
+                  -d '//item/author[position() != 1]'
 }
 
 function atomToRss {
