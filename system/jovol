@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 [[ -n "$JO_HOST" ]] || {
-    JO_HOST=debian
+    JO_HOST=debian.local
 }
 
 if ssh jo@"$JO_HOST" true

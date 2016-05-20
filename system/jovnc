@@ -2,7 +2,7 @@
 #! nix-shell -i bash -p tightvnc
 
 [[ -n "$JO_HOST" ]] || {
-    JO_HOST=debian
+    JO_HOST=debian.local
 }
 
 ssh -t jo@"$JO_HOST" "pkill x11vnc; DISPLAY=:0 x11vnc" &
