@@ -47,6 +47,10 @@ function assertSameLength {
 }
 
 function listToFeed {
+    listToFeed "$@" | tr -cd '[:print:]\n'
+}
+
+function listToFeed2 {
     CHANNELURL=$(echo "$2" | xmlEscape)
     echo '<rss version="2.0">'
     echo   '<channel>'
