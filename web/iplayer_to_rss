@@ -47,7 +47,7 @@ function assertSameLength {
 }
 
 function listToFeed {
-    listToFeed "$@" | tr -cd '[:print:]\n'
+    listToFeed2 "$@" | tr -cd '[:print:]\n'
 }
 
 function listToFeed2 {
