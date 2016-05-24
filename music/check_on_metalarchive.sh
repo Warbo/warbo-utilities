@@ -1,7 +1,28 @@
 #!/usr/bin/env bash
 
+function metalArchiveAlbums {
+    ALBUM_CACHE="$CACHE_DIR/$INIT/$2_$3.albums"
+    mkdir -p "$CACHE_DIR/$INIT"
+
+    if [[ -f "$ALBUM_CACHE" ]]
+    then
+        true
+    else
+        echo "Getting albums for '$2' ('$3') from metal-archives.com" 1>&2
+        sleep 1
+        BAND_URL=$(jq -r '.aaData[0][0]' < "$1" |
+                   grep -o '\".*\"'             |
+                   grep -o '[^"]*')
+        BAND_ID=$(echo "$BAND_URL" | grep -o '[0-9]*$')
+
+        DISC_URL="http://www.metal-archives.com/band/discography/id/${BAND_ID}/tab/all"
+        curl "$DISC_URL" > "$ALBUM_CACHE"
+    fi
+}
+
 function metalArchiveFor {
     CACHED="$CACHE_DIR/$INIT/$1"
+    mkdir -p "$CACHE_DIR/$INIT"
     if [[ -f "$CACHED" ]]
     then
         true
@@ -33,6 +54,7 @@ function haveMetalArchive {
         BANDNAME="$1"
         COUNTRY=""
     fi
+    CNT=$(codeToCountry "$COUNTRY")
 
     # Look up the band on metal archives
     ARCHIVE=$(metalArchiveFor "$BANDNAME") || return 1
@@ -41,6 +63,7 @@ function haveMetalArchive {
     MATCHES=$(jq '.iTotalRecords' < "$ARCHIVE")
     if [[ "$MATCHES" -eq 1 ]]
     then
+        metalArchiveAlbums "$ARCHIVE" "$BANDNAME" "$CNT"
         return 0
     fi
 
@@ -60,11 +83,11 @@ function haveMetalArchive {
     fi
 
     # See if we have any matching countries
-    CNT=$(codeToCountry "$COUNTRY")
     CNTRESULTS=$(jq ".aaData | map(select(.[2] == \"$CNT\"))" < "$ARCHIVE")
     CNTMATCHES=$(echo "$CNTRESULTS" | jq 'length')
     if [[ "$CNTMATCHES" -eq 1 ]]
     then
+        metalArchiveAlbums "$ARCHIVE" "$BANDNAME" "$CNT"
         return 0
     fi
 

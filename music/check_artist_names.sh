@@ -5,6 +5,10 @@ BASE=$(dirname "$(readlink -f "$0")")
 
 # Check each directory at the artist level against external metadata databases
 
+function esc {
+    sed -e "s/'/'\\\\''/g"
+}
+
 function assertDir {
     [[ -d "$1" ]] || {
         echo "Error: '$1' isn't a directory" 1>&2
@@ -19,7 +23,13 @@ function haveMetalArchive {
         echo "Couldn't find script '$HMA', aborting" 1>&2
         exit 1
     }
-    "$HMA" "$1"
+    if command -v nix-shell > /dev/null
+    then
+        ARG_ESC=$(echo "$1" | esc)
+        nix-shell -p jq --run "'$HMA' '$ARG_ESC'"
+    else
+        "$HMA" "$1"
+    fi
 }
 
 function haveLastFm {
