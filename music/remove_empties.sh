@@ -2,7 +2,7 @@
 echo "Looking for empty directories in Music/"
 find "Music" -type d -empty | while read -r D
 do
-    ESCAPED=$(echo "$D" | sed -e "s@'@'\\''@g")
+    ESCAPED=$(echo "$D" | sed -e "s@'@'\\\''@g")
     echo "rmdir '$ESCAPED'"
 done
 

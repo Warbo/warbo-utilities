@@ -3,6 +3,11 @@
 # Look for dodgy whitespace in filenames, which is either ugly or may lead
 # to dupes. Includes 'double  spaces', ' initial spaces' and
 # 'spaces before .extensions'
+
+function esc {
+    sed -e "s@'@'\\\\''@g"
+}
+
 while read -r NAME
 do
     [[ -d "$NAME" ]] && {
@@ -13,7 +18,9 @@ do
         DIR=$(dirname "$NAME")
         FILE=$(basename "$NAME")
         NORMAL=$(echo "$FILE" | sed -e 's/   */ /g')
-        echo "mv -v '${DIR}/${FILE}' '${DIR}/${NORMAL}'"
+        SRC=$(echo "$DIR/$FILE"   | esc)
+        DST=$(echo "$DIR/$NORMAL" | esc)
+        echo "mv -v '$SRC' '$DST'"
     }
 done < <(find Music -name '*  *')
 while read -r NAME
@@ -26,7 +33,9 @@ do
         DIR=$(dirname "$NAME")
         FILE=$(basename "$NAME")
         NORMAL=$(echo "$FILE" | sed -e 's/^  *//g')
-        echo "mv -v '${DIR}/${FILE}' '${DIR}/${NORMAL}'"
+        SRC=$(echo "$DIR/$FILE"   | esc)
+        DST=$(echo "$DIR/$NORMAL" | esc)
+        echo "mv -v '$SRC' '$DST'"
     }
 done < <(find Music -name ' *')
 while read -r NAME
@@ -39,7 +48,9 @@ do
         DIR=$(dirname "$NAME")
         FILE=$(basename "$NAME")
         NORMAL=$(echo "$FILE" | sed -e 's/  *\.\([^\.]*\)$/\.\1/g')
+        SRC=$(echo "$DIR/$FILE"   | esc)
+        DST=$(echo "$DIR/$NORMAL" | esc)
         [[ "x$FILE" = "x$NORMAL" ]] ||
-            echo "mv -v '${DIR}/${FILE}' '${DIR}/${NORMAL}'"
+            echo "mv -v '$SRC' '$DST'"
     }
 done < <(find Music -name '* .*')

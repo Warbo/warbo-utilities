@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+BASE=$(dirname "$(readlink -f "$0")")
+
 # Look for similar filenames inside each artist directory
 for INIT in Music/Commercial/*
 do
