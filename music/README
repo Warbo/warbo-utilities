@@ -109,7 +109,9 @@ are output in a format suitable for checking by `compare_crcs.py`.
 
 ## move_music.sh
 
-"Top-level" script, invoking others.
+"Top-level" script, invoking a bunch of others. Doesn't invoke anything which
+requires Internet access, or anything which involves guesswork (e.g. duplicate
+finders)
 
 ## no_discs.sh
 
