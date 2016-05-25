@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+BASE=$(dirname "$(readlink -f "$0")")
+
 function metalArchiveAlbums {
     ALBUM_CACHE="$CACHE_DIR/$INIT/$2_$3.albums"
     mkdir -p "$CACHE_DIR/$INIT"
@@ -40,21 +42,10 @@ function metalArchiveFor {
     echo "$CACHED"
 }
 
-function stripSpace {
-    sed -e 's/[[:space:]]*$//g' | sed -e 's/^[[:space:]]*//g'
-}
-
 function haveMetalArchive {
-    # If the given directory name ends in (foo) split it off as a country code
-    if echo "$1" | grep '([^)]*)$' > /dev/null
-    then
-        BANDNAME=$(echo "$1" | rev | cut -d '(' -f 2- | rev | stripSpace)
-        COUNTRY=$(echo "$1" | rev | cut -d '(' -f 1  | rev | tr -d ')' | stripSpace)
-    else
-        BANDNAME="$1"
-        COUNTRY=""
-    fi
-    CNT=$(codeToCountry "$COUNTRY")
+    NAME_CNT=$("$BASE/dir_to_artist_country.sh" "$1")
+    BANDNAME=$(echo "$NAME_CNT" | cut -f1)
+    CNT=$(echo "$NAME_CNT" | cut -f2)
 
     # Look up the band on metal archives
     ARCHIVE=$(metalArchiveFor "$BANDNAME") || return 1
@@ -99,75 +90,6 @@ function haveMetalArchive {
 
     echo "Error: $CNTMATCHES matches for '$BANDNAME' from '$CNT'" 1>&2
     return 1
-}
-
-function codeToCountry {
-    LOWER=$(echo "$1" | tr '[[:upper:]]' '[[:lower:]]')
-    case "$LOWER" in
-        bel)
-            echo "Belgium"
-            ;;
-        swe)
-            echo "Sweden"
-            ;;
-        swedish)
-            echo "Sweden"
-            ;;
-        can)
-            echo "Canada"
-            ;;
-        fra)
-            echo "France"
-            ;;
-        uk)
-            echo "United Kingdom"
-            ;;
-        us)
-            echo "United States"
-            ;;
-        ger)
-            echo "Germany"
-            ;;
-        german)
-            echo "Germany"
-            ;;
-        jap)
-            echo "Japan"
-            ;;
-        jpn)
-            echo "Japan"
-            ;;
-        cze)
-            echo "Czech Republic"
-            ;;
-        usa)
-            echo "United States"
-            ;;
-        nld)
-            echo "Netherlands"
-            ;;
-        pol)
-            echo "Poland"
-            ;;
-        dnk)
-            echo "Denmark"
-            ;;
-        grc)
-            echo "Greece"
-            ;;
-        it)
-            echo "Italy"
-            ;;
-        arg)
-            echo "Argentina"
-            ;;
-        nor)
-            echo "Norway"
-            ;;
-        *)
-            echo "$1"
-            ;;
-    esac
 }
 
 [[ -n "$INIT" ]] || {
