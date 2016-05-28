@@ -1,0 +1,11 @@
+#! /usr/bin/env nix-shell
+#! nix-shell -p phantomjs -i bash
+
+BASE=$(dirname "$(readlink -f "$0")")
+
+[[ -n "$1" ]] || {
+    echo "download_page needs a URL as argument" 1>&2
+    exit 1
+}
+
+phantomjs "$BASE/phantom_save_page.js" "$1"
