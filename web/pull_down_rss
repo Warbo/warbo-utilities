@@ -39,6 +39,21 @@ function getRss {
     wget -O - "$2" | stripNonAscii | fixRss "$1" > "$1.rss"
 }
 
+function getCourier {
+    # Edit URL http://feed43.com/feed.html?name=dundee_courier
+    COURIER="$HOME/.cache/rss/DundeeCourier.rss"
+    if [[ -e "$COURIER" ]]
+    then
+        # Feed43 don't like polling more than every 6 hours
+        if test `find "$COURIER" -mmin +360`
+        then
+            getRss "DundeeCourier" "http://feed43.com/dundee_courier.xml"
+        fi
+    else
+        getRss "DundeeCourier" "http://feed43.com/dundee_courier.xml"
+    fi
+}
+
 mkdir -p ~/.cache/rss
 cd ~/.cache/rss
 
@@ -82,3 +97,7 @@ getYouTube sixtysymbols   "UCvBqzzvUBLCs8Y7Axb-jZew"
 # Scrape BBC iPlayer
 
 iplayer_to_rss
+
+# Scrape the Dundee Courier
+
+getCourier
