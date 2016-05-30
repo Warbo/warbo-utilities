@@ -25,5 +25,6 @@ sleep 1
 
 echo "Pasting URLs" 1>&2
 xsel --clipboard
+echo ""
 
 kill "$FF_PID"
