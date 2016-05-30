@@ -1,7 +1,0 @@
-#! /usr/bin/env nix-shell
-#! nix-shell -i bash -p xvfb_run -p xdotool -p xsel
-
-BASE=$(dirname "$(readlink -f "$0")")
-
-URL="$1" xvfb-run "$BASE/ff.sh"
-#URL="$1" "$BASE/ff.sh"
