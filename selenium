@@ -1,0 +1,23 @@
+#! /usr/bin/env nix-shell
+#! nix-shell -i python -p pyvirtualdisplay pythonPackages.selenium
+
+from pyvirtualdisplay import Display
+from selenium import webdriver
+from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
+import sys
+
+display = Display(visible=0, size=(800, 600))
+display.start()
+
+binary = FirefoxBinary(
+    firefox_path="/home/chris/.nix-profile/bin/firefox",
+    log_file=sys.stderr)
+
+print repr(binary)
+
+browser = webdriver.Firefox(firefox_binary=binary)
+browser.get('http://www.google.com')
+print browser.title
+browser.quit()
+
+display.stop()
