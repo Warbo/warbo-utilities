@@ -3,7 +3,7 @@
 
 [[ -z "$DEBUG" ]] || set -x
 
-BASE=$(dirname "$(readlink "$0")")
+BASE=$(dirname "$(readlink -f "$0")")
 
 function search {
     # Poor man's URL escaping
@@ -15,7 +15,8 @@ Q=$(search "$@")
 URL="${SITE}/stream/${Q}"
 
 function runCurl {
-    curl -s "$URL"
+    echo "Downloading '$URL'" 1>&2
+    "$BASE/download_page" "$URL"
 }
 
 function allResults {
@@ -36,6 +37,7 @@ function prefixLinks {
 function getLinks {
     while read -r URL2
     do
+        echo "Getting vids from page '$URL2'" 1>&2
         "$BASE/vidsfrompage" "$URL2"
     done
 }

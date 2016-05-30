@@ -1,20 +1,11 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i bash -p bash -p xidel jsbeautifier
+#! nix-shell -i bash -p xidel -p jsbeautifier -p xvfb_run -p xdotool -p xsel
 
-function findurl {
-    # Try to narrow-down output lines to just URLs
-    grep -o 'http[^ "<>]*' | grep -o '[^"]*' | grep -v 'ads.ad-center.com'
-}
-
-function getTopUrl {
-    PAGE=$(curl -s "$1")
-    IFRAME=$(echo "$PAGE" | xidel - -q --extract \
-                                  '//div[@class="emd_player"]//iframe/@src')
-    echo "$IFRAME" | grep -v '^/source/'
-}
+BASE=$(dirname "$(readlink -f "$0")")
 
 # Loop over result links, getting videos and obfuscated javascript
 while read -r LNK
 do
+    echo "Scraping page '$LNK'" 1>&2
     scrapepage "$LNK"
-done < <(getTopUrl "$1")
+done < <(URL="$1" xvfb-run "$BASE/ff.sh")
