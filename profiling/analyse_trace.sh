@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i bash -p bash bc
+#! nix-shell -i bash -p bash bc pv
 set -e
 # Analyse results of proc_trace.sh
 
@@ -69,10 +69,8 @@ function find_creation {
 function creation_time {
     if [[ "$1" -eq "$TOP" ]]
     then
-        msg "creation_time of top PID ($1)"
         time_of "$(echo "$INPUT" | head -n1)"
     else
-        msg "creation_time '$1'"
         time_of "$(find_creation "$1")"
     fi
 }
@@ -101,15 +99,7 @@ function contains_element {
 
 function gte {
     # $1 >= $2
-    msg "gte '$1' '$2'"
     (( $(echo "$1 >= $2" | bc -l) ))
-}
-
-function is_alive_at {
-    # Is PID $1 alive at time $2?
-    msg "is_alive_at '$1' '$2'"
-    gte "$2" "$(creation_time "$1")" &&
-    gte "$(destruction_time "$1")" "$2"
 }
 
 function all_creations {
@@ -130,26 +120,65 @@ function all_times {
     # All times, in order
     all_lines | sed -e 's/\[pid *[0-9]*\] //g' | cut -d ' ' -f 1 | sort -gu
 }
+msg "Getting all times"
+ALL_TIMES=$(all_times)
+msg "Got all times"
 
-function higher {
-    # Should PID $1 appear above PID $2?
-    msg "higher '$1' '$2'"
-    gte "$(creation_time "$1")" "$(creation_time "$2")"
+function pid_col {
+    C=$(creation_time    "$1")
+    D=$(destruction_time "$1")
+
+    if [[ -z "$C" ]]
+    then
+        C=$(echo "$ALL_TIMES" | head -n1)
+    fi
+
+    if [[ -z "$D" ]]
+    then
+        D=$(echo "$ALL_TIMES" | tail -n1)
+    fi
+
+    STARTED=0
+    STOPPED=0
+    while read -r TIM
+    do
+        if [[ "$STOPPED" -eq 1 ]]
+        then
+            echo 0
+            continue
+        fi
+
+        if  [[ "$STARTED" -eq 0 ]]
+        then
+            if gte "$C" "$TIM"
+            then
+                echo "0"
+            else
+                STARTED=1
+                echo "1"
+            fi
+        else
+            if gte "$TIM" "$D"
+            then
+                STOPPED=1
+                echo "0"
+            else
+                echo "1"
+            fi
+        fi
+    done < <(echo "$ALL_TIMES")
 }
 
-function time_to_row {
-    # Turn a time $1 into a CSV row
-    printf "%s," "$1"
-    for PIDTTR in "${PIDS[@]}"
+function pid_cols {
+    GOT_COLS=$(echo "$ALL_TIMES")
+    THIS_COUNT=1
+    for PIDC in "${PIDS[@]}"
     do
-        if is_alive_at "$PIDTTR" "$1"
-        then
-            printf "1,"
-        else
-            printf "0,"
-        fi
-    done
-    echo ""
+        GOT_COLS=$(paste -d "," <(echo "$GOT_COLS") <(pid_col "$PIDC"))
+        THIS_COUNT=$(( THIS_COUNT + 1 ))
+        msg "$THIS_COUNT/$PID_COUNT"
+    done 2> >(pv -etpl -s "$TIMES" > /dev/null)
+    echo "$GOT_COLS"
 }
 
 function get_all_pids {
@@ -176,55 +205,30 @@ function name_of {
     fi
 }
 
-function find_before {
-    # Find the closest occurrence of pattern $2 before string $1 in stdin
-    CLOSEST=""
-    while read -r LINEFB
-    do
-        if echo "$LINEFB" | grep "$2"
-        then
-            CLOSEST="$LINEFB"
-        fi
-        #set -x
-        if echo "$LINEFB" | grep -F "$1" > /dev/null
-        then
-            break
-        fi
-        #set +x
-    done
-    echo "$CLOSEST"
-}
-
 function make_heading {
     printf "Time,"
     for PIDMH in "${PIDS[@]}"
     do
-        printf "." 1>&2
         COL=$(name_of "$PIDMH")
         printf "%s," "$COL"
     done
     echo ""
 }
 
-function all_rows {
-    while read -r T
-    do
-        time_to_row "$T"
-    done < <(all_times)
-}
-
 function rows_with_heading {
     printf "Heading..." 1>&2
-    make_heading
-    msg ""
+    make_heading | tee >(tr , '\n' | pv -etls "$PID_COUNT" > /dev/null)
     msg "Heading finished. Rows..."
-    all_rows
+    pid_cols
     msg "Rows finished"
 }
 
 function make_csv {
     rows_with_heading | sed -e 's/,$//g'
 }
+
+PID_COUNT="${#PIDS[@]}"
+TIMES=$(echo "$ALL_TIMES" | wc -l)
 
 msg "Making CSV"
 make_csv
