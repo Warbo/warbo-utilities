@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# 'in_nix_shell "foo bar" baz quux'
+# becomes
+# 'nix-shell -p foo -p bar --run "baz quux"'
+
+PKGS="$1"
+shift
+
+nix-shell -p "$PKGS" --run "$*"
