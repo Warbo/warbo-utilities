@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+killall st 1> /dev/null 2> /dev/null
+st -e shell
+
+
