@@ -35,7 +35,6 @@ page.open(system.args[1], function() {
 page.onLoadFinished = function() {
     setTimeout(function() {
         system.stdout.write(page.content);
-        page.render('debug.png');
         phantom.exit(0);
     }, 2000);
 };
