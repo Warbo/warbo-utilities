@@ -10,7 +10,7 @@ BASE=$(dirname "$(readlink -f "$0")")
 for INIT_DIR in Music/Commercial/*
 do
     [[ -d "$INIT_DIR" ]] || continue
-    INIT=$(basename "$INIT_DIR" | cut -c1)
+    INIT=$(basename "$INIT_DIR")
 
     for ARTIST_DIR in "$INIT_DIR"/*
     do
@@ -30,16 +30,49 @@ do
                 do
                     ALBUM_STRIP=$("$BASE/strip_name.sh" "$ALBUM")
                     FOUND=0
-                    for F in "$ARTIST_DIR"/*
-                    do
-                        F_STRIP=$("$BASE/strip_name.sh" "$(basename "$F")")
+                    if [[ -d "$ARTIST_DIR/$ALBUM" ]]
+                    then
+                        FOUND=1
+                    elif [[ -e "$ARTIST_DIR/$ALBUM" ]]
+                    then
+                        echo "ERROR: '$ARTIST_DIR/$ALBUM' is a file, not a directory!" 1>&2
+                        FOUND=1
+                    else
+                        for F in "$ARTIST_DIR"/*
+                        do
+                            [[ -d "$F" ]] || continue
 
-                        if [[ "x$ALBUM_STRIP" = "x$F_STRIP" ]]
-                        then
-                            FOUND=1
-                            break
-                        fi
-                    done
+                            F_DIR=$(dirname "$F")
+                            F_BASE=$(basename "$F")
+                            F_STRIP=$("$BASE/strip_name.sh" "$F_BASE")
+
+                            F_ESC=$(echo "$F" | sed -e "s/'/'\\\\''/g")
+                            ALBUM_NOSLASH=$(echo "$ALBUM" | sed -e "s@/@_@g")
+                            ALBUM_ESC=$(echo "$ARTIST_DIR/$ALBUM_NOSLASH" | sed -e "s/'/'\\\\''/g")
+
+                            if [[ "x$ALBUM" = "x$F_BASE" ]]
+                            then
+                                FOUND=1
+                                break
+                            fi
+
+                            if echo "$ALBUM_STRIP" | grep -F "$F_STRIP" > /dev/null
+                            then
+                                FOUND=1
+                                echo "Directory '$F' looks like album '$ALBUM'. To rename, do:" 1>&2
+                                echo "mv '$F_ESC' '$ALBUM_ESC'" 1>&2
+                                break
+                            fi
+
+                            if echo "$F_STRIP" | grep -F "$ALBUM_STRIP" > /dev/null
+                            then
+                                FOUND=1
+                                echo "Directory '$F' looks like album '$ALBUM'. To rename, do:" 1>&2
+                                echo "mv '$F_ESC' '$ALBUM_ESC'" 1>&2
+                                break
+                            fi
+                        done
+                    fi
 
                     if [[ "$FOUND" -eq 0 ]]
                     then
