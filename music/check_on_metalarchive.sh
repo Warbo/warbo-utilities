@@ -2,6 +2,34 @@
 
 BASE=$(dirname "$(readlink -f "$0")")
 
+function metalArchiveTracks {
+    [[ -f "$1" ]] || {
+        echo "Can't get tracks for '$2' ('$3') since '$1' doesn't exist" 1>&2
+        return 1
+    }
+
+    TRACK_CACHE="$CACHE_DIR/$INIT/$2_$3.tracks"
+    mkdir -p "$TRACK_CACHE"
+
+    while read -r ALBUM_URL
+    do
+        [[ -n "$ALBUM_URL" ]] || continue
+
+        TRACK_CACHE_FILE=$(echo "$ALBUM_URL" | tr -c '[[:alnum:]]' '_')
+        TRACK_FILE="$TRACK_CACHE/$TRACK_CACHE_FILE"
+
+        if [[ -f "$TRACK_FILE" ]]
+        then
+            true
+        else
+            echo "Getting tracks from '$ALBUM_URL'" 1>&2
+            sleep 1
+            curl "$ALBUM_URL" > "$TRACK_FILE" ||
+                echo "Error fetching '$ALBUM_URL'" 1>&2
+        fi
+    done < <(xidel -q - -e '//td/a[@class="album"]/@href' < "$1" | grep '^http')
+}
+
 function metalArchiveAlbums {
     ALBUM_CACHE="$CACHE_DIR/$INIT/$2_$3.albums"
     mkdir -p "$CACHE_DIR/$INIT"
@@ -18,8 +46,12 @@ function metalArchiveAlbums {
         BAND_ID=$(echo "$BAND_URL" | grep -o '[0-9]*$')
 
         DISC_URL="http://www.metal-archives.com/band/discography/id/${BAND_ID}/tab/all"
-        curl "$DISC_URL" > "$ALBUM_CACHE"
+        curl "$DISC_URL" > "$ALBUM_CACHE" || {
+            echo "Error fetching '$DISC_URL'" 1>&2
+            return 1
+        }
     fi
+    metalArchiveTracks "$ALBUM_CACHE" "$2" "$3"
 }
 
 function metalArchiveFor {
@@ -67,7 +99,7 @@ function haveMetalArchive {
     fi
 
     # Nothing to distinguish between multiple matches
-    if [[ "$MATCHES" -gt 0 ]] && [[ -z "$COUNTRY" ]]
+    if [[ "$MATCHES" -gt 0 ]] && [[ -z "$CNT" ]]
     then
         echo "Error: $MATCHES matches for '$BANDNAME' on metal archives (maybe add country?)" 1>&2
         return 1
