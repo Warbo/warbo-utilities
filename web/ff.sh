@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 echo "Opening Firefox on '$URL'" 1>&2
-timeout 30 firefox -safe-mode "$URL" 1>&2 &
+timeout 60 firefox -safe-mode "$URL" 1>&2 &
 FF_PID="$!"
 sleep 3
 
