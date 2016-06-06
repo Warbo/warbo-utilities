@@ -4,7 +4,7 @@
 BASE=$(dirname "$(readlink -f "$0")")
 
 function scrapeWithFirefox {
-    URL="$1" xvfb-run "$BASE/ff.sh" | while read -r LINE
+    while read -r LINE
     do
         if echo "$LINE" | grep "^http" > /dev/null
         then
@@ -12,7 +12,7 @@ function scrapeWithFirefox {
         else
             echo "$LINE" 1>&2
         fi
-    done
+    done < <(URL="$1" xvfb-run "$BASE/ff.sh")
 }
 
 # Loop over result links, getting videos and obfuscated javascript
