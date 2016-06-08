@@ -26,7 +26,7 @@ do
         if [[ -f "$ALBUM_CACHE" ]]
         then
             # Extract all album names
-            ALBUMS=$(xidel -q - -e '//td/a[@class="album"]' < "$ALBUM_CACHE")
+            ALBUMS=$("$BASE/album_names_from.sh" < "$ALBUM_CACHE" | cut -f1)
 
             # We want to be as fuzzy as possible in our matching, but we need to
             # keep track of what's already been used. If we have an exact match

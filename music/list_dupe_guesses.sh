@@ -16,14 +16,14 @@ function printDupes {
         # Print out duplicates
         echo "$NAMES" | grep "$ALT" | cut -f 1 | while read -r DUPE
         do
-            printf "%s\t%s\n" "$NAME" "$DUPE"
+            printf "%s\t%s\n" "$INCOMING" "$DUPE"
         done
 
         if [[ -z "$NAMES" ]]
         then
-            NAMES=$(printf "%s\t%s"            "$NAME" "$ALT")
+            NAMES=$(printf "%s\t%s"            "$INCOMING" "$ALT")
         else
-            NAMES=$(printf "%s\n%s\t" "$NAMES" "$NAME" "$ALT")
+            NAMES=$(printf "%s\n%s\t" "$NAMES" "$INCOMING" "$ALT")
         fi
     done
 }
