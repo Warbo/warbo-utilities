@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-sudo ./su_update.sh
+echo '' | sudo -S ./su_update.sh
