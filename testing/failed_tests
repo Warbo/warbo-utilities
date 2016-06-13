@@ -2,10 +2,13 @@
 shopt -s nullglob
 
     ALL=$(ls ~/System/Tests/scripts/         | wc -l)
-SUCCESS=$(ls ~/System/Tests/results/success/ | wc -l)
+   PASS=$(ls ~/System/Tests/results/pass/    | wc -l)
+  CHECK=$(ls ~/System/Tests/results/check/   | wc -l)
 RUNNING=$(ls ~/System/Tests/results/running/ | wc -l)
 
-DIFF=$(( RUN - SUCCESS ))
+SUCCESS=$(( PASS + CHECK ))
+
+DIFF=$(( ALL - SUCCESS ))
 
 EXTRA=""
 [[ "$RUNNING" -ne 0 ]] || EXTRA=" so far"
@@ -17,13 +20,18 @@ echo "<fc=${HEX}>${SUCCESS}/${ALL} passed${EXTRA}</fc>"
 
 [[ "x$1" = "xshow" ]] || exit 0
 
+echo "PASS:    $PASS"
+echo "CHECK:   $CHECK"
 echo "SUCCESS: $SUCCESS"
 echo "RUNNING: $RUNNING"
-echo "ALL: $ALL"
+echo "ALL:     $ALL"
 
 echo "Passed:"
-ls ~/System/Tests/results/success
+ls ~/System/Tests/results/pass/
 echo ""
+
+echo "To check:"
+ls ~/System/Tests/results/check/
 
 echo "Not run:"
 for TEST in ~/.tests/scripts/*
@@ -37,6 +45,8 @@ echo "Failures:"
 for TEST in ~/System/Tests/scripts/*
 do
     NAME=$(basename "$TEST")
-    [[ -e ~/.tests/results/stdout/"$NAME"  ]] || continue
-    [[ -e ~/.tests/results/success/"$NAME" ]] || echo "$NAME"
+    [[ -e ~/.tests/results/stdout/"$NAME" ]] || continue
+    [[ -e ~/.tests/results/pass/"$NAME"   ]] && continue
+    [[ -e ~/.tests/results/check/"$NAME"  ]] && continue
+    echo "$NAME"
 done
