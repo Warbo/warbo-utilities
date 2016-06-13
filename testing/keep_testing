@@ -1,19 +1,27 @@
 #!/usr/bin/env bash
 
-# Keep running the test suite, choosing tests to re-run at random
+function choose {
+    # Choose one test at random
+    ls     results/pass | shuf | head -n1
+
+    # Choose the oldest test
+    ls -tr results/pass |        head -n1
+}
+
+# Keep running the test suite until killed
 
 cd ~/System/Tests
-
 while true
 do
     # Only run tests if we're on AC power
     if plugged_in
     then
-        # Choose one test result to re-check at random
+        # Force some tests to be re-run
         while read -r TST
         do
-            mv results/pass/"$TST" results/check/ || true
-        done < <(ls results/pass | shuf | head -n1)
+            touch results/pass/"$TST"
+            mv results/pass/"$TST" results/check/
+        done < <(choose)
 
         nix-shell --run "./run"
         echo "Done" 1>&2
