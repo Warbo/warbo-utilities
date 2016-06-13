@@ -1,54 +1,42 @@
 #!/usr/bin/env bash
 shopt -s nullglob
 
-PASS=0
- ALL=0
- RUN=0
+    ALL=$(ls ~/System/Tests/scripts/         | wc -l)
+SUCCESS=$(ls ~/System/Tests/results/success/ | wc -l)
+RUNNING=$(ls ~/System/Tests/results/running/ | wc -l)
 
-for LINE in ~/.tests/scripts/*
-do
-    NAME=$(basename "$LINE")
-    ALL=$(( ALL + 1 ))
-    [[ -e ~/.tests/results/pass/"$NAME"   ]] && PASS=$(( PASS + 1 ))
-    [[ -e ~/.tests/results/stdout/"$NAME" ]] &&  RUN=$(( RUN  + 1 ))
-done
-
-DIFF=$(( RUN - PASS ))
+DIFF=$(( RUN - SUCCESS ))
 
 EXTRA=""
-[[ "$ALL" -eq "$RUN" ]] || EXTRA=" so far"
+[[ "$RUNNING" -ne 0 ]] || EXTRA=" so far"
 
 HEX="#00FF00"
 [[ "$DIFF" -gt 0 ]] && HEX="#FF0000"
 
-echo "<fc=${HEX}>${PASS}/${RUN} passed${EXTRA}</fc>"
+echo "<fc=${HEX}>${SUCCESS}/${ALL} passed${EXTRA}</fc>"
 
 [[ "x$1" = "xshow" ]] || exit 0
 
-echo "PASS: $PASS"
-echo "RUN: $RUN"
+echo "SUCCESS: $SUCCESS"
+echo "RUNNING: $RUNNING"
 echo "ALL: $ALL"
 
 echo "Passed:"
-for TEST in ~/.tests/scripts/*
-do
-    NAME=$(basename "$TEST")
-    [[ -e ~/.tests/results/pass/"$NAME" ]] && echo "$NAME"
-done
+ls ~/System/Tests/results/success
 echo ""
 
 echo "Not run:"
 for TEST in ~/.tests/scripts/*
 do
     NAME=$(basename "$TEST")
-    [[ -e ~/.tests/results/stdout/"$NAME" ]] || echo "$NAME"
+    [[ -e ~/System/Tests/results/stdout/"$NAME" ]] || echo "$NAME"
 done
 echo ""
 
 echo "Failures:"
-for TEST in ~/.tests/scripts/*
+for TEST in ~/System/Tests/scripts/*
 do
     NAME=$(basename "$TEST")
-    [[ -e ~/.tests/results/stdout/"$NAME" ]] || continue
-    [[ -e ~/.tests/results/pass/"$NAME"   ]] || echo "$NAME"
+    [[ -e ~/.tests/results/stdout/"$NAME"  ]] || continue
+    [[ -e ~/.tests/results/success/"$NAME" ]] || echo "$NAME"
 done
