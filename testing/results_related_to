@@ -44,5 +44,8 @@ TEST_BASE="$HOME/System/Tests"
 for RESULT in "$TEST_BASE"/results/pass/*
 do
     NAME=$(basename "$RESULT")
+
+    [[ -e "$TEST_BASE"/scripts/"$NAME" ]] || continue
+
     related "$REPO" "$NAME" && echo "$RESULT"
 done
