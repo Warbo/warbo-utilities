@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# Keep running the test suite, choosing tests to re-run at random
+
+cd ~/System/Tests
+
+while true
+do
+    # Only run tests if we're on AC power
+    if plugged_in
+    then
+        # Choose one test result to re-check at random
+        while read -r TST
+        do
+            mv results/pass/"$TST" results/check/ || true
+        done < <(ls results/pass | shuf | head -n1)
+
+        nix-shell --run "./run"
+        echo "Done" 1>&2
+    fi
+
+    # Wait long enough to be killed, beaten to the testing lock, etc.
+    echo "Sleeping" 1>&2
+    sleep 60
+    echo "Woke up" 1>&2
+done
