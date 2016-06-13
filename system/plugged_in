@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+OUTPUT=$(acpi -a)
+
+echo "$OUTPUT" | grep -F "Adapter 0: off-line" > /dev/null && exit 1
+
+echo "$OUTPUT" | grep -F "Adapter 0: on-line" > /dev/null && exit 0
+
+echo -e "Unexpected acpi output:\n$OUTPUT\n" 1>&2
+exit 2
