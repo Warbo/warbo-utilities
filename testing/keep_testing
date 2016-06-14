@@ -2,10 +2,13 @@
 
 function choose {
     # Choose one test at random
-    ls     results/pass | shuf | head -n1
+    SHUF=$(ls     results/pass | shuf)
 
     # Choose the oldest test
-    ls -tr results/pass |        head -n1
+    TIME=$(ls -tr results/pass)
+
+    echo "$SHUF" | head -n1
+    echo "$TIME" | head -n1
 }
 
 # Keep running the test suite until killed
