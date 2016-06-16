@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+[[ -n "$1" ]] || {
+    echo "No argument given; need the path to a Nix dir" 1>&2
+    exit 1
+}
+
+[[ -d "$1" ]] || {
+    echo "Given directory '$1' doesn't exist" 1>&2
+    exit 2
+}
+
+if [[ -e "$1/shell.nix" ]]
+then
+    nix-instantiate "$1/shell.nix" --indirect --add-root "$1/shell.drv"
+else
+    if [[ -e "$1/default.nix" ]]
+    then
+        nix-instantiate "$1" --indirect --add-root "$1/shell.drv"
+    else
+        echo "Directory '$1' doesn't contain a shell.nix or default.nix file" 1>&2
+        exit 3
+    fi
+fi
