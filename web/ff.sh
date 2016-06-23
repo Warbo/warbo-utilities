@@ -14,7 +14,10 @@ xdotool key ctrl+shift+K
 sleep 5
 
 echo "Extracting iframe src URLs" 1>&2
-xdotool type 'window.prompt("Copy to clipboard: Ctrl+C, Enter", $(".emd_player iframe").toArray().map(function(x){return jQuery(x).attr("src");}).join("\n"));'
+
+# shellcheck disable=SC2016
+xdotool type 'window.prompt("Copy to clipboard: Ctrl+C, Enter", $(".emd_player").find("iframe").toArray().map(function(x){return jQuery(x).attr("src");}).join("\n"));'
+
 sleep 1
 xdotool key --clearmodifiers Return
 sleep 1

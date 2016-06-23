@@ -15,7 +15,7 @@ function metalArchiveTracks {
     do
         [[ -n "$ALBUM_URL" ]] || continue
 
-        TRACK_CACHE_FILE=$(echo "$ALBUM_URL" | tr -c '[[:alnum:]]' '_')
+        TRACK_CACHE_FILE=$(echo "$ALBUM_URL" | tr -c '[:alnum:]' '_')
         TRACK_FILE="$TRACK_CACHE/$TRACK_CACHE_FILE"
 
         if [[ -f "$TRACK_FILE" ]]

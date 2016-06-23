@@ -170,7 +170,7 @@ function pid_col {
 }
 
 function pid_cols {
-    GOT_COLS=$(echo "$ALL_TIMES")
+    GOT_COLS="$ALL_TIMES"
     THIS_COUNT=1
     for PIDC in "${PIDS[@]}"
     do

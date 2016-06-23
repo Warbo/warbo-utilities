@@ -25,7 +25,12 @@ ts nix-shell -p git2html --run \
 
 echo "Scheduling regeneration of chriswarbo.net/essays/repos" 1>&2
 touch /home/chris/blog/essays/repos/index.md
-(cd /home/chris/blog; ts ./render push)
+(D="/home/chris/blog"
+ cd "$D" || {
+   echo "Couldn't cd to '$D'" 1>&2
+   exit 1
+ }
+ ts ./render push)
 
 echo "Scheduling removal of related-looking test results" 1>&2
 ts remove_related_results "$PWD"

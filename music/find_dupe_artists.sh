@@ -15,7 +15,7 @@ ALLOWED=".allowed_artist_dupes"
 for INIT in A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
 do
     echo "$INIT" 1>&2
-    ls "Music/Commercial/$INIT/"    |
-       "$BASE/list_dupe_guesses.sh" |  # "name1\tname2" for potential dupe names
-       grep -F -x -v -f "$ALLOWED"     # Ignore known non-dupes
+    find "Music/Commercial/$INIT/" -maxdepth 1 |
+       "$BASE/list_dupe_guesses.sh"            |  # "n1\tn2" for potential dupes
+       grep -F -x -v -f "$ALLOWED"                # Ignore known non-dupes
 done

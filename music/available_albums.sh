@@ -82,7 +82,6 @@ do
                 do
                     [[ -n "$D" ]] || continue
 
-                    D_DIR=$(dirname "$D")
                     D_BASE=$(basename "$D")
                     D_STRIP=$("$BASE/strip_name.sh" "$D_BASE")
 

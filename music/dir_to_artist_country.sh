@@ -5,7 +5,7 @@ function stripSpace {
 }
 
 function codeToCountry {
-    LOWER=$(echo "$1" | tr '[[:upper:]]' '[[:lower:]]')
+    LOWER=$(echo "$1" | tr '[:upper:]' '[:lower:]')
     case "$LOWER" in
         bel)
             echo "Belgium"

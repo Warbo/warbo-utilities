@@ -11,7 +11,7 @@ function haveLastFm {
         ENCODED=$(echo "$1" | tr ' ' '+')
         curl --get "http://www.last.fm/music/$ENCODED" > "$CACHED"
     fi
-    if cat "$CACHED" | grep "404 - Page Not Found" > /dev/null
+    if grep "404 - Page Not Found" < "$CACHED" > /dev/null
     then
         echo "Couldn't find '$1' on last.fm" 1>&2
         return 1

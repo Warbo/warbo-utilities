@@ -45,7 +45,7 @@ function getCourier {
     if [[ -e "$COURIER" ]]
     then
         # Feed43 don't like polling more than every 6 hours
-        if test `find "$COURIER" -mmin +360`
+        if test "$(find "$COURIER" -mmin +360)"
         then
             getRss "DundeeCourier" "http://feed43.com/dundee_courier.xml"
         fi
@@ -55,7 +55,10 @@ function getCourier {
 }
 
 mkdir -p ~/.cache/rss
-cd ~/.cache/rss
+cd ~/.cache/rss || {
+    echo "Couldn't cd to ~/.cache/rss" 1>&2
+    exit 1
+}
 
 # Raw RSS feeds
 
