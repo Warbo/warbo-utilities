@@ -1,5 +1,4 @@
-#! /usr/bin/env nix-shell
-#! nix-shell -i bash -p python
+#!/usr/bin/env bash
 
 # Run any RSS-generating scripts we might have
 pull_down_rss
@@ -12,7 +11,7 @@ popd
 
 # Run imm to send RSS to mailbox
 nix-shell --show-trace --pure \
-          -p '(haskellPackages.ghcWithPackages (h: [ h.imm ]))' \
+          -p '(stable.haskellPackages.ghcWithPackages (h: [ h.imm ]))' \
           --run "export LANG='en_GB.UTF-8'; imm $*"
 
 # Kill local server
