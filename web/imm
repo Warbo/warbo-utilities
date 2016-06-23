@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#! /usr/bin/env nix-shell
+#! nix-shell -p python -i bash
 
 # Run any RSS-generating scripts we might have
 pull_down_rss
