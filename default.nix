@@ -4,6 +4,10 @@ stdenv.mkDerivation {
   name = "warbo-utilities";
   src  = ./.;
 
+  propagatedBuildInputs = [
+    python
+  ];
+
   buildPhase   = "";
   installPhase = ''
     mkdir -p "$out/bin"
