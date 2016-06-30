@@ -10,11 +10,10 @@ function genDefault {
 }
 
 function genShell {
-    SHELL=$(cabal2nix --shell ./.) || {
-        echo "Shell error: $SHELL" >> /dev/stderr
+    cabal2nix --shell ./. || {
+        echo "Error generating shell.nix contents" 1>&2
         exit 1
     }
-    echo "$SHELL"
 }
 
 function writeFile {
@@ -52,10 +51,23 @@ else
     CMD="cabal configure --enable-benchmarks -v"
 fi
 
-echo "Configuring package"
-if [[ -e "shell.nix" ]]
+SHELL=$(genShell)
+
+if [[ -z "$PKGS" ]] && [[ -z "$COMPILER" ]]
 then
-    nix-shell --run "$CMD"
+    echo "Configuring package"
+    if [[ -e "shell.nix" ]]
+    then
+        nix-shell --run "$CMD"
+    else
+        nix-shell -E "$SHELL" --run "$CMD"
+    fi
 else
-    nix-shell -E "$(cabal2nix --shell ./.)" --run "$CMD"
+    [[ -n "$PKGS"     ]] || PKGS="(import <nixpkgs> {})"
+    [[ -n "$COMPILER" ]] || COMPILER="default"
+    export PKGS
+    export COMPILER
+
+    ARGS='nixpkgs = getEnv "PKGS"; compiler = getEnv "COMPILER";'
+    nix-shell -E "with builtins; ($SHELL) { $ARGS }" --run "$CMD"
 fi
