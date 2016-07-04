@@ -2,13 +2,10 @@
 
 function choose {
     # Choose one test at random
-    SHUF=$(ls     results/pass | shuf)
+    ls -1 results/pass | shuf | head -n1
 
     # Choose the oldest test
-    TIME=$(ls -tr results/pass)
-
-    echo "$SHUF" | head -n1
-    echo "$TIME" | head -n1
+    ls -1tr results/pass | head -n1
 }
 
 # Keep running the test suite until killed
@@ -17,8 +14,12 @@ cd ~/System/Tests
 while true
 do
     # Only run tests if we're on AC power
-    if plugged_in
+    if ! plugged_in
     then
+        echo "Skipping as not plugged in" 1>&2
+    elif hot
+         echo "Skipping as we're running hot" 1>&2
+    else
         # Force some tests to be re-run
         while read -r TST
         do

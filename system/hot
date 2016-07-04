@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+function temps {
+  acpi -V | grep    "^Thermal"          |
+            grep -v "trip point"        |
+            grep -o "[0-9.]* degrees C" |
+            grep -o "[0-9.]*"
+}
+
+function calc {
+    if command -v bc > /dev/null
+    then
+        bc
+    else
+        nix-shell -p bc --run "bc"
+    fi
+}
+
+THRESHOLD=70
+
+while read -r TEMP
+do
+    COMP=$(echo "${TEMP} > ${THRESHOLD}" | calc)
+    if [[ 1 -eq "$COMP" ]]
+    then
+        echo "$TEMP > $THRESHOLD" 1>&2
+        exit 1
+    fi
+    echo "$TEMP < $THRESHOLD" 1>&2
+done < <(temps)
+
+exit 0

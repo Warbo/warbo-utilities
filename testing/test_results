@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+shopt -s nullglob
+
+function report {
+    if [[ "$1" -eq 0 ]]
+    then
+        echo "ok - $2"
+    else
+        echo "not ok - $2"
+    fi
+}
+
+DIR=~/System/Tests
+
+for F in "$DIR/results/stdout"/*
+do
+    NAME=$(basename "$F")
+
+    [[ -e "$DIR/scripts/$NAME" ]]
+    report "$?" "Script '$NAME' exists"
+
+    [[ -e "$DIR/results/pass/$NAME"  ]] ||
+    [[ -e "$DIR/results/check/$NAME" ]]
+    report "$?" "Script '$NAME' passed"
+
+    grep -e "^\(ok\|not ok\)" < "$F" | sed -e "s/^ok - /ok - $NAME: /g" |
+                                       sed -e "s/^not ok - /not ok - $NAME: /g"
+done
