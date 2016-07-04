@@ -24,19 +24,23 @@ function atomToRss {
         fixRss "$1" > "$1.rss"
 }
 
+function get {
+    timeout 20 wget --no-check-certificate "$@"
+}
+
 function getAtom {
-    wget -O - "$2" | stripNonAscii > "$1.atom"
+    get -O - "$2" | stripNonAscii > "$1.atom"
     atomToRss "$1"
 }
 
 function getYouTube {
-    wget -O - "http://www.youtube.com/feeds/videos.xml?channel_id=$2" |
+    get -O - "http://www.youtube.com/feeds/videos.xml?channel_id=$2" |
         stripNonAscii > "$1.atom"
     atomToRss "$1"
 }
 
 function getRss {
-    wget -O - "$2" | stripNonAscii | fixRss "$1" > "$1.rss"
+    get -O - "$2" | stripNonAscii | fixRss "$1" > "$1.rss"
 }
 
 function getCourier {
