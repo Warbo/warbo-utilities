@@ -12,7 +12,7 @@ popd
 
 # Run imm to send RSS to mailbox
 nix-shell --show-trace --pure \
-          -p '(stableHaskellPackages.ghcWithPackages (h: [ h.imm ]))' \
+          -p '(haskellPackages.ghcWithPackages (h: [ h.imm ]))' \
           --run "export LANG='en_GB.UTF-8'; imm $*"
 
 # Kill local server
