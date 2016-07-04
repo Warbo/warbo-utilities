@@ -24,9 +24,9 @@ do
     if [[ 1 -eq "$COMP" ]]
     then
         echo "$TEMP > $THRESHOLD" 1>&2
-        exit 1
+        exit 0
     fi
     echo "$TEMP < $THRESHOLD" 1>&2
 done < <(temps)
 
-exit 0
+exit 1
