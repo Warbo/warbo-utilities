@@ -18,6 +18,7 @@ do
     then
         echo "Skipping as not plugged in" 1>&2
     elif hot
+    then
          echo "Skipping as we're running hot" 1>&2
     else
         # Force some tests to be re-run
