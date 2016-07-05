@@ -84,7 +84,8 @@ getRss "FlyingColoursMaths"                 "http://www.flyingcoloursmaths.co.uk
 getRss "ComputingBritain"                   "http://www.bbc.co.uk/programmes/b06bq6j1/episodes/downloads.rss"
 getRss "ConorMcBride"                       "https://pigworker.wordpress.com/feed/"
 getRss "HackerNews"                         "http://feeds.feedburner.com/fullhackernews"
-getRss "Programmer Paintings"               "http://classicprogrammerpaintings.com/rss"
+getRss "ProgrammerPaintings"                "http://classicprogrammerpaintings.com/rss"
+getRss "BBCHeadlines"                       "http://feeds.bbci.co.uk/news/rss.xml?edition=uk"
 
 # Raw ATOM feeds
 
