@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+function notify {
+    if command -v notify-send > /dev/null
+    then
+        notify-send -t 0 "Watch Network" "$1"
+    else
+        nix-shell -p libnotify --run "notify-send -t 0 'Watch Network' '$1'"
+    fi
+}
+
+function priv {
+    if command -v gksudo > /dev/null
+    then
+        gksudo "$@"
+    else
+        nix-shell -p gksu --run "gksudo $*"
+    fi
+}
+
+while true
+do
+    if plugged_in
+    then
+        sleep 120
+    else
+        sleep 10
+    fi
+
+    LOC=$(location)
+
+    if [[ "x$LOC" = "xhome" ]]
+    then
+        if mount | grep "Public"
+        then
+            true # OK
+        else
+            notify "Mounting pi"
+            priv pi
+        fi
+    fi
+
+    if [[ "x$LOC" = "xuni" ]]
+    then
+        HOUR=$(date "+%H")
+        if [[ "$HOUR" -gt "16" ]]
+        then
+            notify "Past 5pm; half an hour until suspend"
+            sleep 600
+            notify "20 minutes until suspend"
+            sleep 600
+            notify "10 minutes until suspend"
+            sleep 600
+            notify "Suspending"
+            sleep 60
+            priv suspend
+        fi
+    fi
+done
