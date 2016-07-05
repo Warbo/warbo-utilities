@@ -1,8 +1,16 @@
-#! /usr/bin/env nix-shell
-#! nix-shell -i bash -p bash cabal2nix
+#!/usr/bin/env bash
+
+function cbl2nix {
+    if command -v cabal2nix > /dev/null
+    then
+        cabal2nix ./. "$@"
+    else
+        nix-shell -p cabal2nix --run "cabal2nix ./. $*"
+    fi
+}
 
 function genDefault {
-    DEF=$(cabal2nix ./.) || {
+    DEF=$(cbl2nix) || {
         echo "Error: $DEF" >> /dev/stderr
         exit 1
     }
@@ -10,7 +18,7 @@ function genDefault {
 }
 
 function genShell {
-    cabal2nix --shell ./. || {
+    cbl2nix --shell || {
         echo "Error generating shell.nix contents" 1>&2
         exit 1
     }
@@ -63,11 +71,23 @@ then
         nix-shell -E "$SHELL" --run "$CMD"
     fi
 else
+    if [[ -e "shell.nix" ]]
+    then
+        SHELLEXPR="(import ./shell.nix)"
+    else
+        SHELLEXPR="($SHELL)"
+    fi
+
     [[ -n "$PKGS"     ]] || PKGS="(import <nixpkgs> {})"
     [[ -n "$COMPILER" ]] || COMPILER="default"
-    export PKGS
     export COMPILER
 
-    ARGS='nixpkgs = getEnv "PKGS"; compiler = getEnv "COMPILER";'
-    nix-shell -E "with builtins; ($SHELL) { $ARGS }" --run "$CMD"
+    EXPR="with builtins;
+          $SHELLEXPR {
+            nixpkgs = ($PKGS);
+            compiler = getEnv \"COMPILER\";
+          }"
+    echo -e "EXPR:\n\n$EXPR\n\n" 1>&2
+
+    nix-shell --show-trace --run "$CMD" -E "$EXPR"
 fi
