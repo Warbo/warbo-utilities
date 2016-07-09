@@ -4,6 +4,12 @@
 BASE=$(dirname "$(readlink -f "$0")")
 
 function scrapeWithFirefox {
+    if ps auxww | grep -v conkeror | grep fire | grep fox > /dev/null
+    then
+        echo "Can't scrape pages while Firefox is open, aborting." 1>&2
+        exit 1
+    fi
+
     while read -r LINE
     do
         if echo "$LINE" | grep "^http" > /dev/null
@@ -12,7 +18,11 @@ function scrapeWithFirefox {
         else
             echo "$LINE" 1>&2
         fi
-    done < <(URL="$1" xvfb-run "$BASE/ff.sh")
+    done < <(URL="$1" xvfb-run "$BASE/ff.sh" | readUrls)
+}
+
+function readUrls {
+    xidel - -q -e '//iframe/@src'
 }
 
 # Loop over result links, getting videos and obfuscated javascript

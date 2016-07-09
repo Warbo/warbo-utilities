@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+[[ -z "$DEBUG" ]] || set -x
+
+BASE=$(dirname "$(readlink -f "$0")")
+
+export SITE="http://www.alluc.ee"
+
+while read -r URL
+do
+    echo "Got URL '$URL'" 1>&2
+    FIXED=$(echo "$URL" | sed -e "s/'$//g")
+    echo "wget -O '$*' '$FIXED'"
+done < <("$BASE/getvids" "$@")
