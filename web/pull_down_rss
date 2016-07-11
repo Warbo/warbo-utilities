@@ -86,6 +86,10 @@ getRss "ConorMcBride"                       "https://pigworker.wordpress.com/fee
 getRss "HackerNews"                         "http://feeds.feedburner.com/fullhackernews"
 getRss "ProgrammerPaintings"                "http://classicprogrammerpaintings.com/rss"
 getRss "BBCHeadlines"                       "http://feeds.bbci.co.uk/news/rss.xml?edition=uk"
+getRss "ScienceStories"                     "http://www.bbc.co.uk/programmes/b06vy2jd/episodes/downloads.rss"
+getRss "RutherfordAndFry"                   "http://www.bbc.co.uk/programmes/b07dx75g/episodes/downloads.rss"
+getRss "InfiniteMonkeyCage"                 "http://www.bbc.co.uk/programmes/b00snr0w/episodes/downloads.rss"
+getRss "InsideScience"                      "http://www.bbc.co.uk/programmes/b036f7w2/episodes/downloads.rss"
 
 # Raw ATOM feeds
 
