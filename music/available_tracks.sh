@@ -34,14 +34,14 @@ do
 
                 URL=$(echo "$NAME_URL" | cut -f2)
 
-                TRACK_BASE=$(echo "$URL" | tr -c '[[:alnum:]]' '_')
+                TRACK_BASE=$(echo "$URL" | tr -c '[:alnum:]' '_')
                 TRACK_FILE="$TRACK_DIR/$TRACK_BASE"
 
                 [[ -f "$TRACK_FILE" ]] || continue
 
                 while read -r NUM_TRACK
                 do
-                    RAW_NUM=$(echo "$NUM_TRACK" | cut -f1 | tr -dc '[[:digit:]]')
+                    RAW_NUM=$(echo "$NUM_TRACK" | cut -f1 | tr -dc '[:digit:]')
                     NUM=$(printf "%02d" "$RAW_NUM")
                     TRACK=$(echo "$NUM_TRACK" | cut -f2)
 
