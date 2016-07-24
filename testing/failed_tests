@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 shopt -s nullglob
 
-    ALL=$(ls ~/System/Tests/scripts/         | wc -l)
-   PASS=$(ls ~/System/Tests/results/pass/    | wc -l)
-  CHECK=$(ls ~/System/Tests/results/check/   | wc -l)
-RUNNING=$(ls ~/System/Tests/results/running/ | wc -l)
+    ALL=$(find ~/System/Tests/scripts/         -type f | wc -l)
+   PASS=$(find ~/System/Tests/results/pass/    -type f | wc -l)
+  CHECK=$(find ~/System/Tests/results/check/   -type f | wc -l)
+RUNNING=$(find ~/System/Tests/results/running/ -type f | wc -l)
 
 SUCCESS=$(( PASS + CHECK ))
 

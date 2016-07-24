@@ -4,7 +4,7 @@
 BASE=$(dirname "$(readlink -f "$0")")
 
 function scrapeWithFirefox {
-    if ps auxww | grep -v conkeror | grep fire | grep fox > /dev/null
+    if pgrep ".*firefox.*" | grep -v conkeror | grep fox > /dev/null
     then
         echo "Can't scrape pages while Firefox is open, aborting." 1>&2
         exit 1

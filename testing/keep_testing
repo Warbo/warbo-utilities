@@ -2,9 +2,10 @@
 
 function choose {
     # Choose one test at random
-    ls -1 results/pass | shuf | head -n1
+    find results/pass -type f | shuf | head -n1
 
     # Choose the oldest test
+    # shellcheck disable=SC2012
     ls -1tr results/pass | head -n1
 }
 
