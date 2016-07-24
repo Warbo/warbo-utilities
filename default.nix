@@ -6,6 +6,7 @@ stdenv.mkDerivation {
 
   propagatedBuildInputs = [
     python
+    md2pdf
   ];
 
   buildPhase   = "";
