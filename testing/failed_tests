@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
 shopt -s nullglob
 
-    ALL=$(find ~/System/Tests/scripts/         -type f | wc -l)
-   PASS=$(find ~/System/Tests/results/pass/    -type f | wc -l)
-  CHECK=$(find ~/System/Tests/results/check/   -type f | wc -l)
-RUNNING=$(find ~/System/Tests/results/running/ -type f | wc -l)
+D="$HOME/System/Tests"
+
+function count {
+    find "$D/$1" -type f -o -type l | wc -l
+}
+
+    ALL=$(count scripts/)
+   PASS=$(count results/pass/)
+  CHECK=$(count results/check/)
+RUNNING=$(count results/running/)
 
 SUCCESS=$(( PASS + CHECK ))
 
@@ -27,26 +33,26 @@ echo "RUNNING: $RUNNING"
 echo "ALL:     $ALL"
 
 echo "Passed:"
-ls ~/System/Tests/results/pass/
+ls "$D/results/pass/"
 echo ""
 
 echo "To check:"
-ls ~/System/Tests/results/check/
+ls "$D/results/check/"
 
 echo "Not run:"
-for TEST in ~/.tests/scripts/*
+for TEST in "$D/scripts"/*
 do
     NAME=$(basename "$TEST")
-    [[ -e ~/System/Tests/results/stdout/"$NAME" ]] || echo "$NAME"
+    [[ -e "$D/results/stdout/$NAME" ]] || echo "$NAME"
 done
 echo ""
 
 echo "Failures:"
-for TEST in ~/System/Tests/scripts/*
+for TEST in "$D/scripts"/*
 do
     NAME=$(basename "$TEST")
-    [[ -e ~/.tests/results/stdout/"$NAME" ]] || continue
-    [[ -e ~/.tests/results/pass/"$NAME"   ]] && continue
-    [[ -e ~/.tests/results/check/"$NAME"  ]] && continue
+    [[ -e "$D/results/stdout/$NAME" ]] || continue
+    [[ -e "$D/results/pass/$NAME"   ]] && continue
+    [[ -e "$D/results/check/$NAME"  ]] && continue
     echo "$NAME"
 done
