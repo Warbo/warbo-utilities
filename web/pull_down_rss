@@ -90,6 +90,7 @@ getRss "ScienceStories"                     "http://www.bbc.co.uk/programmes/b06
 getRss "RutherfordAndFry"                   "http://www.bbc.co.uk/programmes/b07dx75g/episodes/downloads.rss"
 getRss "InfiniteMonkeyCage"                 "http://www.bbc.co.uk/programmes/b00snr0w/episodes/downloads.rss"
 getRss "InsideScience"                      "http://www.bbc.co.uk/programmes/b036f7w2/episodes/downloads.rss"
+getRss "ComedyOfTheWeek"                    "http://www.bbc.co.uk/programmes/p02pc9x6/episodes/downloads.rss"
 
 # Raw ATOM feeds
 
