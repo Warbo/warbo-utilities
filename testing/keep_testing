@@ -11,7 +11,7 @@ function choose {
 
 # Keep running the test suite until killed
 
-cd ~/System/Tests
+cd ~/System/Tests || exit 1
 while true
 do
     # Only run tests if we're on AC power
