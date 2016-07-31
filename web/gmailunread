@@ -5,16 +5,16 @@ DUNDEE=$(find ~/Mail/dundee/INBOX/new -type f | wc -l)
 
 if [[ "$GMAIL" -eq 0 ]]
 then
-    GMAILCOL="gmail $GMAIL"
+    GMAILCOL="g $GMAIL"
 else
-    GMAILCOL="gmail <fc=#44ff66>$GMAIL</fc>"
+    GMAILCOL="g <fc=#44ff66>$GMAIL</fc>"
 fi
 
 if [[ "$DUNDEE" -eq 0 ]]
 then
-    DUNDEECOL="dundee $DUNDEE"
+    DUNDEECOL="dd $DUNDEE"
 else
-    DUNDEECOL="dundee <fc=#44ff66>$DUNDEE</fc>"
+    DUNDEECOL="dd <fc=#44ff66>$DUNDEE</fc>"
 fi
 
 echo "$GMAILCOL | $DUNDEECOL"

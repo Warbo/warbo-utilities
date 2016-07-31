@@ -16,13 +16,10 @@ SUCCESS=$(( PASS + CHECK ))
 
 DIFF=$(( ALL - SUCCESS ))
 
-EXTRA=""
-[[ "$RUNNING" -ne 0 ]] || EXTRA=" so far"
-
 HEX="#00FF00"
 [[ "$DIFF" -gt 0 ]] && HEX="#FF0000"
 
-echo "<fc=${HEX}>${SUCCESS}/${ALL} passed${EXTRA}</fc>"
+echo "<fc=${HEX}>${SUCCESS}/${ALL}</fc>"
 
 [[ "x$1" = "xshow" ]] || exit 0
 
