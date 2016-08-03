@@ -11,6 +11,7 @@ function getvid {
     INCOMING=$(cat)
     echo "$INCOMING" | getfmt mp4 | findurl
     echo "$INCOMING" | getfmt flv | findurl
+    echo "$INCOMING" | getfmt avi | findurl
 }
 
 function geteval {
