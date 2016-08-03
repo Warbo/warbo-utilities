@@ -6,6 +6,12 @@ stdenv.mkDerivation {
 
   propagatedBuildInputs = [
     python
+    phantomjs
+    jsbeautifier
+    xidel
+    xdotool
+    xvfb_run
+    xsel
   ];
 
   buildPhase   = "";
