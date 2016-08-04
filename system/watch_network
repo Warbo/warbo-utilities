@@ -10,11 +10,6 @@ function notify {
     fi
 }
 
-function priv {
-    gksudo true
-    sudo "$@"
-}
-
 while true
 do
     if plugged_in
@@ -33,7 +28,8 @@ do
             true # OK
         else
             notify "Mounting pi"
-            priv pi
+            gksudo true
+            pi
         fi
     fi
 
@@ -50,7 +46,8 @@ do
             sleep 600
             notify "Suspending"
             sleep 60
-            priv suspend
+            gksudo true
+            sudo suspend
         fi
     fi
 done
