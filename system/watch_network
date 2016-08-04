@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#! /usr/bin/env nix-shell
+#! nix-shell -i bash -p gksu
 
 function notify {
     if command -v notify-send > /dev/null
@@ -10,12 +11,8 @@ function notify {
 }
 
 function priv {
-    if command -v gksudo > /dev/null
-    then
-        gksudo "$@"
-    else
-        nix-shell -p gksu --run "gksudo $*"
-    fi
+    gksudo true
+    sudo "$@"
 }
 
 while true
@@ -31,7 +28,7 @@ do
 
     if [[ "x$LOC" = "xhome" ]]
     then
-        if mount | grep "Public"
+        if mount | grep "Public" > /dev/null
         then
             true # OK
         else
