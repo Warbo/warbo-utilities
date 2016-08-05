@@ -47,7 +47,7 @@ do
             notify "Suspending"
             sleep 60
             gksudo true
-            sudo suspend
+            sudo pm-suspend
         fi
     fi
 done
