@@ -1,4 +1,4 @@
-with import <nixpkgs> {};
+{ jsbeautifier, python, phantomjs, stdenv, xdotool, xidel, xsel, xvfb_run }:
 
 stdenv.mkDerivation {
   name = "warbo-utilities";
