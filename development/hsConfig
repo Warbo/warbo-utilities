@@ -11,7 +11,7 @@ function cbl2nix {
 
 function genDefault {
     DEF=$(cbl2nix) || {
-        echo "Error: $DEF" >> /dev/stderr
+        echo "Error: $DEF" 1>&2
         exit 1
     }
     echo "$DEF"
