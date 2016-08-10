@@ -64,49 +64,28 @@ cd ~/.cache/rss || {
     exit 1
 }
 
-# Raw RSS feeds
+# Configurable feeds
+while read -r FEED
+do
+    TYPE=$(echo "$FEED" | cut -f1)
+    NAME=$(echo "$FEED" | cut -f2)
+     URL=$(echo "$FEED" | cut -f3)
 
-getRss "XKCD"                               "http://xkcd.com/rss.xml"
-getRss "TypeTheory"                         "http://typetheorypodcast.com/feed/podcast"
-getRss "MathFactor"                         "http://mathfactor.uark.edu/feed/"
-getRss "PlanetHaskell"                      "http://planet.haskell.org/rss20.xml"
-getRss "SMBC"                               "http://www.smbc-comics.com/rss.php"
-getRss "TalkingMachines"                    "http://www.thetalkingmachines.com/blog/?format=RSS"
-getRss "TEDTalks"                           "https://www.ted.com/talks/rss"
-getRss "LifeScientific"                     "http://www.bbc.co.uk/programmes/b015sqc7/episodes/downloads.rss"
-getRss "LambdaTheUltimate"                  "http://lambda-the-ultimate.org/rss.xml"
-getRss "LinearDigressions"                  "http://feeds.feedburner.com/udacity-linear-digressions"
-getRss "MIRI"                               "http://feeds.feedburner.com/miriblog"
-getRss "MoreOrLess"                         "http://www.bbc.co.uk/programmes/p02nrss1/episodes/downloads.rss"
-getRss "HiddenHistoriesOfTheInformationAge" "http://www.bbc.co.uk/programmes/b04mttrp/episodes/downloads.rss"
-getRss "BornSmart,Equal,Different"          "http://www.bbc.co.uk/programmes/b042q944/episodes/downloads.rss"
-getRss "FlyingColoursMaths"                 "http://www.flyingcoloursmaths.co.uk/feed/"
-getRss "ComputingBritain"                   "http://www.bbc.co.uk/programmes/b06bq6j1/episodes/downloads.rss"
-getRss "ConorMcBride"                       "https://pigworker.wordpress.com/feed/"
-getRss "HackerNews"                         "http://feeds.feedburner.com/fullhackernews"
-getRss "ProgrammerPaintings"                "http://classicprogrammerpaintings.com/rss"
-getRss "BBCHeadlines"                       "http://feeds.bbci.co.uk/news/rss.xml?edition=uk"
-getRss "ScienceStories"                     "http://www.bbc.co.uk/programmes/b06vy2jd/episodes/downloads.rss"
-getRss "RutherfordAndFry"                   "http://www.bbc.co.uk/programmes/b07dx75g/episodes/downloads.rss"
-getRss "InfiniteMonkeyCage"                 "http://www.bbc.co.uk/programmes/b00snr0w/episodes/downloads.rss"
-getRss "InsideScience"                      "http://www.bbc.co.uk/programmes/b036f7w2/episodes/downloads.rss"
-getRss "ComedyOfTheWeek"                    "http://www.bbc.co.uk/programmes/p02pc9x6/episodes/downloads.rss"
-
-# Raw ATOM feeds
-
-getAtom "XKCDWhatIf"           "http://what-if.xkcd.com/feed.atom"
-getAtom "PerryBibleFellowship" "http://pbfcomics.com/feed/feed.xml"
-getAtom "kurzweilai"           "http://www.kurzweilai.net/feed/atom"
-
-# YouTube channels
-
-getYouTube standupmaths   "UCSju5G2aFaWMqn-_0YBtq5A"
-getYouTube numberphile    "UCoxcjq-8xIDTYp3uz647V5A"
-getYouTube computerphile  "UC9-y-6csu5WGm29I7JiwpnA"
-getYouTube vsauce         "UC6nSFpj9HTCZ5t-N3Rm3-HA"
-getYouTube veritasium     "UCHnyfMqiRRG1u-2MsSQLbXA"
-getYouTube periodicvideos "UCtESv1e7ntJaLJYKIO1FoYw"
-getYouTube sixtysymbols   "UCvBqzzvUBLCs8Y7Axb-jZew"
+    case "$TYPE" in
+        rss)
+            getRss "$NAME" "$URL"
+            ;;
+        atom)
+            getAtom "$NAME" "$URL"
+            ;;
+        youtube)
+            getYouTube "$NAME" "$URL"
+            ;;
+        *)
+            echo "Can't handle '$FEED'" 1>&2
+            ;;
+    esac
+done < ~/.feeds
 
 # Scrape BBC iPlayer
 
