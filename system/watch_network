@@ -46,8 +46,7 @@ do
             sleep 600
             notify "Suspending"
             sleep 60
-            gksudo true
-            sudo pm-suspend
+            gksudo -S pm-suspend
         fi
     fi
 done
