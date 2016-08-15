@@ -28,7 +28,7 @@ do
             true # OK
         else
             notify "Mounting pi"
-            gksudo -S pi
+            gksudo -u chris -S pi
         fi
     fi
 
