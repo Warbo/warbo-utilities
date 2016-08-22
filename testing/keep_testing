@@ -25,8 +25,9 @@ do
         # Force some tests to be re-run
         while read -r TST
         do
-            touch results/pass/"$TST"
-            mv results/pass/"$TST" results/check/
+            NAME=$(basename "$TST")
+            touch results/pass/"$NAME"
+            mv results/pass/"$NAME" results/check/
         done < <(choose)
 
         nix-shell --run "./run"
