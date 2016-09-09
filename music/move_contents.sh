@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+BASE=$(dirname "$(readlink -f "$0")")
+
 function move_if_no_conflict {
     # Takes the initial (subdir of Music/Commercial), the directory we might be
     # moving from and a path within that directory. For example:
@@ -25,6 +27,7 @@ function move_if_no_conflict {
         then
             if [ -d "$SOURCE/$THEPATH" ]
             then
+                shopt -s nullglob
                 for INNER in "$SOURCE/$THEPATH"/*
                 do
                     RELATIVE=$(echo "$INNER" | sed -e 's@^[^/]*/@@')
@@ -37,7 +40,9 @@ function move_if_no_conflict {
             echo "COMPARE	$SOURCE/$THEPATH	Music/Commercial/$INITIAL/$THEPATH"
         fi
     else
-        echo "mv -nv '$SOURCE/$THEPATH' 'Music/Commercial/$INITIAL/$THEPATH'"
+        OUT_S=$(echo "$SOURCE/$THEPATH"                   | "$BASE/esc.sh")
+        OUT_D=$(echo "Music/Commercial/$INITIAL/$THEPATH" | "$BASE/esc.sh")
+        echo "mv -nv '$OUT_S' '$OUT_D'"
     fi
 }
 
@@ -48,6 +53,7 @@ function move_contents {
         echo "$INIT"
         for COLLECTION in "LozMusic" "LozMusic2" "Jo Tidy Music" "JamesMusic" "Riffs" "ChrisLaptopMusic"
         do
+            shopt -s nullglob
             for DIR in "$COLLECTION/$INIT"*
             do
                 RELATIVE=$(echo "$DIR" | sed -e 's@^[^/]*/@@')
