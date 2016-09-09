@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+function setState {
+    for P in ghc cabal gcc ld test
+    do
+        killall -s "$1" "$P"
+    done
+}
+
+while true
+do
+    if hot
+    then
+        setState STOP
+    else
+        setState CONT
+    fi
+
+    sleep 20
+done
