@@ -29,7 +29,7 @@ function checkMp3s {
         HAS=$(checkTag "TPE2" "$ARTIST") || {
             echo "$F has artist '$HAS', should be '$ARTIST'"
         }
-    done < <(find Music -type f -iname "*.mp3" | head)
+    done < <(find Music/Commercial -type f -iname "*.mp3" | head)
 }
 
 checkMp3s
