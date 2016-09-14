@@ -86,7 +86,7 @@ function checkMp3s {
 
             HAS=$(checkTag "$FIELD" "$VAL") || {
                 echo "$F has '$FIELD' of '$HAS', should be '$VAL'"
-                echo "mid3v2 $FIX '$F'"
+                echo "mid3v2 $FIX '$F_ESC'"
             }
         done < <(tagsFor "$ARTIST" "$ALBUM")
     done < <(find Music/Commercial -type f -iname "*.mp3")
