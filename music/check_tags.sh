@@ -31,3 +31,5 @@ function checkMp3s {
         }
     done < <(find Music -type f -iname "*.mp3" | head)
 }
+
+checkMp3s
