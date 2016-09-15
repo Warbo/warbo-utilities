@@ -73,7 +73,7 @@ function checkMp3s {
         mid3v2 --convert "$F"
         DATA=$(mid3v2 --list "$F")
 
-        while read -r LINE
+        tagsFor "$ARTIST" "$ALBUM" | while read -r LINE
         do
             FIELD=$(echo "$LINE" | cut -f 1)
               VAL=$(echo "$LINE" | cut -f 2)
@@ -88,7 +88,7 @@ function checkMp3s {
                 echo "$F has '$FIELD' of '$HAS', should be '$VAL'"
                 echo "mid3v2 $FIX '$F_ESC'"
             }
-        done < <(tagsFor "$ARTIST" "$ALBUM")
+        done
     done
 }
 
