@@ -46,7 +46,7 @@ function checkMp3s {
         echo "Not checking MP3 tags since mid3v2 not found" 1>&2
         return
     }
-    while read -r F
+    find Music/Commercial -type f -iname "*.mp3" | while read -r F
     do
           INIT=$(initOf   "$F")
         ARTIST=$(artistOf "$F")
@@ -89,7 +89,7 @@ function checkMp3s {
                 echo "mid3v2 $FIX '$F_ESC'"
             }
         done < <(tagsFor "$ARTIST" "$ALBUM")
-    done < <(find Music/Commercial -type f -iname "*.mp3")
+    done
 }
 
 checkMp3s
