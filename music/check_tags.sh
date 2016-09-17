@@ -21,9 +21,16 @@ function albumOf {
     basename "$A_DIR"
 }
 
+function compareToPath {
+    # Compare $1 to $2, ignoring path-sensitive characters
+    CMP1=$(echo "$1" | tr -d '?:/!')
+    CMP2=$(echo "$2" | tr -d '?:/!')
+    [[ "x$CMP1" = "x$CMP2" ]] || return 1
+}
+
 function checkTag {
     GOT=$(echo "$DATA" | grep "^$1=" | cut -d '=' -f 2-)
-    [[ "x$GOT" = "x$2" ]] || {
+    compareToPath "$GOT" "$2" || {
         echo "$GOT"
         return 1
     }
