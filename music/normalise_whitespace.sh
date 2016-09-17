@@ -10,47 +10,44 @@ function esc {
 
 while read -r NAME
 do
-    [[ -d "$NAME" ]] && {
-        echo "'$NAME' has weird whitespace" >> /dev/stderr
-        continue
-    }
-    [[ -f "$NAME" ]] && {
-        DIR=$(dirname "$NAME")
-        FILE=$(basename "$NAME")
-        NORMAL=$(echo "$FILE" | sed -e 's/   */ /g')
-        SRC=$(echo "$DIR/$FILE"   | esc)
-        DST=$(echo "$DIR/$NORMAL" | esc)
+    DIR=$(dirname "$NAME")
+    FILE=$(basename "$NAME")
+    NORMAL=$(echo "$FILE" | sed -e 's/   */ /g')
+    SRC=$(echo "$DIR/$FILE"   | esc)
+    DST=$(echo "$DIR/$NORMAL" | esc)
+    if [[ -e "$DIR/$NORMAL" ]]
+    then
+        echo "'$SRC' has dodgy whitespace, but '$DST' exists"
+    else
         echo "mv -v '$SRC' '$DST'"
-    }
+    fi
 done < <(find Music -name '*  *')
 while read -r NAME
 do
-    [[ -d "$NAME" ]] && {
-        echo "'$NAME' has weird whitespace" >> /dev/stderr
-        continue
-    }
-    [[ -f "$NAME" ]] && {
-        DIR=$(dirname "$NAME")
-        FILE=$(basename "$NAME")
-        NORMAL=$(echo "$FILE" | sed -e 's/^  *//g')
-        SRC=$(echo "$DIR/$FILE"   | esc)
-        DST=$(echo "$DIR/$NORMAL" | esc)
+    DIR=$(dirname "$NAME")
+    FILE=$(basename "$NAME")
+    NORMAL=$(echo "$FILE" | sed -e 's/^  *//g')
+    SRC=$(echo "$DIR/$FILE"   | esc)
+    DST=$(echo "$DIR/$NORMAL" | esc)
+    if [[ -e "$DIR/$NORMAL" ]]
+    then
+        echo "'$SRC' has dodgy whitespace, but '$DST' exists"
+    else
         echo "mv -v '$SRC' '$DST'"
-    }
+    fi
 done < <(find Music -name ' *')
 while read -r NAME
 do
-    [[ -d "$NAME" ]] && {
-        echo "'$NAME' has weird whitespace" >> /dev/stderr
-        continue
-    }
-    [[ -f "$NAME" ]] && {
-        DIR=$(dirname "$NAME")
-        FILE=$(basename "$NAME")
-        NORMAL=$(echo "$FILE" | sed -e 's/  *\.\([^\.]*\)$/\.\1/g')
-        SRC=$(echo "$DIR/$FILE"   | esc)
-        DST=$(echo "$DIR/$NORMAL" | esc)
-        [[ "x$FILE" = "x$NORMAL" ]] ||
-            echo "mv -v '$SRC' '$DST'"
-    }
+    DIR=$(dirname "$NAME")
+    FILE=$(basename "$NAME")
+    NORMAL=$(echo "$FILE" | sed -e 's/  *\.\([^\.]*\)$/\.\1/g')
+    SRC=$(echo "$DIR/$FILE"   | esc)
+    DST=$(echo "$DIR/$NORMAL" | esc)
+    [[ "x$FILE" = "x$NORMAL" ]] && continue
+    if [[ -e "$DST" ]]
+    then
+        echo "'$SRC' has dodgy whitespace, but '$DST' exists"
+    else
+        echo "mv -v '$SRC' '$DST'"
+    fi
 done < <(find Music -name '* .*')
