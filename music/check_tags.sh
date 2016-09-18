@@ -86,14 +86,15 @@ function checkMp3s {
               VAL=$(echo "$LINE" | cut -f 2)
               FIX=$(echo "$LINE" | cut -f 3)
 
-            if [[ "x$VAL" = "xNONE" ]]
-            then
-                continue
-            fi
+            NAME=$(basename "$F")
+            DST=$(echo "Music/Commercial/$INIT/$ARTIST/$HAS/$NAME" | esc)
 
             HAS=$(checkTag "$FIELD" "$VAL") || {
-                echo "$F has '$FIELD' of '$HAS', should be '$VAL'"
-                echo "mid3v2 $FIX '$F_ESC'"
+                echo "mv '$F_ESC' '$DST'"
+                [[ "x$VAL" = "xNONE" ]] || {
+                    echo "$F has '$FIELD' of '$HAS', should be '$VAL'"
+                    echo "mid3v2 $FIX '$F_ESC'"
+                }
             }
         done
     done
