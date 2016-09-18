@@ -2,6 +2,25 @@
 
 BASE=$(dirname "$(readlink -f "$0")")
 
+echo "Looking for transcoded files" 1>&2
+FORMATS="ogg mp3 opus wma flac"
+for FMT1 in $FORMATS
+do
+    for FMT2 in $FORMATS
+    do
+        find Music -type f -iname "*.$FMT1.$FMT2" | while read -r F
+        do
+            ORIG=$(basename "$F" ".$FMT2")
+            if [[ -e "$ORIG" ]]
+            then
+                echo "'$F' seems to be transcoded from '$ORIG'"
+            else
+                echo "'$F' seems to be transcoded; rename?"
+            fi
+        done
+    done
+done
+
 # Look for similar filenames inside each artist directory
 for INIT in Music/Commercial/*
 do

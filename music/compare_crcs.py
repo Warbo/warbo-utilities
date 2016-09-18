@@ -59,7 +59,7 @@ def compare_files(f1, f2):
     lower1 = f1.lower()
     lower2 = f2.lower()
 
-    for ext in ["mp3", "wma", "aac", "ogg", "m4a"]:
+    for ext in ["mp3", "wma", "aac", "ogg", "m4a", "opus", "wav", "flac"]:
         if lower1.endswith(ext) and lower2.endswith(ext):
             is_audio = True
 
