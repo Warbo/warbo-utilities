@@ -76,8 +76,6 @@ function checkMp3s {
 
          F_ESC=$(echo "$F" | esc)
 
-        # Normalise the ID3 data, so it's all available as v2, and read it in
-        mid3v2 --convert "$F"
         DATA=$(mid3v2 --list "$F")
 
         tagsFor "$ARTIST" "$ALBUM" | while read -r LINE
