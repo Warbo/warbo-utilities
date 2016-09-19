@@ -28,6 +28,8 @@ do
     # Remove id3v1 tags
     mid3v2 --delete-v1 "$F"
 
+    sync
+
     if hasV1 "$F"
     then
         echo "Aborting: Couldn't remove ID3v1 tags from $F" 1>&2
