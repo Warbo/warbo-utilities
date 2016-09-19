@@ -11,7 +11,8 @@ command -v mid3v2 > /dev/null || {
 }
 
 function hasV1 {
-    if mp3info "$1" 2>&1 | grep "does not have an ID3 1.x tag" > /dev/null
+    OUT=$(mp3info "$1" 2>&1) || return 1
+    if echo "$OUT" | grep "does not have an ID3 1.x tag" > /dev/null
     then
         return 1
     fi
