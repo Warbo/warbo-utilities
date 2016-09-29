@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 function setState {
-    for P in ghc cabal gcc ld test
+    while read -r P
     do
         killall -s "$1" "$P"
-    done
+    done < /home/chris/.coolDown
 }
 
 while true
