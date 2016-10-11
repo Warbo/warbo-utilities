@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+imm -u
+
+sleep $((60 * 30))
