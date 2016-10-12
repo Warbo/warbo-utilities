@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source "$HOME/.profile"
+
 imm -u
 
 sleep $((60 * 30))
