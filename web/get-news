@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-source "$HOME/.profile"
+source /etc/profile
+source /home/chris/.profile
 
-imm -u
+ping -c 1 google.com && imm -u
 
 sleep $((60 * 30))

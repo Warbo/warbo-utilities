@@ -21,17 +21,6 @@ do
 
     LOC=$(location)
 
-    if [[ "x$LOC" = "xhome" ]]
-    then
-        if mount | grep "Public" > /dev/null
-        then
-            true # OK
-        else
-            notify "Mounting pi"
-            gksudo -u chris -S pi
-        fi
-    fi
-
     if [[ "x$LOC" = "xuni" ]]
     then
         HOUR=$(date "+%H")
