@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+cd ~/System/Tests || exit 1
+
+function choose {
+    # Choose one test at random
+    find results/pass -type f | shuf | head -n1
+
+    # Choose the oldest test
+    # shellcheck disable=SC2012
+    ls -1tr results/pass | head -n1
+}
+
+# Force some tests to be re-run
+while read -r TST
+do
+    NAME=$(basename "$TST")
+    touch results/pass/"$NAME"
+    mv results/pass/"$NAME" results/check/
+done < <(choose)
+
+exec ./run
