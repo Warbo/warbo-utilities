@@ -4,7 +4,7 @@ function search {
     # Look for Big Buck Bunny, duplicate the output to stderr so we can see
     # progress
     BASE=$(dirname "$(dirname "$(readlink -f "$0")")")
-    "$BASE/web/getalluc" big buck bunny | tee >(cat >&2)
+    timeout 240 "$BASE/web/getalluc" big buck bunny | tee >(cat >&2)
 }
 
 MSG="Found video URL"

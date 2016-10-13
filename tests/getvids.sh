@@ -3,7 +3,7 @@
 function get {
   BASE=$(dirname "$(dirname "$(readlink -f "$0")")")
   export SITE="http://www.alluc.ee"
-  "$BASE/web/getvids" big buck bunny
+  timeout 30 "$BASE/web/getvids" big buck bunny
 }
 
 function report {
