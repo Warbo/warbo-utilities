@@ -1,21 +1,15 @@
 #!/usr/bin/env bash
 
-function search {
-    # Look for Big Buck Bunny, duplicate the output to stderr so we can see
-    # progress
-    BASE=$(dirname "$(dirname "$(readlink -f "$0")")")
-    timeout 240 "$BASE/web/getalluc" big buck bunny | tee >(cat >&2)
-}
+BASE=$(dirname "$(dirname "$(readlink -f "$0")")")
 
 MSG="Found video URL"
-while read -r LINE
-do
-    if echo "$LINE" | grep "wget" > /dev/null
-    then
-        echo "ok - $MSG"
-        exit 0
-    fi
-done < <(search)
+
+if echo "'$BASE/web/getalluc' big buck bunny host:vidzi.tv" |
+   timeout 240 bash | grep -m 1 "wget"
+then
+    echo "ok - $MSG"
+    exit 0
+fi
 
 echo "not ok - $MSG"
 exit 1
