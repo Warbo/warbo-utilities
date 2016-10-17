@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-
-source /etc/profile
-source /home/chris/.profile
-
-ping -c 1 google.com && imm -u
-
-sleep $((60 * 30))
