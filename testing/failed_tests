@@ -7,12 +7,18 @@ function count {
     find "$D/$1" -type f -o -type l | wc -l
 }
 
-    ALL=$(count scripts/)
+     ATTRS=$("$D/helpers/tests.sh")
+ ATTRCOUNT=$(echo "$ATTRS" | jq 'length')
+ATTRPASSES=$(echo "$ATTRS" | jq 'map(select(.pass)) | length')
+ NOTPASSED=$(echo "$ATTRS" | jq -r 'to_entries | map(select(.value.pass | not)) | .[] | .key')
+
+SCRIPTS=$(count scripts/)
    PASS=$(count results/pass/)
   CHECK=$(count results/check/)
 RUNNING=$(count results/running/)
 
-SUCCESS=$(( PASS + CHECK ))
+    ALL=$(( SCRIPTS + ATTRCOUNT ))
+SUCCESS=$(( PASS + CHECK + ATTRPASSES ))
 
 DIFF=$(( ALL - SUCCESS ))
 
@@ -35,6 +41,7 @@ echo ""
 
 echo "To check:"
 ls "$D/results/check/"
+echo ""
 
 echo "Not run:"
 for TEST in "$D/scripts"/*
@@ -42,6 +49,10 @@ do
     NAME=$(basename "$TEST")
     [[ -e "$D/results/stdout/$NAME" ]] || echo "$NAME"
 done
+while read -r NAME
+do
+    [[ -e "$D/results/stdout/$NAME" ]] || echo "$NAME"
+done < <(echo "$NOTPASSED")
 echo ""
 
 echo "Failures:"
@@ -53,3 +64,10 @@ do
     [[ -e "$D/results/check/$NAME"  ]] && continue
     echo "$NAME"
 done
+while read -r NAME
+do
+    [[ -e "$D/results/stdout/$NAME" ]] || continue
+    [[ -e "$D/results/pass/$NAME"   ]] && continue
+    [[ -e "$D/results/check/$NAME"  ]] && continue
+    echo "$NAME"
+done < <(echo "$NOTPASSED")
