@@ -16,7 +16,7 @@ function calc {
     fi
 }
 
-THRESHOLD=70
+THRESHOLD=80
 
 while read -r TEMP
 do
