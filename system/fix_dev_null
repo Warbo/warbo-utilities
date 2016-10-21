@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+nix-shell -p gksu --run 'gksu bash -c "rm -f /dev/null; mknod -m 666 /dev/null c 1 3"'

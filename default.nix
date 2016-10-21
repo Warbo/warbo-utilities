@@ -1,6 +1,6 @@
-{ alsaUtils, bash, coreutils, curl, gcalcli, gnugrep, gnused, jsbeautifier, lib,
-  makeWrapper, pidgin, python, phantomjs, runCommand, stdenv, writeScript,
-  xdotool, xidel, xsel, xvfb_run }:
+{ alsaUtils, bash, callPackage, coreutils, curl, gcalcli, gnugrep, gnused,
+  jsbeautifier, lib, makeWrapper, pidgin, python, phantomjs, runCommand, stdenv,
+  writeScript, xdotool, xidel, xsel, xvfb_run }:
 
 with builtins;
 with lib;
@@ -91,6 +91,9 @@ with rec {
                                   --suffix PATH : "${gnused}/bin"    \
                                   --suffix PATH : "${xidel}/bin"
       '';
+
+    get_news = callPackage ./scripts/get_news.nix {};
+
     honk = writeScript "honk" ''
       #!${bash}/bin/bash
       ${alsaUtils}/bin/amixer sset Master unmute > /dev/null
