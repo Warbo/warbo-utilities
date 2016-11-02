@@ -1,13 +1,54 @@
-#!/usr/bin/env bash
+#! /usr/bin/env nix-shell
+#! nix-shell -i bash -p bash xidel
+
 [[ -z "$DEBUG" ]] || set -x
 
 BASE=$(dirname "$(readlink -f "$0")")
 
 export SITE="http://www.alluc.ee"
 
-while read -r URL
+function search {
+    # Poor man's URL escaping
+    echo "$@" | sed -e 's/ /+/g'
+}
+
+# Search for commandline arguments and get videos
+Q=$(search "$@")
+URL="${SITE}/stream/${Q}"
+
+function runCurl {
+    echo "Downloading '$URL'" 1>&2
+    "$BASE/download_page" "$URL"
+}
+
+function allResults {
+    xidel - -q --extract '//div[@class="title"]/a/@href'
+}
+
+function removeAds {
+    grep -v "^/source/"
+}
+
+function prefixLinks {
+    while read -r REL
+    do
+        echo "${SITE}${REL}"
+    done
+}
+
+while read -r LINK
 do
-    echo "Got URL '$URL'" 1>&2
-    FIXED=$(echo "$URL" | sed -e "s/'$//g")
-    echo "wget -O '$*' '$FIXED'"
-done < <("$BASE/getvids" "$@")
+    echo "Getting vids from page '$LINK'" 1>&2
+    URLS=$("$BASE/vidsfrompage" "$LINK")
+
+    while read -r URL
+    do
+        [[ -n "$URL" ]] || continue
+
+        echo "Got URL '$URL'" 1>&2
+        FIXED=$(echo "$URL" | sed -e "s/'$//g")
+        echo "wget -O '$*' '$FIXED'"
+
+        [[ -z "STOPONFIRST" ]] || exit
+    done < <(echo "$URLS")
+done < <(runCurl | allResults | removeAds | prefixLinks)
