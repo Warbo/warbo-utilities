@@ -1,8 +1,7 @@
-{ alsaUtils, bash, callPackage, coreutils, curl, gcalcli, gnugrep, gnused,
-  jsbeautifier, lib, makeWrapper, pidgin, python, phantomjs, runCommand, stdenv,
-  writeScript, xdotool, xidel, xsel, xvfb_run }:
+{ pkgs ? import <nixpkgs> {} }:
 
 with builtins;
+with pkgs;
 with lib;
 with rec {
   scripts = rec {

@@ -1,4 +1,5 @@
-{ bash, coreutils, gcalcli, gnugrep, gnused, makeWrapper, runCommand }:
+{ bash, coreutils, gcalcli, gnugrep, gnused, makeWrapper, runCommand,
+  writeScript }:
 
 runCommand "mk-agenda"
   {

@@ -1,4 +1,4 @@
-{ acpi, bc, writeScript }:
+{ acpi, bash, bc, writeScript }:
 
 writeScript "hot" ''
   #!${bash}/bin/bash
