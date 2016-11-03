@@ -4,8 +4,7 @@ BASE=$(dirname "$(dirname "$(readlink -f "$0")")")
 
 MSG="Found video URL"
 
-if echo "'$BASE/web/getalluc' big buck bunny host:vidzi.tv" |
-   timeout 240 bash | grep -m 1 "wget"
+if STOPONFIRST=1 "$BASE/web/getalluc" big buck bunny host:vidzi.tv | grep -m 1 "wget"
 then
     echo "ok - $MSG"
     exit 0
