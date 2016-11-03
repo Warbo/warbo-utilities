@@ -11,6 +11,7 @@ with rec {
     get_news  = callPackage ./scripts/get_news.nix  {};
     honk      = callPackage ./scripts/honk.nix      {};
     hot       = callPackage ./scripts/hot.nix       {};
+    josyn     = callPackage ./scripts/josyn.nix     {};
     jovnc     = callPackage ./scripts/jovnc.nix     {};
     keys      = callPackage ./scripts/keys.nix      {};
     pinknoise = callPackage ./scripts/pinknoise.nix {};
