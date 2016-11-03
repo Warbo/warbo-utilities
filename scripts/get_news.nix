@@ -166,7 +166,7 @@ with rec {
           xmlstarlet ed          \
             -s //item -t elem -n pubDate             \
             -v "$(date -d "today 00:00" --rfc-2822)" \
-            -d '//item/author[position() != 1]'
+            -d '//item/pubDate[position() != 1]'
         }
 
         function atomToRss {
