@@ -10,6 +10,7 @@ with rec {
     beeminder = callPackage ./scripts/beeminder.nix {};
     get_news  = callPackage ./scripts/get_news.nix  {};
     honk      = callPackage ./scripts/honk.nix      {};
+    hot       = callPackage ./scripts/hot.nix       {};
     jovnc     = callPackage ./scripts/jovnc.nix     {};
     keys      = callPackage ./scripts/keys.nix      {};
     pinknoise = callPackage ./scripts/pinknoise.nix {};
