@@ -10,6 +10,9 @@ with rec {
     beeminder = callPackage ./scripts/beeminder.nix {};
     get_news  = callPackage ./scripts/get_news.nix  {};
     honk      = callPackage ./scripts/honk.nix      {};
+    jovnc     = callPackage ./scripts/jovnc.nix     {};
+    keys      = callPackage ./scripts/keys.nix      {};
+    pinknoise = callPackage ./scripts/pinknoise.nix {};
   };
 
   mkCmd = name: script: ''cp "${script}" "$out/bin/${name}"'';

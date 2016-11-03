@@ -1,44 +1,48 @@
-#! /usr/bin/env nix-shell
-#! nix-shell -i bash -p xbindkeys xorg.xmodmap xcape
+{ bash, procps, writeScript, xbindkeys, xcape, xorg }:
 
-# Enable keyboard shortcuts (eg. volume buttons)
-pgrep xbindkeys > /dev/null || xbindkeys
+writeScript "keys" ''
+  #!${bash}/bin/bash
 
-# Tries to reduce 'Emacs pinky', caused by the position of Ctrl on PS/2
-# keyboards
+  # Enable keyboard shortcuts (eg. volume buttons)
+  "${procps}/bin/pgrep" xbindkeys > /dev/null || "${xbindkeys}/bin/xbindkeys"
 
-# Put Ctrl back to the correct place on the PS/2 layout. This is where Caps Lock
-# is, so we map that to Ctrl. And nothing of value was lost.
-HOST=$(hostname)
+  # Tries to reduce 'Emacs pinky', caused by the position of Ctrl on PS/2
+  # keyboards
 
-if [[ "x$HOST" = "xolpc" ]]
-then
+  # Put Ctrl back to the correct place on the PS/2 layout. This is where Caps Lock
+  # is, so we map that to Ctrl. And nothing of value was lost.
+  HOST=$(hostname)
+
+  if [[ "x$HOST" = "xolpc" ]]
+  then
     setxkbmap -layout us # OLPC keyboard is US, but Ctrl is correctly placed
-else
+  else
     if [ ! -d /nix ]  # NixOS does this with configuration.nix
     then
-        setxkbmap -layout gb -option ctrl:nocaps # GB layout, CapsLock as Ctrl
+      setxkbmap -layout gb -option ctrl:nocaps # GB layout, CapsLock as Ctrl
     fi
-fi
+  fi
 
-# Kill any existing xcape instances
-killall xcape || true
+  # Kill any existing xcape instances
+  killall xcape || true
 
-# Use xmodmap to map space bar to the 'left hyper' key
-spare_modifier="Hyper_L"
-xmodmap -e "keycode 65 = $spare_modifier"
+  # Use xmodmap to map space bar to the 'left hyper' key
+  spare_modifier="Hyper_L"
+  "${xorg.xmodmap}/bin/xmodmap" -e "keycode 65 = $spare_modifier"
 
-# Remove the normal 'left hyper' mapping
-xmodmap -e "remove mod4 = $spare_modifier" # hyper_l is mod4 by default
+  # Remove the normal 'left hyper' mapping
+  # hyper_l is mod4 by default
+  "${xorg.xmodmap}/bin/xmodmap" -e "remove mod4 = $spare_modifier"
 
-# Map 'left hyper' to Control
-xmodmap -e "add Control = $spare_modifier"
+  # Map 'left hyper' to Control
+  "${xorg.xmodmap}/bin/xmodmap" -e "add Control = $spare_modifier"
 
-# Map space to an unused keycode
-xmodmap -e "keycode any = space"
+  # Map space to an unused keycode
+  "${xorg.xmodmap}/bin/xmodmap" -e "keycode any = space"
 
-# Make Alt Gr space
-xmodmap -e "keycode 108 = space"
+  # Make Alt Gr space
+  "${xorg.xmodmap}/bin/xmodmap" -e "keycode 108 = space"
 
-# Use xcape to make tapping 'left hyper' produce a space
-xcape -e "$spare_modifier=space"
+  # Use xcape to make tapping 'left hyper' produce a space
+  "${xcape}/bin/xcape" -e "$spare_modifier=space"
+''
