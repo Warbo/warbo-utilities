@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
 
+FF_DIR=$(mktemp -d -t 'ff.sh-XXXXX')
+
 echo "Opening Firefox on '$URL'" 1>&2
-timeout 60 firefox -safe-mode "$URL" 1>&2 &
+timeout 60 firefox -safe-mode         \
+                   -profile "$FF_DIR" \
+                   -no-remote         \
+                   -new-instance      \
+                   "$URL" 1>&2 &
 FF_PID="$!"
-sleep 3
+sleep 5
 
 echo "Skipping safe mode prompt" 1>&2
 xdotool key --clearmodifiers Return
@@ -31,3 +37,4 @@ xsel --clipboard
 echo ""
 
 kill "$FF_PID"
+rm -rf "$FF_DIR"

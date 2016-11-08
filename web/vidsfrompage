@@ -3,6 +3,19 @@
 
 BASE=$(dirname "$(readlink -f "$0")")
 
+function doXvfb {
+  BNAME=$(basename "$BASE")
+  if [[ "x$BNAME" = "xweb" ]]
+  then
+    # We're running from a source checkout
+    XD="$(dirname "$BASE")/system"
+  else
+    # We're running from an installed bin/ directory
+    XD="$BASE"
+  fi
+  "$XD/xvfb-run-safe" "$@"
+}
+
 function scrapeWithFirefox {
     if pgrep ".*firefox.*" | grep -v conkeror | grep fox > /dev/null
     then
@@ -18,7 +31,7 @@ function scrapeWithFirefox {
         else
             echo "$LINE" 1>&2
         fi
-    done < <(URL="$1" xvfb-run "$BASE/ff.sh" | readUrls)
+    done < <(URL="$1" doXvfb "$BASE/ff.sh" | readUrls)
 }
 
 function readUrls {
