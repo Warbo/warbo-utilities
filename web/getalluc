@@ -49,6 +49,6 @@ do
         FIXED=$(echo "$URL" | sed -e "s/'$//g")
         echo "wget -O '$*' '$FIXED'"
 
-        [[ -z "STOPONFIRST" ]] || exit
+        [[ -z "$STOPONFIRST" ]] || exit
     done < <(echo "$URLS")
 done < <(runCurl | allResults | removeAds | prefixLinks)
