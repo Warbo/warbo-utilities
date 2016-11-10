@@ -7,6 +7,7 @@ with rec {
   scripts = rec {
     agenda    = callPackage ./scripts/agenda.nix    {};
     beeminder = callPackage ./scripts/beeminder.nix {};
+    getalluc  = callPackage ./scripts/getalluc.nix  {};
     get_news  = callPackage ./scripts/get_news.nix  {};
     honk      = callPackage ./scripts/honk.nix      {};
     hot       = callPackage ./scripts/hot.nix       {};
@@ -26,12 +27,6 @@ stdenv.mkDerivation {
 
   propagatedBuildInputs = [
     python
-    phantomjs
-    jsbeautifier
-    xidel
-    xdotool
-    xvfb_run
-    xsel
   ];
 
   installPhase = ''
