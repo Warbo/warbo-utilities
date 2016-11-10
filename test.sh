@@ -4,7 +4,7 @@ shopt -s nullglob
 ERR=0
 for TEST in tests/*
 do
-    if "$TEST"
+    if nix-shell -p '(import ./shell.nix)' --show-trace --run "$TEST"
     then
         echo "ok - Passed '$TEST'"
     else
