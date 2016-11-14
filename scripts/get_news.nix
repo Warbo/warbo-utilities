@@ -1,5 +1,5 @@
-{ bash, haskellPackages, libxslt, runCommand, wget, makeWrapper, python,
-  writeScript, xidel, xmlstarlet }:
+{ bash, gnugrep, gnused, haskellPackages, libxslt, runCommand, wget,
+  makeWrapper, mu, python, writeScript, xidel, xmlstarlet }:
 
 with rec {
   iplayer = runCommand "mk-iplayer"
@@ -246,6 +246,53 @@ with rec {
                                 --prefix PATH : "${xmlstarlet}/bin" \
                                 --prefix PATH : "${libxslt.bin}/bin"
     '';
+
+  nodupes = runCommand "nodupes"
+      {
+        buildInputs = [ makeWrapper ];
+        raw         = writeScript "remove_dupes" ''
+          #!${bash}/bin/bash
+
+          function getField {
+            grep "^$1: " | cut -d ' ' -f 2-
+          }
+
+          for MSG in ~/Mail/feeds/*/new/*
+          do
+            # FIXME: Use "from:", but it doesn't handle spaces
+
+            SUB='"'"$(getField "Subject" < "$MSG")"'"'
+            DIR=$(echo "$MSG" | sed -e 's@.*/Mail/feeds/\([^/]*\)/new/.*@\1@g')
+
+            # Delete if this isn't the only unread version
+            if FOUND=$(mu find --fields l "maildir:/feeds/$DIR" \
+                                          "subject:$SUB"        \
+                                          flag:unread 2> /dev/null)
+            then
+              COUNT=$(echo "$FOUND" | wc -l)
+              if [[ "$COUNT" -gt 1 ]]
+              then
+                rm "$MSG"
+                continue
+              fi
+            fi
+
+            # Delete if this has already been read
+            if mu find --fields l "maildir:/feeds/$DIR" \
+                                  "subject:$SUB"        \
+                                  flag:seen 1>/dev/null 2> /dev/null
+            then
+              rm "$MSG"
+            fi
+          done
+        '';
+      }
+      ''
+        #!${bash}/bin/bash
+        makeWrapper "$raw" "$out" --prefix PATH : "${mu}/bin"     \
+                                  --prefix PATH : "${gnused}/bin" \
+                                  --prefix PATH : "${gnugrep}/bin"
+      '';
 };
 
 runCommand "mk-getnews"
@@ -254,6 +301,10 @@ runCommand "mk-getnews"
 
     raw = writeScript "get-news-start" ''
       #!${bash}/bin/bash
+
+      function index {
+        mu index --maildir=/home/chris/Mail
+      }
 
       if /var/setuid-wrappers/ping -c 1 google.com
       then
@@ -269,12 +320,20 @@ runCommand "mk-getnews"
         imm -u
 
         kill "$SERVER_PID"
+
+        index
+
+        # imm is bad at spotting duplicates, so we remove any
+        "${nodupes}"
+
+        index
       fi
     '';
   }
   ''
     #!${bash}/bin/bash
     makeWrapper "$raw" "$out" \
+      --prefix PATH : "${mu}/bin"     \
       --prefix PATH : "${python}/bin" \
       --prefix PATH : "${haskellPackages.ghcWithPackages (h: [h.imm])}/bin"
   ''
