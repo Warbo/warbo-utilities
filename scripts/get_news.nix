@@ -261,8 +261,25 @@ with rec {
           do
             # FIXME: Use "from:", but it doesn't handle spaces
 
-            SUB='"'"$(getField "Subject" < "$MSG")"'"'
             DIR=$(echo "$MSG" | sed -e 's@.*/Mail/feeds/\([^/]*\)/new/.*@\1@g')
+
+            # Our main identifier is the subject
+            SUB=$(getField "Subject" < "$MSG")
+
+            # Special characters are tricky. Removing question marks seems to
+            # help
+            SUB=$(echo "$SUB" | tr -d '?')
+
+            # I can't find a way to escape apostrophes within a word, so we use
+            # a wildcard instead, e.g. "Russia's" becomes "Russia*"
+            SUB=$(echo "$SUB" | sed -e "s/\(\w\w*\)'\w\w*/\1*/g")
+
+            # Apostrophies outside words, e.g. "over 'bribe' allegations", cause
+            # problems, but can be stripped out
+            SUB=$(echo "$SUB" | tr -d "'")
+
+            # We wrap the results in quotes, to get term matching
+            SUB='"'"$SUB"'"'
 
             # Delete if this isn't the only unread version
             if FOUND=$(mu find --fields l "maildir:/feeds/$DIR" \
