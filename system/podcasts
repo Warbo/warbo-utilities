@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+set -e
+shopt -s nullglob
+
+# Mount the iPod, if it's plugged in
+ipod || {
+    echo "Failed to mount, exiting" 1>&2
+    exit 1
+}
+
+[[ -d ~/iPod/Audio ]] || {
+    echo "iPod doesn't seem to be mounted" 1>&2
+    exit 1
+}
+
+echo "DELETING IPOD TODO" 1>&2
+
+for D in ~/iPod/Audio/TODO/*
+do
+    echo "DELETING '$D'" 1>&2
+    rm -rf "$D"
+done
+
+echo "MOVING NEW TODOS" 1>&2
+
+for D in ~/Audio/TODO/*
+do
+    cp -rv "$D" ~/iPod/Audio/TODO/
+
+    NAME=$(basename "$D")
+
+    if [[ -d "$D" ]]
+    then
+        # Look for an existing directory with the same name, move the contents
+        FOUND=0
+        for DEST in ~/Audio/Non-fiction ~/Audio/Fiction
+        do
+            if [[ -d "$DEST/$NAME" ]]
+            then
+                mv -v "$D"/* "$DEST/$NAME"/
+                rmdir "$D"
+                FOUND=1
+            fi
+        done
+
+        if [[ "$FOUND" -eq 0 ]]
+        then
+            echo "No existing '$NAME' found, assuming non-fiction" 1>&2
+            mv -v "$D" ~/Audio/Non-fiction
+        fi
+    else
+        # Looking for existing files is too tedious; assume it's standalone
+        echo "Standalone file '$D' found, assuming non-fiction" 1>&2
+        mv -v "$D" ~/Audio/Non-fiction
+    fi
+done
