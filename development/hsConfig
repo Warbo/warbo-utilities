@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-CMD="cabal configure -v --enable-tests --enable-coverage --enable-benchmarks"
+CMD="cabal configure -v --enable-tests --enable-benchmarks $*"
 
 nix-shell --show-trace -E "$(cabal2nix --shell ./.)" --run "$CMD"
