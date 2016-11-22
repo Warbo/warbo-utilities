@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+JODEV=/dev/input/by-path/platform-i8042-serio-0-event-kbd
+MEDEV=/dev/input/event0
+
+echo "Sending ALL keyboard events to laptop"
+echo "Press Ctrl-C to stop"
+sudo cat "$MEDEV" | ssh jo@debian.local "cat > $JODEV"
