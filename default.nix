@@ -4,18 +4,11 @@ with builtins;
 with pkgs;
 with lib;
 with rec {
-  scripts = rec {
-    agenda    = callPackage ./scripts/agenda.nix    {};
-    beeminder = callPackage ./scripts/beeminder.nix {};
-    getalluc  = callPackage ./scripts/getalluc.nix  {};
-    get_news  = callPackage ./scripts/get_news.nix  {};
-    honk      = callPackage ./scripts/honk.nix      {};
-    hot       = callPackage ./scripts/hot.nix       {};
-    josyn     = callPackage ./scripts/josyn.nix     {};
-    jovnc     = callPackage ./scripts/jovnc.nix     {};
-    keys      = callPackage ./scripts/keys.nix      {};
-    pinknoise = callPackage ./scripts/pinknoise.nix {};
-  };
+  scripts = mapAttrs' (f: _: {
+                        name  = removeSuffix ".nix" f;
+                        value = callPackage (./scripts + "/${f}") {};
+                      })
+                      (readDir ./scripts);
 
   mkCmd = name: script: ''cp "${script}" "$out/bin/${name}"'';
   cmds  = attrValues (mapAttrs mkCmd scripts);
