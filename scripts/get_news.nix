@@ -2,6 +2,43 @@
   makeWrapper, mu, python, writeScript, xidel, xmlstarlet }:
 
 with rec {
+  checkTV = writeScript "checkTV" ''
+    #!${bash}/bin/bash
+
+    NAME="$1"
+     URL="$2"
+
+    CONTENT=$(curl "$URL")
+
+     SERIES=$(echo "$CONTENT" | grep -io "series\W0-9[0-9]*"  | tr '[:upper:]' '[:lower:]')
+     SEASON=$(echo "$CONTENT" | grep -io "season\W0-9[0-9]*"  | tr '[:upper:]' '[:lower:]')
+    EPISODE=$(echo "$CONTENT" | grep -io "episode\W0-9[0-9]*" | tr '[:upper:]' '[:lower:]')
+
+    S=""
+    while read -r LINE
+    do
+      S="$LINE"
+    done < <(printf '%s\n%s' "$SERIES" "$SEASON" | grep '^.')
+
+    E=""
+    while read -r LINE
+    do
+      E="$LINE"
+    done < <(echo "$EPISODE" | grep '^.')
+
+    [[ -n "$S" ]] || {
+      echo "No series found for '$1'" 1>&2
+      exit 1
+    }
+
+    [[ -n "$E" ]] || {
+      echo "No episode found for '$1'" 1>&2
+      exit 1
+    }
+
+    echo "$S $E"
+  '';
+
   iplayer = runCommand "mk-iplayer"
     {
       buildInputs = [ makeWrapper ];
@@ -132,11 +169,7 @@ with rec {
         CACHEDIR="$HOME/.cache/iplayer_feeds"
         mkdir -p "$CACHEDIR"
 
-        listToFeed "iPlayer Comedy" "http://www.bbc.co.uk/iplayer/categories/comedy/all?sort=dateavailable" > "$CACHEDIR/comedy.rss"
-
-        listToFeed "iPlayer Films" "http://www.bbc.co.uk/iplayer/categories/films/all?sort=dateavailable" > "$CACHEDIR/films.rss"
-
-        listToFeed "iPlayer Sci/Nat" "http://www.bbc.co.uk/iplayer/categories/science-and-nature/all?sort=dateavailable" > "$CACHEDIR/scinat.rss"
+        listToFeed "$1" "$2"
       '';
     }
     ''
@@ -207,11 +240,17 @@ with rec {
            URL=$(echo "$FEED" | cut -f3)
 
           case "$TYPE" in
+            atom)
+              getAtom "$NAME" "$URL"
+              ;;
+            iplayer)
+              "${iplayer}" "$NAME" "$URL" > "$NAME.rss"
+              ;;
             rss)
               getRss "$NAME" "$URL"
               ;;
-            atom)
-              getAtom "$NAME" "$URL"
+            tv)
+              "${checkTV}" "$NAME" "$URL" > "$NAME.rss"
               ;;
             youtube)
               getYouTube "$NAME" "$URL"
@@ -221,9 +260,6 @@ with rec {
               ;;
           esac
         done < ~/.feeds
-
-        # Scrape BBC iPlayer
-        "${iplayer}"
 
         # Scrape the Dundee Courier
         # Edit URL http://feed43.com/feed.html?name=dundee_courier
@@ -252,56 +288,35 @@ with rec {
         buildInputs = [ makeWrapper ];
         raw         = writeScript "remove_dupes" ''
           #!${bash}/bin/bash
+          set -e
 
-          function getField {
-            grep "^$1: " | cut -d ' ' -f 2-
-          }
+          mu index --maildir=/home/chris/Mail
 
-          for MSG in ~/Mail/feeds/*/new/*
+          for DIR in ~/Mail/feeds/*
           do
-            # FIXME: Use "from:", but it doesn't handle spaces
+            FEED=$(basename "$DIR")
+            SUBJECT=""
+            while read -r LINE
+            do
+              THISLOC=$(echo "$LINE" | cut -f1)
+              THISSUB=$(echo "$LINE" | cut -f2)
 
-            DIR=$(echo "$MSG" | sed -e 's@.*/Mail/feeds/\([^/]*\)/new/.*@\1@g')
-
-            # Our main identifier is the subject
-            SUB=$(getField "Subject" < "$MSG")
-
-            # Special characters are tricky. Removing question marks seems to
-            # help
-            SUB=$(echo "$SUB" | tr -d '?')
-
-            # I can't find a way to escape apostrophes within a word, so we use
-            # a wildcard instead, e.g. "Russia's" becomes "Russia*"
-            SUB=$(echo "$SUB" | sed -e "s/\(\w\w*\)'\w\w*/\1*/g")
-
-            # Apostrophies outside words, e.g. "over 'bribe' allegations", cause
-            # problems, but can be stripped out
-            SUB=$(echo "$SUB" | tr -d "'")
-
-            # We wrap the results in quotes, to get term matching
-            SUB='"'"$SUB"'"'
-
-            # Delete if this isn't the only unread version
-            if FOUND=$(mu find --fields l "maildir:/feeds/$DIR" \
-                                          "subject:$SUB"        \
-                                          flag:unread 2> /dev/null)
-            then
-              COUNT=$(echo "$FOUND" | wc -l)
-              if [[ "$COUNT" -gt 1 ]]
+              if [[ "x$THISSUB" = "x$SUBJECT" ]]
               then
-                rm "$MSG"
-                continue
-              fi
-            fi
+                # Duplicate found
+                NEWLOC=$(echo "$THISLOC" |
+                         sed -e 's@^/home/chris/Mail/@/home/chris/Backups/duplicate_mail/@g')
+                NEWDIR=$(dirname "$NEWLOC")
 
-            # Delete if this has already been read
-            if mu find --fields l "maildir:/feeds/$DIR" \
-                                  "subject:$SUB"        \
-                                  flag:seen 1>/dev/null 2> /dev/null
-            then
-              rm "$MSG"
-            fi
+                mkdir -p "$NEWDIR"
+
+                mv "$THISLOC" "$NEWLOC"
+              fi
+              SUBJECT="$THISSUB"
+            done < <(mu find -f 'l	s' --sortfield=subject "maildir:/feeds/$FEED")
           done
+
+          mu index --maildir=/home/chris/Mail
         '';
       }
       ''
@@ -319,10 +334,6 @@ runCommand "mk-getnews"
     raw = writeScript "get-news-start" ''
       #!${bash}/bin/bash
 
-      function index {
-        mu index --maildir=/home/chris/Mail
-      }
-
       if /var/setuid-wrappers/ping -c 1 google.com
       then
         # Run any RSS-generating scripts we might have
@@ -338,12 +349,8 @@ runCommand "mk-getnews"
 
         kill "$SERVER_PID"
 
-        index
-
         # imm is bad at spotting duplicates, so we remove any
         "${nodupes}"
-
-        index
       fi
     '';
   }
