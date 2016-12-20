@@ -296,6 +296,7 @@ with rec {
           do
             FEED=$(basename "$DIR")
             SUBJECT=""
+            LOCS=""
             while read -r LINE
             do
               THISLOC=$(echo "$LINE" | cut -f1)
@@ -303,16 +304,43 @@ with rec {
 
               if [[ "x$THISSUB" = "x$SUBJECT" ]]
               then
-                # Duplicate found
-                NEWLOC=$(echo "$THISLOC" |
-                         sed -e 's@^/home/chris/Mail/@/home/chris/Backups/duplicate_mail/@g')
-                NEWDIR=$(dirname "$NEWLOC")
+                # Duplicate found, make a note
+                LOCS=$(echo -e "$LOCS\n$THISLOC" | grep '^.')
+              else
+                # New batch found, handle the old batch
 
-                mkdir -p "$NEWDIR"
+                # Are there dupes?
+                COUNT=$(echo "$LOCS" | grep '^.' | wc -l)
+                if [[ "$COUNT" -gt 1 ]]
+                then
+                  # Have we already read this entry?
+                  if echo "$LOCS" | grep "$DIR/cur" > /dev/null
+                  then
+                    # Delete all but one read copies, so we don't have to
+                    # process it in future
+                    while read -r FILE
+                    do
+                      rm "$FILE"
+                    done < <(echo "$LOCS" | grep "$DIR/cur/" | tail -n+2)
 
-                mv "$THISLOC" "$NEWLOC"
+                    # Delete all unread copies
+                    while read -r FILE
+                    do
+                      rm "$FILE"
+                    done < <(echo "$LOCS" | grep "$DIR/new/")
+                  else
+                    # Delete all but one unread copies
+                    while read -r FILE
+                    do
+                      rm "$FILE"
+                    done < <(echo "$LOCS" | grep "$DIR/new/" | tail -n+2)
+                  fi
+                fi
+
+                # Initialise the new batch
+                SUBJECT="$THISSUB"
+                LOCS="$THISLOC"
               fi
-              SUBJECT="$THISSUB"
             done < <(mu find -f 'l	s' --sortfield=subject "maildir:/feeds/$FEED")
           done
 
