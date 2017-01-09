@@ -191,12 +191,19 @@ with rec {
         }
 
         function fixRss {
-          # Set the author to $1, to avoid newlines
+          # Append an author to each item, using the feed name
+          xmlstarlet ed                          \
+            -s //item -t elem -n pubDate         \
+            -v "$1"                              \
+            -d '//item/pubDate[position() != 1]' |
+
+          # Now that all items have an author, set them all to the feed name (to
+          # avoid special characters)
           xmlstarlet ed -u "//author" -v "$1" |
 
           # Append today as the pubDate, then remove all but the first
           # pubDate (i.e. append today as the pubDate, if none is given)
-          xmlstarlet ed          \
+          xmlstarlet ed                              \
             -s //item -t elem -n pubDate             \
             -v "$(date -d "today 00:00" --rfc-2822)" \
             -d '//item/pubDate[position() != 1]'
