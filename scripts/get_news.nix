@@ -1,4 +1,4 @@
-{ bash, gnugrep, gnused, haskellPackages, libxslt, runCommand, wget,
+{ bash, feed2maildirsimple, gnugrep, gnused, libxslt, runCommand, wget,
   makeWrapper, mu, python, writeScript, xidel, xmlstarlet }:
 
 with rec {
@@ -183,8 +183,8 @@ with rec {
       raw = writeScript "pull_down_rss" ''
         #!${bash}/bin/bash
 
-        # Grabs RSS feeds and dumps them in ~/.cache
-        # Used to work around things imm doesn't support (e.g. HTTPS)
+        # Grabs RSS feeds and dumps them in ~/.cache, so all of our news is in
+        # one format and one place, ready to merge into our mail
 
         function stripNonAscii {
           tr -cd '[:print:]\n'
@@ -201,7 +201,7 @@ with rec {
           # avoid special characters)
           xmlstarlet ed -u "//author" -v "$1" |
 
-          # Append today as the pubDate, then remove all but the first
+          # Append today as the items' pubDate, then remove all but the first
           # pubDate (i.e. append today as the pubDate, if none is given)
           xmlstarlet ed                              \
             -s //item -t elem -n pubDate             \
@@ -289,77 +289,6 @@ with rec {
                                 --prefix PATH : "${xmlstarlet}/bin" \
                                 --prefix PATH : "${libxslt.bin}/bin"
     '';
-
-  nodupes = runCommand "nodupes"
-      {
-        buildInputs = [ makeWrapper ];
-        raw         = writeScript "remove_dupes" ''
-          #!${bash}/bin/bash
-          set -e
-
-          mu index --maildir=/home/chris/Mail
-
-          for DIR in ~/Mail/feeds/*
-          do
-            FEED=$(basename "$DIR")
-            SUBJECT=""
-            LOCS=""
-            while read -r LINE
-            do
-              THISLOC=$(echo "$LINE" | cut -f1)
-              THISSUB=$(echo "$LINE" | cut -f2)
-
-              if [[ "x$THISSUB" = "x$SUBJECT" ]]
-              then
-                # Duplicate found, make a note
-                LOCS=$(echo -e "$LOCS\n$THISLOC" | grep '^.')
-              else
-                # New batch found, handle the old batch
-
-                # Are there dupes?
-                COUNT=$(echo "$LOCS" | grep '^.' | wc -l)
-                if [[ "$COUNT" -gt 1 ]]
-                then
-                  # Have we already read this entry?
-                  if echo "$LOCS" | grep "$DIR/cur" > /dev/null
-                  then
-                    # Delete all but one read copies, so we don't have to
-                    # process it in future
-                    while read -r FILE
-                    do
-                      rm "$FILE"
-                    done < <(echo "$LOCS" | grep "$DIR/cur/" | tail -n+2)
-
-                    # Delete all unread copies
-                    while read -r FILE
-                    do
-                      rm "$FILE"
-                    done < <(echo "$LOCS" | grep "$DIR/new/")
-                  else
-                    # Delete all but one unread copies
-                    while read -r FILE
-                    do
-                      rm "$FILE"
-                    done < <(echo "$LOCS" | grep "$DIR/new/" | tail -n+2)
-                  fi
-                fi
-
-                # Initialise the new batch
-                SUBJECT="$THISSUB"
-                LOCS="$THISLOC"
-              fi
-            done < <(mu find -f 'l	s' --sortfield=subject "maildir:/feeds/$FEED")
-          done
-
-          mu index --maildir=/home/chris/Mail
-        '';
-      }
-      ''
-        #!${bash}/bin/bash
-        makeWrapper "$raw" "$out" --prefix PATH : "${mu}/bin"     \
-                                  --prefix PATH : "${gnused}/bin" \
-                                  --prefix PATH : "${gnugrep}/bin"
-      '';
 };
 
 runCommand "mk-getnews"
@@ -371,28 +300,23 @@ runCommand "mk-getnews"
 
       if /var/setuid-wrappers/ping -c 1 google.com
       then
-        # Run any RSS-generating scripts we might have
+        # Update all of our RSS files
         "${rss}"
-
-        pushd ~/.cache
-        python -m SimpleHTTPServer 8888 &
-        SERVER_PID="$!"
-        popd
-
-        # Run imm to send RSS to mailbox
-        imm -u
-
-        kill "$SERVER_PID"
-
-        # imm is bad at spotting duplicates, so we remove any
-        "${nodupes}"
       fi
+
+      echo "Converting RSS to maildir" 1>&2
+      for F in ~/.cache/rss/*.rss
+      do
+        NAME=$(basename "$F" .rss)
+        echo "$NAME" 1>&2
+        feed2maildir -s -m ~/Mail/feeds/"$NAME" -n "$NAME" < "$F"
+      done
     '';
   }
   ''
     #!${bash}/bin/bash
-    makeWrapper "$raw" "$out" \
+    makeWrapper "$raw" "$out"         \
       --prefix PATH : "${mu}/bin"     \
       --prefix PATH : "${python}/bin" \
-      --prefix PATH : "${haskellPackages.ghcWithPackages (h: [h.imm])}/bin"
+      --prefix PATH : "${feed2maildirsimple}/bin"
   ''
