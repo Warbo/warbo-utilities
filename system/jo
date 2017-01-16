@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-CMD="x2x -west -to :0"
+export XAUTHORITY=/home/chris/.Xauthority
+
+CMD="export XAUTHORITY=/home/jo/.Xauthority; x2x -west -to :0"
 
 if [[ -z "$JO_HOST" ]]
 then
