@@ -1,4 +1,4 @@
-{ bash, procps, writeScript, xbindkeys, xcape, xorg }:
+{ bash, nettools, procps, writeScript, xbindkeys, xcape, xorg }:
 
 writeScript "keys" ''
   #!${bash}/bin/bash
@@ -11,16 +11,14 @@ writeScript "keys" ''
 
   # Put Ctrl back to the correct place on the PS/2 layout. This is where Caps Lock
   # is, so we map that to Ctrl. And nothing of value was lost.
-  HOST=$(hostname)
+  HOST=$(${nettools}/bin/hostname)
 
   if [[ "x$HOST" = "xolpc" ]]
   then
     setxkbmap -layout us # OLPC keyboard is US, but Ctrl is correctly placed
   else
-    if [ ! -d /nix ]  # NixOS does this with configuration.nix
-    then
-      setxkbmap -layout gb -option ctrl:nocaps # GB layout, CapsLock as Ctrl
-    fi
+    # NixOS does this with configuration.nix, but gets forgotten after Xrandr
+    setxkbmap -layout gb -option ctrl:nocaps # GB layout, CapsLock as Ctrl
   fi
 
   # Kill any existing xcape instances
