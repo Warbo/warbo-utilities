@@ -192,10 +192,10 @@ with rec {
 
         function fixRss {
           # Append an author to each item, using the feed name
-          xmlstarlet ed                          \
-            -s //item -t elem -n pubDate         \
-            -v "$1"                              \
-            -d '//item/pubDate[position() != 1]' |
+          xmlstarlet ed                         \
+            -s //item -t elem -n author         \
+            -v "$1"                             \
+            -d '//item/author[position() != 1]' |
 
           # Now that all items have an author, set them all to the feed name (to
           # avoid special characters)
