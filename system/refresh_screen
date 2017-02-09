@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+# Switch to a low res then back; gives XMonad a kick if needed
+xrandr --output LVDS1 --mode 800x600
+xrandr --output LVDS1 --preferred
