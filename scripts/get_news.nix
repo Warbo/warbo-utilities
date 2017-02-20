@@ -257,7 +257,7 @@ with rec {
               getRss "$NAME" "$URL"
               ;;
             tv)
-              "${checkTV}" "$NAME" "$URL" > "$NAME.rss"
+              get_eps "$NAME" "$URL" > "$NAME.rss"
               ;;
             youtube)
               getYouTube "$NAME" "$URL"
