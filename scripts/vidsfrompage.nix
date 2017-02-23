@@ -111,8 +111,7 @@ with rec {
     function getvid {
       # Look for video URLs
       INCOMING=$(cat)
-      echo -e "FOUND\n$INCOMING\nEND" 1>&2
-      echo "$INCOMING" | xidel - -e '//video/@src'
+      echo "$INCOMING" | xidel -q - -e '//video/@src'
       echo "$INCOMING" | getfmt mp4 | findurl
       echo "$INCOMING" | getfmt flv | findurl
       echo "$INCOMING" | getfmt avi | findurl
@@ -142,7 +141,7 @@ with rec {
 
     CONTENT1=$(curl -s "$1")
     CONTENT2=$(URL="$1" "${xvfbrunsafe}" "${ff}")
-    CONTENT="$CONTENT1 $CONTENT2"
+    CONTENT=$(echo -e "$CONTENT1\n$CONTENT2")
     echo "$CONTENT" | getvid
     echo "$CONTENT" | geteval
   '');
@@ -161,7 +160,6 @@ wrapIn [procps xdotool xidel] (writeScript "vidsfrompage" ''
   }
 
   function scrapeWithFirefox {
-    echo "$1"
     while read -r LINE
     do
       if echo "$LINE" | grep "^http" > /dev/null
@@ -170,11 +168,7 @@ wrapIn [procps xdotool xidel] (writeScript "vidsfrompage" ''
       else
         echo "$LINE" 1>&2
       fi
-    done < <(getWithFirefox "$1" | readUrls)
-  }
-
-  function readUrls {
-    xidel - -q -e '//iframe/@src'
+    done < <(getWithFirefox "$1" | xidel - -q -e '//iframe/@src')
   }
 
   # Loop over result links, getting videos and obfuscated javascript
