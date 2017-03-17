@@ -281,6 +281,18 @@ with rec {
         else
           getRss "DundeeCourier" "http://feed43.com/dundee_courier.xml"
         fi
+
+        # Fetch BBC News with crap filtered out
+        function stripCrap {
+          # Remove item elements whose guid url contains the given text
+          xmlstarlet ed -d "//guid[contains(text(),'$1')]/.."
+        }
+
+        wget -O- "http://feeds.bbci.co.uk/news/rss.xml?edition=uk" |
+           stripCrap '/sport/")]/..'                               |
+           stripCrap '/news/magazine-")]/..'                       |
+           stripCrap '/news/entertainment-arts'                    |
+           stripCrap '/news/in-pictures' > BBCHeadlines.rss
       '';
     }
     ''
