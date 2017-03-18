@@ -24,7 +24,6 @@ ts nix-shell -p git2html --run \
   "git2html -p '$NAME' -r '$PWD' -l 'http://chriswarbo.net/git/$NAME.git' '$HTML/$NAME'"
 
 echo "Scheduling regeneration of chriswarbo.net" 1>&2
-touch /home/chris/blog/projects/repos/index.md
 (D="/home/chris/blog"
  cd "$D" || {
    echo "Couldn't cd to '$D'" 1>&2
