@@ -6,8 +6,7 @@
 unset $(git rev-parse --local-env-vars)
 
 # Mirror everywhere (GitHub, etc.)
-echo "FIXME: Turn chriswarbo.net into a read-only repo" 1>&2
-git remote | grep -v chriswarbo.net | while read -r REMOTE
+git remote | while read -r REMOTE
 do
   git branch | cut -c 3- | while read -r BRANCH
   do
@@ -22,7 +21,8 @@ echo "Scheduling regeneration of chriswarbo.net" 1>&2
    echo "Couldn't cd to '$D'" 1>&2
    exit 1
  }
- ts ./render push)
+ NAME=$(basename "$PWD" .git)
+ ts ./render push "$NAME")
 
 echo "Scheduling removal of related-looking test results" 1>&2
 ts remove_related_results "$PWD"
