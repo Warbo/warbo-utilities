@@ -289,8 +289,8 @@ with rec {
         }
 
         wget -O- "http://feeds.bbci.co.uk/news/rss.xml?edition=uk" |
-           stripCrap '/sport/")]/..'                               |
-           stripCrap '/news/magazine-")]/..'                       |
+           stripCrap '/sport/'                                     |
+           stripCrap '/news/magazine-'                             |
            stripCrap '/news/entertainment-arts'                    |
            stripCrap '/news/in-pictures' > BBCHeadlines.rss
       '';
