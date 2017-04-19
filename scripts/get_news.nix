@@ -215,22 +215,22 @@ with rec {
         }
 
         function get {
-          timeout 20 wget --no-check-certificate "$@"
+          timeout 20 wget -O- -q --no-check-certificate "$@"
         }
 
         function getAtom {
-          get -O - "$2" | stripNonAscii > "$1.atom"
+          get "$2" | stripNonAscii > "$1.atom"
           atomToRss "$1"
         }
 
         function getYouTube {
-          get -O - "http://www.youtube.com/feeds/videos.xml?channel_id=$2" |
+          get "http://www.youtube.com/feeds/videos.xml?channel_id=$2" |
           stripNonAscii > "$1.atom"
           atomToRss "$1"
         }
 
         function getRss {
-          get -O - "$2" | stripNonAscii | fixRss "$1" > "$1.rss"
+          get "$2" | stripNonAscii | fixRss "$1" > "$1.rss"
         }
 
         mkdir -p ~/.cache/rss
@@ -238,6 +238,8 @@ with rec {
           echo "Couldn't cd to ~/.cache/rss" 1>&2
           exit 1
         }
+
+        bbcnews > BBCHeadlines.rss
 
         # Configurable feeds
         while read -r FEED
@@ -282,17 +284,7 @@ with rec {
           getRss "DundeeCourier" "http://feed43.com/dundee_courier.xml"
         fi
 
-        # Fetch BBC News with crap filtered out
-        function stripCrap {
-          # Remove item elements whose guid url contains the given text
-          xmlstarlet ed -d "//guid[contains(text(),'$1')]/.."
-        }
 
-        wget -O- "http://feeds.bbci.co.uk/news/rss.xml?edition=uk" |
-           stripCrap '/sport/'                                     |
-           stripCrap '/news/magazine-'                             |
-           stripCrap '/news/entertainment-arts'                    |
-           stripCrap '/news/in-pictures' > BBCHeadlines.rss
       '';
     }
     ''
