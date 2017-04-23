@@ -18,6 +18,8 @@ stdenv.mkDerivation {
   name = "warbo-utilities";
   src  = ./.;
 
+  buildInputs = [ shellcheck ];
+
   propagatedBuildInputs = [
     python
   ];
