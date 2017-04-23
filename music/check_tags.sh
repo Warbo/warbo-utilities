@@ -28,8 +28,12 @@ function compareToPath {
     [[ "x$CMP1" = "x$CMP2" ]] || return 1
 }
 
+function tagValue {
+    echo "$2" | grep "^$1=" | cut -d '=' -f 2-
+}
+
 function checkTag {
-    GOT=$(echo "$DATA" | grep "^$1=" | cut -d '=' -f 2-)
+    GOT=$(tagValue "$1" "$DATA")
     compareToPath "$GOT" "$2" || {
         echo "$GOT"
         return 1
