@@ -29,7 +29,7 @@ do
             [[ -n "$ALBUM" ]] || continue
 
             DIR=$(dirname "$(readlink -f "$F")")
-            [[ "x$DIR" = "x$TOP/$INIT/$ARTIST/ALBUM" ]] || {
+            [[ "x$DIR" = "x$TOP/$INIT/$ARTIST/$ALBUM" ]] || {
                 EF=$(echo "$F"                        | esc)
                 EA=$(echo "$ARTIST"                   | esc)
                 EB=$(echo "$ALBUM"                    | esc)
