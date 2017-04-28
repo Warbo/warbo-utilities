@@ -1,4 +1,2 @@
 #!/bin/sh
-get_iplayer --no-purge \
-            --modes=flashhd,flashvhigh,hlshigh,hlslow,hlsstd,hlsvhigh \
-            --raw "$@"
+get_iplayer --no-purge --modes=better --raw "$@"
