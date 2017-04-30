@@ -21,7 +21,7 @@ with rec {
     </rss>
     EOF
 
-    NOW=$(date +%s)
+    NOW=$(date -d yesterday +%s)
     while read -r DATE
     do
       SECS=$(date -d"$DATE" +%s)
