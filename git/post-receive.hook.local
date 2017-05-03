@@ -8,12 +8,32 @@ unset $(git rev-parse --local-env-vars)
 # Mirror everywhere (GitHub, etc.)
 git remote | while read -r REMOTE
 do
-  git branch | cut -c 3- | while read -r BRANCH
-  do
-    echo "Scheduling push of '$BRANCH' to '$REMOTE'" 1>&2
-    ts git push "$REMOTE" "$BRANCH"
-  done
+    git branch | cut -c 3- | while read -r BRANCH
+    do
+        echo "Pushing '$BRANCH' to '$REMOTE'" 1>&2
+        git push "$REMOTE" "$BRANCH"
+    done
 done
+
+# Unpack compressed files, to prevent cache misses on IPFS
+git repack -A -d
+git update-server-info
+MATCHES=$(find objects/pack -maxdepth 1 -name '*.pack' -print -quit)
+if [[ -n "$MATCHES" ]]
+then
+    cp objects/pack/*.pack .
+    git unpack-objects < ./*.pack
+    rm -f ./*.pack
+fi
+
+# Push to IPFS
+KEYNAME=$(basename "$PWD" .git)
+if ipfs key list | grep -F "$KEYNAME" > /dev/null
+then
+    true
+else
+    echo "WARNING: Couldn't find IPNS key '$KEYNAME', not publishing" 1>&2
+fi
 
 echo "Scheduling regeneration of chriswarbo.net" 1>&2
 (D="/home/chris/blog"
