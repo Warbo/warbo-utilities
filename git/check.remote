@@ -53,12 +53,3 @@
       echo "$PWD"
       sh hooks/post-receive)
  done)
-
-# Make sure HTML is served
-(cd /opt/html || exit 1
- for repo in *
- do
-     test -h "/opt/git/$repo" || (cd /opt/git && ln -s "../html/$repo" "$repo")
-     test -f "$repo/repository/.git/config" &&
-         sed -i 's@/home/chris/Programming@/opt@' "$repo/repository/.git/config"
- done)
