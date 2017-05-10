@@ -61,24 +61,5 @@ done
 sem --will-cite --wait
 EOF
 
-echo "Copying HTML to remote"
-if ssh -q chriswarbo.net exit
-then
-    REMOTE=$(ssh chriswarbo.net "ls /opt/html/")
-    for repo in *.git
-    do
-        NAME=$(basename "$repo" .git)
-        if [ -d "../git-html/$NAME" ]
-        then
-            if ! echo "$REMOTE" | grep "^$NAME$" > /dev/null
-            then
-                echo "Can't find $NAME on remote server, copying..."
-                (cd ../git-html || exit 1
-                 tar c "$NAME" | gzip - | ssh chriswarbo.net "cd /opt/html && tar xz")
-            fi
-        fi
-    done
-fi
-
 echo "Running checks on remote"
 ssh chriswarbo.net 'cd /opt/repos; sh check.sh'
