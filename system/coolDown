@@ -3,7 +3,10 @@
 function setState {
     while read -r P
     do
-        killall -s "$1" "$P"
+        if pgrep "$P" > /dev/null
+        then
+            killall -s "$1" "$P"
+        fi
     done < /home/chris/.coolDown
 }
 

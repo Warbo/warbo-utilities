@@ -11,17 +11,20 @@ writeScript "hot" ''
       grep -o "[0-9.]*"
   }
 
-  THRESHOLD=80
+  if [[ -z "$TEMP_THRESHOLD" ]]
+  then
+    TEMP_THRESHOLD=90
+  fi
 
   while read -r TEMP
   do
-    COMP=$(echo "$TEMP > $THRESHOLD" | "${bc}/bin/bc")
+    COMP=$(echo "$TEMP > $TEMP_THRESHOLD" | "${bc}/bin/bc")
     if [[ 1 -eq "$COMP" ]]
     then
-      echo "$TEMP > $THRESHOLD" 1>&2
+      echo "$TEMP > $TEMP_THRESHOLD" 1>&2
       exit 0
     fi
-    echo "$TEMP < $THRESHOLD" 1>&2
+    echo "$TEMP < $TEMP_THRESHOLD" 1>&2
   done < <(temps)
 
   exit 1
