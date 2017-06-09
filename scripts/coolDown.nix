@@ -2,7 +2,7 @@
 
 with {
   raw = writeScript "coolDown" ''
-    #!${bash}bin bash
+    #!${bash}/bin/bash
 
     function setState {
       while read -r P
