@@ -1,4 +1,4 @@
-{ bash }:
+{ bash, makeWrapper, procps, psmisc, runCommand, writeScript }:
 
 with {
   raw = writeScript "coolDown" ''
