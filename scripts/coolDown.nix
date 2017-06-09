@@ -1,23 +1,34 @@
-#!/usr/bin/env bash
+{ bash }:
 
-function setState {
-    while read -r P
-    do
+with {
+  raw = writeScript "coolDown" ''
+    #!${bash}bin bash
+
+    function setState {
+      while read -r P
+      do
         if pgrep "$P" > /dev/null
         then
-            killall -s "$1" "$P"
+          killall -s "$1" "$P"
         fi
-    done < /home/chris/.coolDown
-}
+      done < /home/chris/.coolDown
+    }
 
-while true
-do
-    if hot
-    then
+    while true
+    do
+      if hot
+      then
         setState STOP
-    else
+      else
         setState CONT
-    fi
+      fi
 
-    sleep 20
-done
+      sleep 20
+    done
+  '';
+};
+
+runCommand "coolDown" { buildInputs = [ makeWrapper ]; } ''
+  makeWrapper "${raw}" "$out" --prefix PATH "${procps}/bin" \
+                              --prefix PATH "${psmisc}/bin"
+''
