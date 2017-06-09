@@ -14,6 +14,7 @@ with rec {
       then
         # Nope. We need to switch on.
         bash ~/.screenlayout/uni.sh
+        setBg
       fi
     else
       echo "VGA cable unplugged, not switching on monitor"
