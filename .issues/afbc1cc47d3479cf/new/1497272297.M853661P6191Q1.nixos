@@ -1,0 +1,37 @@
+From: Chris Warburton
+Date: Mon, 12 Jun 2017 13:50:08 +0100
+State: new
+Subject: Make emacsclient work as artemis editor
+Message-Id: <afbc1cc47d3479cf-0-artemis@nixos>
+
+git-artemis makes files called /tmp/tmpXXX.txt for issues, opens them in
+EDITOR, then uses the result to create the actual issue. Fair
+enough. The problem is, we want to use emacsclient as EDITOR, and that
+will treat /tmp/tmpXXX.txt as a text file (and rightly so!).
+
+What we need to do is open the file in emacsclient, then trigger some
+Emacs Lisp to set the mode. Note that we can't do this with a single
+emacsclient call, since opening files and evaluating code are treated as
+mutually exclusive options.
+
+We must open the file first, so that the buffer's available when we run
+our ELisp. However, our ELisp evaluation will exit immediately, rather
+than waiting for us to finish editing the file.
+
+So, the solution seems to be:
+
+ - Write a wrapper around git-artemis. Might as well call it
+   "artemis". This will set the EDITOR to a custom script.
+ - The custom script accepts a filename as $1, then calls emacsclient
+   with that filename, using & to run it in the background.
+ - We sleep for a second, to give Emacs chance to open the file, then we
+   run emacsclient again, passing '--eval "(some-custom-lisp \"$1\")"'
+   where some-custom-lisp will switch to the given filename's buffer and
+   set the right mode.
+ - We then need to `wait` for the first emacsclient process to finish
+   (i.e. wait until we've finished editing). Otherwise we'll exit
+   immediately, artemis will see the unmodified text and abort (since it
+   checks whether the text is modified). Meanwhile we'll be in Emacs,
+   blissfully unaware that artemis has already finished, and the issue
+   we're entering will just end up cluttering /tmp without being
+   processed.
