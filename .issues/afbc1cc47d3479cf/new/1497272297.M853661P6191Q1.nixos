@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Mon, 12 Jun 2017 13:50:08 +0100
-State: new
+State: resolved
 Subject: Make emacsclient work as artemis editor
 Message-Id: <afbc1cc47d3479cf-0-artemis@nixos>
+resolution: fixed
 
 git-artemis makes files called /tmp/tmpXXX.txt for issues, opens them in
 EDITOR, then uses the result to create the actual issue. Fair

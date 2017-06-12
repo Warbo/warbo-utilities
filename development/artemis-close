@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# Close the given Artemis issue ID
+
+[[ "$#" -eq 1 ]] || {
+  artemis add "$1" -p state=resolved -p resolution=fixed
+}

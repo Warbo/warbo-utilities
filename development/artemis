@@ -1,4 +1,3 @@
 #!/usr/bin/env bash
 export EDITOR=artemis-emacsclient
-export VISUAL=artemis-emacsclient
 git artemis "$@"
