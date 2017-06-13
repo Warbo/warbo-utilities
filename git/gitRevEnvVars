@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# Speeds up latestGit
+
+[[ -n "$GIT_REPO_DIR" ]] || export GIT_REPO_DIR=/home/chris/Programming/repos
+
+[[ -d "$GIT_REPO_DIR" ]] || exit 0
+
+for D in "$GIT_REPO_DIR"/*.git
+do
+    REV=$(git ls-remote "$D" HEAD | cut -f1)
+    URLHASH=$(echo -n "$D"   | sha256sum | cut -d ' ' -f1)
+    REFHASH=$(echo -n "HEAD" | sha256sum | cut -d ' ' -f1)
+    printf '%s\t%s\n' "nix_git_rev_${URLHASH}_${REFHASH}" "$REV"
+done

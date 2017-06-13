@@ -1,0 +1,9 @@
+From: Chris Warburton
+Date: Tue, 13 Jun 2017 18:01:28 +0100
+Subject: Re: Git revision env vars
+Message-Id: <aa11d175701ceb29-fadeda1488028045-artemis@nixos>
+References: <aa11d175701ceb29-0-artemis@nixos>
+In-Reply-To: <aa11d175701ceb29-0-artemis@nixos>
+
+Added new command git/gitRevEnvVars. Seems to be fine under manual
+testing. Closing.

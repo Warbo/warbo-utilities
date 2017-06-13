@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Tue, 13 Jun 2017 17:55:30 +0100
-State: new
+State: resolved
 Subject: Git revision env vars
 Message-Id: <aa11d175701ceb29-0-artemis@nixos>
+resolution: fixed
 
 Make a script to look up git revisions from ~/Programming/repos and put
 the target of HEAD into env vars, suitable for use by latestGit.
