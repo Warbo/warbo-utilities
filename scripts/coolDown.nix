@@ -29,6 +29,6 @@ with {
 };
 
 runCommand "coolDown" { buildInputs = [ makeWrapper ]; } ''
-  makeWrapper "${raw}" "$out" --prefix PATH "${procps}/bin" \
-                              --prefix PATH "${psmisc}/bin"
+  makeWrapper "${raw}" "$out" --prefix PATH : "${procps}/bin" \
+                              --prefix PATH : "${psmisc}/bin"
 ''
