@@ -1,0 +1,12 @@
+From: Chris Warburton
+Date: Mon, 12 Jun 2017 15:32:56 +0100
+State: new
+Subject: Set filenames in iget
+Message-Id: <d9eec4c00e8d7244-0-artemis@nixos>
+
+get_iplayer has changed recently, and now saves files with unhelpful
+programme IDs as their filename.
+
+Since we tend to use iget rather than calling get_iplayer directly, and
+we tend to give it a URL, we should automatically rename the result
+using the last component of the URL.

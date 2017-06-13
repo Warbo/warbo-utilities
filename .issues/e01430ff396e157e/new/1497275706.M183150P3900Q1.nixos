@@ -1,0 +1,27 @@
+From: Chris Warburton
+Date: Mon, 12 Jun 2017 14:48:42 +0100
+State: new
+Subject: New Git-to-HTML command
+Message-Id: <e01430ff396e157e-0-artemis@nixos>
+
+We need a nice way to turn a (bare) git repo into a set of static HTML
+files. Currently, the git2html script can do this, but there are
+problems:
+
+ - git2html pages require a lot of disk space, since they contain the
+   content of every file, formatted contents (e.g. including line
+   numbers), diffs with parents, etc. for every commit on every
+   branch. This is not sustainable.
+ - It's straightforward enough to limit git2html to the top commit,
+   which we've already done.
+ - Another change is to splice the contents of any README into the
+   resulting git2html index page.
+ - It would be nice to have a browseable archive of Artemis
+   issues. These are stored in .issues, and are in maildir format.
+ - MHonArc can create a set of HTML pages from maildir.
+ - Artemis issues are tracked in the repo (that's the point), but we
+   don't need to provide the full history as HTML; since we only append
+   to the issues (or mutate them to closed), we only need those from
+   HEAD.
+ - Resulting combination of git2html and mhonarc's artemis pages should
+   be standalone and relativised, so it'll work e.g. via file:// or IPFS
