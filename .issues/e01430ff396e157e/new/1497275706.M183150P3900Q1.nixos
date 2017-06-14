@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Mon, 12 Jun 2017 14:48:42 +0100
-State: new
+State: resolved
 Subject: New Git-to-HTML command
 Message-Id: <e01430ff396e157e-0-artemis@nixos>
+resolution: fixed
 
 We need a nice way to turn a (bare) git repo into a set of static HTML
 files. Currently, the git2html script can do this, but there are
