@@ -1,0 +1,21 @@
+From: Chris Warburton
+Date: Wed, 14 Jun 2017 23:04:42 +0100
+Subject: Re: Set filenames in iget
+Message-Id: <d9eec4c00e8d7244-ae1d4ebc068cf9ce-artemis@nixos>
+References: <d9eec4c00e8d7244-0-artemis@nixos>
+In-Reply-To: <d9eec4c00e8d7244-0-artemis@nixos>
+
+Made the following iget changes:
+
+ - Use basename on the last argument, to guess a filename
+ - Capture stdout of get_iplayer and extract the saved filename from the
+   last line, and check it exists as a file
+ - Move the saved file to the guessed filename
+
+A couple of other additions:
+
+ - Give the user a 5 second countdown, to abort if the guessed filename
+   is catastrophic (e.g. an empty string)
+ - get_iplayer checks if it's connected to a tty; if not, it doesn't
+   show progress info. By capturing stdout, we're failing this check, so
+   we include a workaround to fake a tty and hence get output info

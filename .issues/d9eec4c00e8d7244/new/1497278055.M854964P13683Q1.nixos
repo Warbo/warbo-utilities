@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Mon, 12 Jun 2017 15:32:56 +0100
-State: new
+State: resolved
 Subject: Set filenames in iget
 Message-Id: <d9eec4c00e8d7244-0-artemis@nixos>
+resolution: fixed
 
 get_iplayer has changed recently, and now saves files with unhelpful
 programme IDs as their filename.
