@@ -8,7 +8,7 @@ script = writeScript "failed_tests" ''
 
   D="$HOME/System/Tests"
 
-  PTHS=$(jq -c 'path(..|select(type=="string"))' < "$D/results/attrs.json")
+  PTHS=$(cat "$D/results/attrs.json")
 
       ALL=0
   SUCCESS=0
