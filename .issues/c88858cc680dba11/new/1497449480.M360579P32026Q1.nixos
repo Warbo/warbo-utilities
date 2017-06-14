@@ -1,0 +1,9 @@
+From: Chris Warburton
+Date: Wed, 14 Jun 2017 15:09:52 +0100
+State: new
+Subject: Command to run genGitHtml and push to IPFS/IPNS
+Message-Id: <c88858cc680dba11-0-artemis@nixos>
+
+Run genGitHtml on a given repo, include a bare clone of the repo,
+e.g. in a repo/ subdir, add a link to this bare repo to index.html, then
+push to IPFS and publish to the repo's IPNS key.
