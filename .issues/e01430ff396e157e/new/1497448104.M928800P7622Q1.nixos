@@ -1,0 +1,9 @@
+From: Chris Warburton
+Date: Wed, 14 Jun 2017 14:47:49 +0100
+Subject: Re: New Git-to-HTML command
+Message-Id: <e01430ff396e157e-8ef14fe54035b754-artemis@nixos>
+References: <e01430ff396e157e-0-artemis@nixos>
+In-Reply-To: <e01430ff396e157e-0-artemis@nixos>
+
+Created new command: uses git2html, mhonarc and bits from ~/blog
+(e.g. git2md for rendering READMEs)
