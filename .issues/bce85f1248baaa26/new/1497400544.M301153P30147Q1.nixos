@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Wed, 14 Jun 2017 01:34:46 +0100
+State: new
+Subject: failed_tests show
+Message-Id: <bce85f1248baaa26-0-artemis@nixos>
+
+Completely changed the way failed_tests works, but it currently bails
+out after showing the pass/total amount. We need to implement "show".

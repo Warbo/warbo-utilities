@@ -8,24 +8,21 @@ script = writeScript "failed_tests" ''
 
   D="$HOME/System/Tests"
 
-  function count {
-      find "$D/$1" -type f -o -type l | wc -l
-  }
+  PTHS=$(jq -c 'path(..|select(type=="string"))' < "$D/results/attrs.json")
 
-       ATTRS=$("$D/helpers/tests.sh")
-   ATTRCOUNT=$(echo "$ATTRS" | jq 'length')
-  ATTRPASSES=$(echo "$ATTRS" | jq 'map(select(.pass)) | length')
-   NOTPASSED=$(echo "$ATTRS" | jq -r 'to_entries | map(select(.value.pass | not)) | .[] | .key')
-
-  SCRIPTS=$(count scripts/)
-     PASS=$(count results/pass/)
-    CHECK=$(count results/check/)
-  RUNNING=$(count results/running/)
-
-      ALL=$(( SCRIPTS + ATTRCOUNT ))
-  SUCCESS=$(( PASS + CHECK + ATTRPASSES ))
-
-  DIFF=$(( ALL - SUCCESS ))
+      ALL=0
+  SUCCESS=0
+     DIFF=0
+  while read -r PTH
+  do
+    ALL=$(( ALL + 1 ))
+    if [[ -f "$D/results/pass/$PTH" ]]
+    then
+      SUCCESS=$(( SUCCESS + 1 ))
+    else
+      DIFF=$(( DIFF + 1 ))
+    fi
+  done < <(echo "$PTHS")
 
   HEX="#00FF00"
   [[ "$DIFF" -gt 0 ]] && HEX="#FF0000"
