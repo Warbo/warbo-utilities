@@ -13,7 +13,12 @@ writeScript "hot" ''
 
   if [[ -z "$TEMP_THRESHOLD" ]]
   then
-    TEMP_THRESHOLD=90
+    if [[ -f ~/.tempThreshold ]]
+    then
+      TEMP_THRESHOLD=$(cat ~/.tempThreshold)
+    else
+      TEMP_THRESHOLD=85
+    fi
   fi
 
   while read -r TEMP

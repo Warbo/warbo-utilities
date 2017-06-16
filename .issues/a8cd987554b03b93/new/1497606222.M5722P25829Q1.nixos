@@ -1,0 +1,28 @@
+From: Chris Warburton
+Date: Fri, 16 Jun 2017 10:37:46 +0100
+State: new
+Subject: Use Selenium for browser-based scripts
+Message-Id: <a8cd987554b03b93-0-artemis@nixos>
+
+Some of our scripts interact with Web pages. There are three levels to
+this:
+
+ - Nice sites: these don't rely on crap like Javascript, so we can grab
+   their HTML using wget or curl, and do what we like (e.g. XPath, etc.)
+ - Annoying sites: the things we want are only available by executing
+   Javascript. This might not be too bad, e.g. if it's an "on page load"
+   event, we can run it through e.g. phantomjs, wait a few seconds, and
+   dump out the resulting page source.
+ - Crap sites: these not only require Javascript, but they only seem to
+   work in bloatware browsers like Firefox.
+
+For the latter, we're currently launching Firefox on an XVFB display,
+using xdotool to perform actions (like opening the Web inspector, typing
+into the console and copying the source) and xclip to dump out results
+from the clipboard.
+
+This is horrible.
+
+It's time to bite the bullet and try out Selenium, probably via the
+Python library. If it's nice enough, we might be able to use it in place
+of phantomjs too.
