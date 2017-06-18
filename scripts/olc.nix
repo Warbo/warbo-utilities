@@ -68,6 +68,15 @@ wrap {
       echo "$OUTPUT" 1>&2
       exit 1
     }
-    echo "inDir ~/Public/TODO wget -O '$NAME' '$(cat ~/.olc)$FRAGMENT'"
+
+    if [[ -e ~/.olc ]]
+    then
+      PREFIX=$(cat ~/.olc)
+    else
+      echo "Warning: No ~/.olc prefix file found" 1>&2
+      PREFIX=""
+    fi
+
+    echo "inDir ~/Public/TODO wget -O '$NAME' '$PREFIX$FRAGMENT'"
   '';
 }
