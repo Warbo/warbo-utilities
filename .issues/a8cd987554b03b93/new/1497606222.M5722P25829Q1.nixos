@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Fri, 16 Jun 2017 10:37:46 +0100
-State: new
+State: resolved
 Subject: Use Selenium for browser-based scripts
 Message-Id: <a8cd987554b03b93-0-artemis@nixos>
+resolution: fixed
 
 Some of our scripts interact with Web pages. There are three levels to
 this:
