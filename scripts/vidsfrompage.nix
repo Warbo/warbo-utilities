@@ -88,6 +88,14 @@ wrap {
     while read -r LNK
     do
       echo "Scraping page '$LNK'" 1>&2
+
+      # Special cases
+      if echo "$LNK" | grep 'ad\.co' > /dev/null
+      then
+        olc "$LNK" | grep -o "https://[^']*"
+      fi
+
+      # Generic scraper
       "${scrapepage}" "$LNK"
     done < <(scrapeWithFirefox "$1")
   '';
