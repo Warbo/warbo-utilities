@@ -90,10 +90,9 @@ wrap {
       echo "Scraping page '$LNK'" 1>&2
 
       # Special cases
-      if command -v olc 1> /dev/null 2> /dev/null &&
-         echo "$LNK" | grep 'ad\.co' > /dev/null
+      if echo "$LNK" | grep 'ad\.co' > /dev/null
       then
-        olc "$LNK"
+        olc "$LNK" | grep -o "https://[^']*"
       fi
 
       # Generic scraper
