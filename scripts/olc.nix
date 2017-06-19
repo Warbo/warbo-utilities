@@ -1,8 +1,8 @@
-{ phantomjs, wrap, writeScript }:
+{ coreutils, phantomjs, wrap, writeScript }:
 
 wrap {
   name   = "olc";
-  paths  = [ phantomjs ];
+  paths  = [ coreutils phantomjs ];
   vars   = {
     EXTRACTOR = writeScript "extractor.js" ''
       // From https://gist.github.com/Tithen-Firion/8b3921d745131837519d5c5b95b86440
@@ -48,7 +48,7 @@ wrap {
   };
   script = ''
     #!/usr/bin/env bash
-    OUTPUT=$(phantomjs --ssl-protocol=any "$EXTRACTOR" "$@")
+    OUTPUT=$(timeout 30 phantomjs --ssl-protocol=any "$EXTRACTOR" "$@")
 
     FRAGMENT=""
     NAME="INSERT NAME HERE"
