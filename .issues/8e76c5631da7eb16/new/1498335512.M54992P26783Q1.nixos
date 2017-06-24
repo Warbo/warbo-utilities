@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Sat, 24 Jun 2017 21:17:34 +0100
-State: new
+State: resolved
 Subject: Avoid ".html" URLs for videos
 Message-Id: <8e76c5631da7eb16-0-artemis@nixos>
+resolution: fixed
 
 Video scrapers are coming out with a lot of URLs like '.avi.html', which
 obviously aren't videos. Strip them out.

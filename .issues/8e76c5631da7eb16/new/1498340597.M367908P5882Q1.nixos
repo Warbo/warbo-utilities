@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Sat, 24 Jun 2017 22:42:56 +0100
+Subject: Re: Avoid ".html" URLs for videos
+Message-Id: <8e76c5631da7eb16-eb4e7d3e74273f25-artemis@nixos>
+References: <8e76c5631da7eb16-0-artemis@nixos>
+In-Reply-To: <8e76c5631da7eb16-0-artemis@nixos>
+
+Strip out result URLs containing ".html"

@@ -105,7 +105,7 @@ wrapIn [xidel] (writeScript "getalluc" ''
   while read -r LINK
   do
     echo "Getting vids from page '$LINK'" 1>&2
-    URLS=$(vidsfrompage "$LINK")
+    URLS=$(vidsfrompage "$LINK" | grep -v '\.html')
 
     while read -r URL
     do
