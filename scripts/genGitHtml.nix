@@ -75,8 +75,9 @@ with rec {
 
     *Last updated: $DATE*
 
-    ''${TICK}git clone $REPO_LINK''${TICK}
+    Upstream URL: ''${TICK}git clone $REPO_LINK''${TICK}
 
+    [Repo snapshot](repo.git/)
     [View repository](git/index.html)
     [View issue tracker](issues/threads.html)
 
@@ -87,8 +88,11 @@ with rec {
 
     render | pandoc -f markdown -o "$2/index.html"
 
-    # Kill the cloned repo to save space.
+    # Kill the working tree used by git2html
     rm -rf "$2/git/repository"
+
+    # Clone a bare repo snapshot
+    git clone --bare "$repoPath" "$2/repo.git"
 
     # Kill mhonarc's database
     rm -f "$2/issues/.mhonarc.db"
@@ -154,6 +158,7 @@ stdenv.mkDerivation {
 
   installPhase = ''
     makeWrapper "$src" "$out" \
+      --prefix PATH : "${git}/bin"      \
       --prefix PATH : "${git2html}/bin" \
       --prefix PATH : "${mhonarc}/bin"  \
       --prefix PATH : "${pandoc}/bin"
