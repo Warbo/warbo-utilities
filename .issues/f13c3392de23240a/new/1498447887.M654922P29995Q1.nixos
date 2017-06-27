@@ -1,0 +1,20 @@
+From: Chris Warburton
+Date: Mon, 26 Jun 2017 04:28:49 +0100
+State: new
+Subject: Clear out old news
+Message-Id: <f13c3392de23240a-0-artemis@nixos>
+
+News folders are getting pretty big, we should clear out high traffic ones like
+BBCNews and HackerNews periodically, e.g. after refreshing, using a command like
+
+CUTOFF=$(date -d "last month" "+%s")
+find Mail/feeds/HackerNews/cur/ -type f |
+  while read -r F
+  do
+    D=$(grep "^Date: " < "$F" | sed -e 's/^Date: //g')
+    SECS=$(date -d "$D" "+%s")
+    if [[ "$SECS" -lt "$CUTOFF" ]]
+    then
+      rm "$F"
+    fi
+  done
