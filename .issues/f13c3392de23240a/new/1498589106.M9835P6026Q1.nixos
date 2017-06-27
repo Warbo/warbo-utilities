@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Tue, 27 Jun 2017 19:39:21 +0100
+Subject: Re: Clear out old news
+Message-Id: <f13c3392de23240a-e6e43517d95fa6b7-artemis@nixos>
+References: <f13c3392de23240a-0-artemis@nixos>
+In-Reply-To: <f13c3392de23240a-0-artemis@nixos>
+
+Added cleanUp to get_news
