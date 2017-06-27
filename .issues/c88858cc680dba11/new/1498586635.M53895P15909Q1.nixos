@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Tue, 27 Jun 2017 19:03:43 +0100
+Subject: Re: Command to run genGitHtml and push to IPFS/IPNS
+Message-Id: <c88858cc680dba11-f1890dc46830b8d9-artemis@nixos>
+References: <c88858cc680dba11-0-artemis@nixos>
+In-Reply-To: <c88858cc680dba11-0-artemis@nixos>
+
+git2ipfs command does this
