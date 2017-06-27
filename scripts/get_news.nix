@@ -39,6 +39,35 @@ with rec {
     echo "$S $E"
   '';
 
+  cleanUp = writeScript "clean-up-news" ''
+    #!/usr/bin/env bash
+
+    # Some feeds are high-volume and only interesting for a short time. We clean
+    # up their articles 1 month after posting
+    for FEED in BBCHeadlines HackerNews XKCD SMBC ScottishTech kurzweilai
+    do
+      CUTOFF=$(date -d "last month" "+%s")
+      while read -r F
+      do
+        D=$(grep "^Date: " < "$F" | sed -e 's/^Date: //g')
+        SECS=$(date -d "$D" "+%s")
+        if [[ "$SECS" -lt "$CUTOFF" ]]
+        then
+          rm "$F"
+        fi
+      done < <(find "$HOME/Mail/feeds/$FEED/cur" -type f)
+    done
+
+    # Some feeds may post content that originated a while ago, e.g. the BBC
+    # showing films from many years ago. If these are only available for a short
+    # time (like iPlayer posts) then we should delete those whose file
+    # modification time (rather than posted date) is older than a month
+    for FEED in iPlayerComedy iPlayerFilms iPlayerSciNat
+    do
+      find "$HOME/Mail/feeds/$FEED/cur" -type f -mtime +30 -delete
+    done
+  '';
+
   iplayer = runCommand "mk-iplayer"
     {
       buildInputs = [ makeWrapper ];
@@ -315,6 +344,9 @@ runCommand "mk-getnews"
         echo "$NAME" 1>&2
         feed2maildir -s -m ~/Mail/feeds/"$NAME" -n "$NAME" < "$F"
       done
+
+      echo "Cleaning up old news" 1>&2
+      "${cleanUp}"
     '';
   }
   ''

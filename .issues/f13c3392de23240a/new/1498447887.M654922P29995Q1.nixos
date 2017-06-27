@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Mon, 26 Jun 2017 04:28:49 +0100
-State: new
+State: resolved
 Subject: Clear out old news
 Message-Id: <f13c3392de23240a-0-artemis@nixos>
+resolution: fixed
 
 News folders are getting pretty big, we should clear out high traffic ones like
 BBCNews and HackerNews periodically, e.g. after refreshing, using a command like
