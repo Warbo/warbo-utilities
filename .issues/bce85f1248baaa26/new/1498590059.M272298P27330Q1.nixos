@@ -1,0 +1,9 @@
+From: Chris Warburton
+Date: Tue, 27 Jun 2017 20:00:18 +0100
+Subject: Re: failed_tests show
+Message-Id: <bce85f1248baaa26-9ef22977776a7b21-artemis@nixos>
+References: <bce85f1248baaa26-0-artemis@nixos>
+In-Reply-To: <bce85f1248baaa26-0-artemis@nixos>
+
+We now loop through the test names, if any appear in pass/ we show them
+under passed, in fail/ for failed, or neither for not run
