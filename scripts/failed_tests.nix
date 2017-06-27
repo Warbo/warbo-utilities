@@ -31,48 +31,38 @@ script = writeScript "failed_tests" ''
 
   [[ "x$1" = "xshow" ]] || exit 0
 
-  echo "PASS:    $PASS"
-  echo "CHECK:   $CHECK"
-  echo "SUCCESS: $SUCCESS"
-  echo "RUNNING: $RUNNING"
-  echo "ALL:     $ALL"
-
+  echo
   echo "Passed:"
-  ls "$D/results/pass/"
-  echo ""
+  while read -r PTH
+  do
+    if [[ -f "$D/results/pass/$PTH" ]]
+    then
+      echo "$PTH"
+    fi
+  done < <(echo "$PTHS")
 
-  echo "To check:"
-  ls "$D/results/check/"
-  echo ""
-
+  echo
   echo "Not run:"
-  for TEST in "$D/scripts"/*
+  while read -r PTH
   do
-      NAME=$(basename "$TEST")
-      [[ -e "$D/results/stdout/$NAME" ]] || echo "$NAME"
-  done
-  while read -r NAME
-  do
-      [[ -e "$D/results/stdout/$NAME" ]] || echo "$NAME"
-  done < <(echo "$NOTPASSED")
-  echo ""
+    if [[ -f "$D/results/pass/$PTH" ]] ||
+       [[ -f "$D/results/fail/$PTH" ]]
+    then
+      continue
+    else
+      echo "$PTH"
+    fi
+  done < <(echo "$PTHS")
 
+  echo
   echo "Failures:"
-  for TEST in "$D/scripts"/*
+  while read -r PTH
   do
-      NAME=$(basename "$TEST")
-      [[ -e "$D/results/stdout/$NAME" ]] || continue
-      [[ -e "$D/results/pass/$NAME"   ]] && continue
-      [[ -e "$D/results/check/$NAME"  ]] && continue
-      echo "$NAME"
-  done
-  while read -r NAME
-  do
-      [[ -e "$D/results/stdout/$NAME" ]] || continue
-      [[ -e "$D/results/pass/$NAME"   ]] && continue
-      [[ -e "$D/results/check/$NAME"  ]] && continue
-      echo "$NAME"
-  done < <(echo "$NOTPASSED")
+    if [[ -f "$D/results/fail/$PTH" ]]
+    then
+      echo "$PTH"
+    fi
+  done < <(echo "$PTHS")
 '';
 
 };
