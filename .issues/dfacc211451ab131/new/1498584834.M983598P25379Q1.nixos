@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Tue, 27 Jun 2017 18:33:09 +0100
+State: resolved
+Subject: Command to fetch BBC podcast episode from URL
+Message-Id: <dfacc211451ab131-0-artemis@nixos>
+resolution: fixed
+
+Should visit page, look for "higher quality" link and wget it

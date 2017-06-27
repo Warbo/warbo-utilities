@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+URL=$(wget -q -O- "$1" | grep -o '<a [^>]*> Higher quality' |
+                         grep -o 'href="[^"]*"'             |
+                         grep -o '".*"'                     |
+                         tr -d '"')
+
+# Sanity check
+echo "$URL" | grep '^http' > /dev/null || {
+    echo "URL '$URL' doesn't begin with http, aborting" 1>&2
+    exit 1
+}
+
+echo "$URL" | grep 'mp3$' > /dev/null || {
+    echo "URL '$URL' doesn't end in mp3, aborting" 1>&2
+    exit 1
+}
+
+wget "$URL"
