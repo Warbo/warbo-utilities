@@ -1,7 +1,8 @@
 From: Chris Warburton
 Date: Tue, 04 Jul 2017 16:06:19 +0100
-State: new
+State: resolved
 Subject: Avoid thevideo.me
 Message-Id: <c33f563a8fb1a8ba-0-artemis@nixos>
+resolution: fixed
 
 Their URLs contain Rick Rolls :)
