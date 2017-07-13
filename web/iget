@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# get_iplayer wraps its output depending on COLUMNS. We set a big value to try
+# and minimise the impact this has on our parsing.
+export COLUMNS=5000
+
 NAME=$(basename "${@: -1}")
 
 {

@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Thu, 13 Jul 2017 22:33:54 +0100
+Subject: Re: iget doesn't always rename
+Message-Id: <cd1764c7f23bbeae-9c3b8da66e7c3fb6-artemis@nixos>
+References: <cd1764c7f23bbeae-0-artemis@nixos>
+In-Reply-To: <cd1764c7f23bbeae-0-artemis@nixos>
+
+Works now
