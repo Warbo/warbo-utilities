@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Thu, 13 Jul 2017 21:02:08 +0100
-State: new
+State: resolved
 Subject: iget doesn't always rename
 Message-Id: <cd1764c7f23bbeae-0-artemis@nixos>
+resolution: fixed
 
 It seems to be related to the terminal we're using: we get the
 destination filename from the given URL, but we get the source filename
