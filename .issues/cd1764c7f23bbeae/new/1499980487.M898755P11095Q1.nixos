@@ -1,0 +1,15 @@
+From: Chris Warburton
+Date: Thu, 13 Jul 2017 21:02:08 +0100
+State: new
+Subject: iget doesn't always rename
+Message-Id: <cd1764c7f23bbeae-0-artemis@nixos>
+
+It seems to be related to the terminal we're using: we get the
+destination filename from the given URL, but we get the source filename
+(which we're renaming) from the last line of the command's output.
+
+Yet the command seems to wrap its output across multiple lines,
+depending presumably on the COLUMNS.
+
+We should set a large, fixed COLUMNS for iget to prevent this being an
+issue.
