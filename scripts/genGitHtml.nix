@@ -69,9 +69,7 @@ with rec {
     TICK='`'
 
     cat <<EOF
-    ---
-    title: "$repoName"
-    ---
+    # $repoName #
 
     *Last updated: $DATE*
 
