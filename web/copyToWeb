@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+# Useful rsync options for copying to remote servers
+rsync --checksum --delete --ignore-times --progress --copy-unsafe-links \
+      --archive --compress -e "ssh -t" --rsync-path="sudo rsync" "$@"

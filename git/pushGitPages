@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -e
+
+cd "$1"
+
+NAME=$(basename "$PWD" .git)
+
+# Duplicate stderr so we can a) display it and b) pick out the Nix store dir
+exec 5>&1
+SAVED=$(git2ipfs "$PWD" 2>&1 | tee >(cat - >&5)       |
+                               grep "Saved in "       |
+                               sed -e 's/Saved in //g')
+
+if [[ -n "$SAVED" ]]
+then
+    echo "Pushing '$SAVED' to Web" 1>&2
+    copyToWeb "$SAVED/" "chriswarbo.net:/opt/git/$NAME"
+fi

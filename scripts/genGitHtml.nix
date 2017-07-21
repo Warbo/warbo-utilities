@@ -91,6 +91,17 @@ with rec {
 
     # Clone a bare repo snapshot
     git clone --bare "$repoPath" "$2/repo.git"
+    pushd "$2/repo.git"
+      git repack -A -d
+      git update-server-info
+      MATCHES=$(find objects/pack -maxdepth 1 -name '*.pack' -print -quit)
+      if [[ -n "$MATCHES" ]]
+      then
+        cp objects/pack/*.pack .
+        git unpack-objects < ./*.pack
+        rm -f ./*.pack
+      fi
+    popd
 
     # Kill mhonarc's database
     rm -f "$2/issues/.mhonarc.db"

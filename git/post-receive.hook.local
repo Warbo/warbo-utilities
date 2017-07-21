@@ -15,33 +15,8 @@ do
     done
 done
 
-# Unpack compressed files, to prevent cache misses on IPFS
-git repack -A -d
-git update-server-info
-MATCHES=$(find objects/pack -maxdepth 1 -name '*.pack' -print -quit)
-if [[ -n "$MATCHES" ]]
-then
-    cp objects/pack/*.pack .
-    git unpack-objects < ./*.pack
-    rm -f ./*.pack
-fi
-
-# Push to IPFS
-KEYNAME=$(basename "$PWD" .git)
-if ipfs key list | grep -F "$KEYNAME" > /dev/null
-then
-    true
-else
-    echo "WARNING: Couldn't find IPNS key '$KEYNAME', not publishing" 1>&2
-fi
-
-echo "Scheduling regeneration of chriswarbo.net" 1>&2
-(D="/home/chris/blog"
- cd "$D" || {
-   echo "Couldn't cd to '$D'" 1>&2
-   exit 1
- }
- ts ./render push)
+echo "Scheduling push to Web and IPFS" 1>&2
+ts pushGitPages
 
 echo "Scheduling removal of related-looking test results" 1>&2
 ts remove_related_results "$PWD"
