@@ -16,8 +16,8 @@ wrap {
                                    grep "Saved in "       |
                                    sed -e 's/Saved in //g')
 
-    D='/opt/html/$NAME'
-    L='/opt/git/$NAME'
+    D="/opt/html/$NAME"
+    L="/opt/git/$NAME"
 
     if [[ -n "$SAVED" ]]
     then
