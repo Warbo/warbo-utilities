@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Sat, 22 Jul 2017 15:46:51 +0100
+State: new
+Subject: Add github links to repo pages
+Message-Id: <fefdf60839d9500f-0-artemis@nixos>
+
+There may be some minor changes in the names, but this might be overcome
+by a simple lookup table for those cases.

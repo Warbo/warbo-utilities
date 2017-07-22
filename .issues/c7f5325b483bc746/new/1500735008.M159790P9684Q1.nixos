@@ -1,0 +1,12 @@
+From: Chris Warburton
+Date: Sat, 22 Jul 2017 15:48:38 +0100
+State: new
+Subject: Don't render README in git2html
+Message-Id: <c7f5325b483bc746-0-artemis@nixos>
+
+Now that we have a "landing page" for each repo, git2html can focus on
+just the branches/commits/etc.
+
+Compare our changes to the upstream version, since most of the work here
+will just involve putting things back how they were (keep the `head -n1`
+stuff though)

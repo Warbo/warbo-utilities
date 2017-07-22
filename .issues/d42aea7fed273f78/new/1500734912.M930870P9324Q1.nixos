@@ -1,0 +1,7 @@
+From: Chris Warburton
+Date: Sat, 22 Jul 2017 15:48:02 +0100
+State: new
+Subject: Don't show "issues" link if there aren't any
+Message-Id: <d42aea7fed273f78-0-artemis@nixos>
+
+No point linking to a "No .issues found" page
