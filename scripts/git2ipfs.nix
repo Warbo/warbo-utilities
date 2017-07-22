@@ -7,18 +7,20 @@ with rec {
     then
       ipfs "$@"
     else
-      echo "Cann't find 'ipfs', using potentially incompatible fallback" 1>&2
+      echo "Can't find 'ipfs', using potentially incompatible fallback" 1>&2
       "${ipfs}/bin/ipfs" "$@"
     fi
   '';
 
+  # Builds repo pages using Nix, which handles temp dirs, caching, etc. for us
   nixExpr = writeScript "gen.nix" ''
     with import <nixpkgs> {};
-    { repo }:
-      runCommand "gen" { inherit repo; buildInputs = [ warbo-utilities ]; }
+    with builtins;
+    { cmd, repo }:
+      runCommand "gen" { inherit cmd currentTime repo; }
         '''
           mkdir "$out"
-          genGitHtml "$repo" "$out"
+          "$cmd" "$repo" "$out"
         '''
   '';
 };
@@ -40,9 +42,9 @@ wrap {
     }
 
     echo "Generating pages" 1>&2
-    BASE=$(dirname "$(readlink -f "$0")")
+     CMD=$(command -v genGitHtml)
     PAGES=$(nix-build --show-trace --no-out-link \
-                      --argstr repo "$1" --argstr base "$BASE" \
+                      --argstr repo "$1" --argstr cmd "$CMD" \
                       -E 'import "${nixExpr}"')
 
     echo "Saved in $PAGES" 1>&2

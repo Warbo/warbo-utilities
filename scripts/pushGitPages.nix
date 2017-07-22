@@ -1,51 +1,75 @@
-#!/usr/bin/env bash
-set -e
+{ wrap, xmlstarlet }:
 
-cd "$1"
+wrap {
+  paths  = [ xmlstarlet ];
+  script = ''
+    #!/usr/bin/env bash
+    set -e
 
-NAME=$(basename "$PWD" .git)
+    cd "$1"
 
-# Duplicate stderr so we can a) display it and b) pick out the Nix store dir
-exec 5>&1
-SAVED=$(git2ipfs "$PWD" 2>&1 | tee >(cat - >&5)       |
-                               grep "Saved in "       |
-                               sed -e 's/Saved in //g')
+    NAME=$(basename "$PWD" .git)
 
-if [[ -n "$SAVED" ]]
-then
-    echo "Pushing '$SAVED' to Web" 1>&2
+    # Duplicate stderr so we can a) display it and b) pick out the Nix store dir
+    exec 5>&1
+    SAVED=$(git2ipfs "$PWD" 2>&1 | tee >(cat - >&5)       |
+                                   grep "Saved in "       |
+                                   sed -e 's/Saved in //g')
 
-    # Don't include repo.git, since we can use the real, canonical one
-    copyToWeb --exclude /repo.git "$SAVED/" "chriswarbo.net:/opt/html/$NAME"
+    D='/opt/html/$NAME'
+    L='/opt/git/$NAME'
 
-    # Edit "snapshot" link to point at canonical /git repo
-    CONTENT=$(ssh chriswarbo.net "cat /opt/$NAME/index.html")
-       LINK="<a href='/git/$NAME.git'>Canonical repo</a>"
+    if [[ -n "$SAVED" ]]
+    then
+        echo "Pushing '$SAVED' to Web" 1>&2
 
-    echo "$CONTENT" | xmlstarlet ed -r '//a[@href="repo.git/"]' -v "$LINK" - |
-                      ssh chriswarbo.net "cat > /opt/html/$NAME/index.html"
-fi
+        ssh chriswarbo.net "test -e '$D'" ||
+          ssh chriswarbo.net "sudo mkdir -p '$D'"
 
-# Ensure we have a /git link to the /html pages
-SRC="$/opt/html/$NAME"
-DST="/opt/git/$NAME"
-if ssh chriswarbo.net "test -h '$DST'"
-then
-    FOUND=$(ssh chriswarbo.net "readlink '$DST'")
-    if [[ "x$FOUND" = "x$SRC" ]]
+        ssh chriswarbo.net "test -e '$L'" ||
+          ssh chriswarbo.net "sudo ln -s '$D' '$L'"
+
+        # Don't include repo.git, since we can use the real, canonical one
+        copyToWeb --exclude /repo.git "$SAVED/" "chriswarbo.net:$D"
+
+        # Edit repo link to point at canonical /git repo
+        CONTENT=$(ssh chriswarbo.net "cat '$D/index.html'")
+           LINK="/git/$NAME.git"
+
+        echo "$CONTENT" | sed -e "s@repo.git@/git/$NAME.git@g" |
+          ssh chriswarbo.net "sudo tee '$D/index.html' > /dev/null"
+    fi
+
+    # Ensure we have a /git link to the /html pages
+    if ssh chriswarbo.net "test -h '$L'"
+    then
+        FOUND=$(ssh chriswarbo.net "readlink '$L'")
+        if [[ "x$FOUND" = "x$D" ]]
+        then
+            true
+        else
+            echo "WARNING: '$L' points to '$FOUND', not '$D'" 1>&2
+        fi
+    else
+        echo "WARNING: '$L' is not a symlink to '$D'" 1>&2
+    fi
+
+    # Ensure there's no snapshot
+    F="$D/repo.git"
+    if ssh chriswarbo.net "test -e '$F'"
+    then
+      echo "WARNING: Shouldn't have '$F', canonical URL should be used" 1>&2
+    fi
+
+    # Ensure we use canonical URL
+    URL="/git/$NAME.git"
+      F="$D/index.html"
+    if ssh chriswarbo.net "cat $F" |
+       grep "$URL" > /dev/null
     then
         true
     else
-        echo "WARNING: '$DST' points to '$FOUND', not '$SRC'" 1>&2
+        echo "WARNING: Didn't find canonical URL '$URL' in '$F'" 1>&2
     fi
-else
-    echo "WARNING: '$DST' is not a symlink to '$SRC'" 1>&2
-fi
-
-# Ensure our repo.git redirects to /git/foo.git
-if ssh chriswarbo.net "cat /opt/html/$NAME/repo.git" |
-        grep "/opt/git/$NAME.git" > /dev/null
-then
-    true
-else
-    echo /opt/html/$NAME/repo.git"
+  '';
+}

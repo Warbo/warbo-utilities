@@ -73,10 +73,12 @@ with rec {
 
     *Last updated: $DATE*
 
-    Upstream URL: ''${TICK}git clone $REPO_LINK''${TICK}
+    Upstream URL: [''${TICK}git clone $REPO_LINK''${TICK}]($REPO_LINK)
 
-    [Repo snapshot](repo.git/)
+    [Repo](repo.git/)
+
     [View repository](git/index.html)
+
     [View issue tracker](issues/threads.html)
 
     $README_MSG
@@ -84,7 +86,7 @@ with rec {
     EOF
     }
 
-    render | pandoc -f markdown -o "$2/index.html"
+    render | pandoc --standalone -f markdown -o "$2/index.html"
 
     # Kill the working tree used by git2html
     rm -rf "$2/git/repository"

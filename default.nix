@@ -10,21 +10,19 @@ with rec {
                       })
                       (readDir ./scripts);
 
-  mkCmd = name: script: ''cp "${script}" "$out/bin/${name}"'';
-  cmds  = attrValues (mapAttrs mkCmd scripts);
+  mkCmd = name: script: ''
+    makeWrapper "${script}" "$out/bin/${name}" --prefix PATH : "$out/bin"
+  '';
+
+  cmds = attrValues (mapAttrs mkCmd scripts);
 };
 
 stdenv.mkDerivation {
-  name = "warbo-utilities";
-  src  = ./.;
-
-  buildInputs = [ shellcheck ];
-
-  propagatedBuildInputs = [
-    python
-  ];
-
-  installPhase = ''
+  name                  = "warbo-utilities";
+  src                   = ./.;
+  buildInputs           = [ makeWrapper shellcheck ];
+  propagatedBuildInputs = [ python ];
+  installPhase          = ''
     mkdir -p "$out/bin"
     for DIR in svn system web git development testing docs
     do
