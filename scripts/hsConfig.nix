@@ -1,10 +1,16 @@
 { bash, cabal2nix, makeWrapper, nix, stdenv, writeScript }:
 with builtins;
 with rec {
-  raw = writeScript "hsConfig" ''
+  expr = writeScript "hsConfigExpr.nix" ''
+    with import <nixpkgs> {};
+    { c2n }: (tincify (haskellPackages.callPackage c2n {}) {}).env
+  '';
+
+  raw  = writeScript "hsConfig" ''
     #!${bash}/bin/bash -p
     CMD="cabal configure -v --enable-tests --enable-benchmarks $*"
-    nix-shell --show-trace -E "$(cabal2nix --shell ./.)" --run "$CMD"
+    nix-shell --show-trace --arg c2n "$(cabal2nix ./.)" -E "import ${expr}" \
+              --run "$CMD"
   '';
 };
 stdenv.mkDerivation {
