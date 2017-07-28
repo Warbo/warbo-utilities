@@ -1,0 +1,12 @@
+From: Chris Warburton
+Date: Tue, 25 Jul 2017 12:14:58 +0100
+State: new
+Subject: Fix HTML escaping when rendering README
+Message-Id: <a0f5591b1a0c9954-0-artemis@nixos>
+
+In particular, code blocks containing `import <nixpkgs> {}` become
+`import <lt;nixpkgs>gt; {}`.
+
+Also, the README is preceded by "Contents of follows", which should be
+the filename (e.g. "Contents of README follows" or "Contents of
+README.md follows")
