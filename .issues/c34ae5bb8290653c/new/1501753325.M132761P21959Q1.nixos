@@ -1,0 +1,11 @@
+From: Chris Warburton
+Date: Thu, 03 Aug 2017 10:40:12 +0100
+State: new
+Subject: Investigate replacing git2html with stagit
+Message-Id: <c34ae5bb8290653c-0-artemis@nixos>
+
+Output looks prettier, can make an index page (rather than using the
+directory listing for /git like we do at the moment), seems faster
+(written in C) and uses less space (e.g. only HEAD gets a file tree).
+
+https://git.codemadness.org/stagit/
