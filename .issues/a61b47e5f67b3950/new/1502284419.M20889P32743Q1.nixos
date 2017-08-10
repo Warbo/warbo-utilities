@@ -1,0 +1,14 @@
+From: Chris Warburton
+Date: Wed, 09 Aug 2017 14:11:25 +0100
+State: new
+Subject: Suggest tags based on path and filename
+Message-Id: <a61b47e5f67b3950-0-artemis@nixos>
+
+Once we have find_untagged.sh, we can start to guess values. In
+particular:
+
+ - Artist directory should be suggested as artist
+ - Album directory (if any) should be suggested as album
+ - Match filename against cached album tracks to get title and track
+   number
+ - Use MusicBrainz to get everything else
