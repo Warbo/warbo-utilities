@@ -1,0 +1,13 @@
+From: Chris Warburton
+Date: Sat, 12 Aug 2017 07:01:26 +0100
+State: new
+Subject: Move music/* scripts into scripts/
+Message-Id: <9ed446982796cd4a-0-artemis@nixos>
+
+There are a few hidden assumptions about mutagen, kid3, etc. which we
+can sort out with Nix.
+
+While we're at it, we should drop the ".sh", etc. suffices.
+
+Check if we need to do "BASE=...", since each script in warbo-utilities
+should get the warbo-utilities bin dir added to its PATH automatically.

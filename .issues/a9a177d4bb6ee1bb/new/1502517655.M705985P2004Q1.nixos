@@ -1,0 +1,24 @@
+From: Chris Warburton
+Date: Sat, 12 Aug 2017 06:57:09 +0100
+State: new
+Subject: Use kid3 for tag getting/setting
+Message-Id: <a9a177d4bb6ee1bb-0-artemis@nixos>
+
+It seems to support everything, although kid3-cli is a little awkward:
+
+ - We have to give the directory name, and run a command to "select" the
+   file
+ - We have to quote everything carefully, since we're building up
+   kid3-cli commands inside bash commands
+ - We have to run "save"
+ - We need to set DISPLAY, even though it's a CLI...
+
+All in all, a bit of a faff.
+
+We have a "set tag" script. We should make that check for kid3 and fall
+back to nix-shell if not found; that way, we can provide kid3 from
+another script, and not have to run nix-shell over and over in a loop.
+
+We should make a "get tag" script.
+
+Edit the other scripts to use these for their getting and setting needs.
