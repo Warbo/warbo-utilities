@@ -97,5 +97,24 @@ do
                  fi
             fi
         done < <(find "$ARTIST" -iname "*.oga")
+
+        while read -r F
+        do
+                   D=$(dirname  "$F")
+                   N=$(basename "$F" .wav)
+               F_ESC=$(echo     "$F"     | "$BASE/esc.sh")
+            OPUS_ESC=$(echo "$D/$N.opus" | "$BASE/esc.sh")
+
+            if file "$F" | grep "WAVE audio" > /dev/null
+            then
+                echo "'$F_ESC' can be encoded to .opus"
+                echo "opusenc --bitrate 128 --comp 10 --max-delay 10 '$F_ESC' '$OPUS_ESC'"
+            else
+                echo "'$F_ESC' looks like Wave, but 'file' says:"
+                file "$F"
+                echo
+                echo
+            fi
+        done < <(find "$ARTIST" -iname "*.wav")
     done
 done
