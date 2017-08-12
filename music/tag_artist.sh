@@ -5,7 +5,7 @@ while read -r FILE
 do
     NAME=$(basename "$FILE")
     KNOWN=0
-    for SUFFIX in mp3 ogg oga opus m4a wma
+    for SUFFIX in aac mp3 ogg oga opus m4a wma
     do
         if echo "$NAME" | grep -i '\.'"$SUFFIX"'$' > /dev/null
         then
