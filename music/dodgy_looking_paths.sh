@@ -69,5 +69,33 @@ do
                 }
             done
         done
+
+        while read -r F
+        do
+            F_ESC=$(echo "$F" | "$BASE/esc.sh")
+            echo "'$F_ESC' should probably be (losslessly) converted to ogg"
+        done < <(find "$ARTIST" -iname "*.mka")
+
+        while read -r F
+        do
+                   D=$(dirname  "$F")
+                   N=$(basename "$F" .oga)
+               F_ESC=$(echo     "$F"     | "$BASE/esc.sh")
+            OPUS_ESC=$(echo "$D/$N.opus" | "$BASE/esc.sh")
+             OGG_ESC=$(echo "$D/$N.ogg"  | "$BASE/esc.sh")
+
+            if file "$F" | grep -i opus > /dev/null
+            then
+                echo "'$F_ESC' should be renamed to .opus"
+                echo "mv '$F_ESC' '$OPUS_ESC'"
+            else if file "$F" | grep -i vorbis > /dev/null
+                 then
+                     echo "'$F_ESC' should be renamed to .ogg"
+                     echo "mv '$F_ESC' '$OGG_ESC'"
+                 else
+                     echo "Unknown codec in '$F_ESC'"
+                 fi
+            fi
+        done < <(find "$ARTIST" -iname "*.oga")
     done
 done
