@@ -2,6 +2,15 @@
 
 BASE=$(dirname "$(readlink -f "$0")")
 
+function withExtIn() {
+    # Looks for files in $2 which end in extension $1; returns the paths but
+    # strips off the extension (so we can stick a new one on)
+    while read -r F
+    do
+        echo "$(dirname "$F")/$(basename "$F" ".$1")"
+    done < <(find "$2" -iname "*.$1")
+}
+
 # Quick checks, where we know what to look for
 
 for ARTIST in Music/Commercial/*/*
@@ -78,17 +87,20 @@ do
 
         while read -r F
         do
-                   D=$(dirname  "$F")
-                   N=$(basename "$F" .oga)
-               F_ESC=$(echo     "$F"     | "$BASE/esc.sh")
-            OPUS_ESC=$(echo "$D/$N.opus" | "$BASE/esc.sh")
-             OGG_ESC=$(echo "$D/$N.ogg"  | "$BASE/esc.sh")
+            [[ -e "$F.oga" ]] || {
+                echo "No such file '$F.oga'; maybe rename to lower case?" 1>&2
+                continue
+            }
 
-            if file "$F" | grep -i opus > /dev/null
+               F_ESC=$(echo "$F.oga"  | "$BASE/esc.sh")
+            OPUS_ESC=$(echo "$F.opus" | "$BASE/esc.sh")
+             OGG_ESC=$(echo "$F.ogg"  | "$BASE/esc.sh")
+
+            if file "$F.oga" | grep -i opus > /dev/null
             then
                 echo "'$F_ESC' should be renamed to .opus"
                 echo "mv '$F_ESC' '$OPUS_ESC'"
-            else if file "$F" | grep -i vorbis > /dev/null
+            else if file "$F.oga" | grep -i vorbis > /dev/null
                  then
                      echo "'$F_ESC' should be renamed to .ogg"
                      echo "mv '$F_ESC' '$OGG_ESC'"
@@ -96,25 +108,36 @@ do
                      echo "Unknown codec in '$F_ESC'"
                  fi
             fi
-        done < <(find "$ARTIST" -iname "*.oga")
+        done < <(withExtIn "oga" "$ARTIST")
 
         while read -r F
         do
-                   D=$(dirname  "$F")
-                   N=$(basename "$F" .wav)
-               F_ESC=$(echo     "$F"     | "$BASE/esc.sh")
-            OPUS_ESC=$(echo "$D/$N.opus" | "$BASE/esc.sh")
+            [[ -e "$F.wav" ]] || {
+                echo "Couldn't find '$F.wav'; rename to lowercase?" 1>&2
+                continue
+            }
+               F_ESC=$(echo "$F.wav"  | "$BASE/esc.sh")
+            OPUS_ESC=$(echo "$F.opus" | "$BASE/esc.sh")
 
-            if file "$F" | grep "WAVE audio" > /dev/null
+            if file "$F.wav" | grep "WAVE audio" > /dev/null
             then
                 echo "'$F_ESC' can be encoded to .opus"
                 echo "opusenc --bitrate 128 --comp 10 --max-delay 10 '$F_ESC' '$OPUS_ESC'"
             else
                 echo "'$F_ESC' looks like Wave, but 'file' says:"
-                file "$F"
+                file "$F.wav"
                 echo
                 echo
             fi
-        done < <(find "$ARTIST" -iname "*.wav")
+        done < <(withExtIn "wav" "$ARTIST")
+
+        for EXT in mp4 avi
+        do
+            while read -r F
+            do
+                F_ESC=$(echo "$F.$EXT" | "$BASE/esc.sh")
+                echo "Found possible video file '$F_ESC'"
+            done < <(withExtIn "$EXT" "$ARTIST")
+        done
     done
 done
