@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+BASE=$(dirname "$(readlink -f "$0")")
+
+for F in Music/Commercial/0-9/*
+do
+    [[ -f "$F" ]] || {
+        echo "Skipping non-file '$F'" 1>&2
+        continue
+    }
+
+    F_ESC=$(echo "$F" | "$BASE/esc.sh")
+
+    echo "Looking for artist tag in '$F'" 1>&2
+    ARTIST=$("$BASE/get_tag.sh" artist "$F")
+
+    [[ -n "$ARTIST" ]] || {
+        echo "No artist tag for '$F', skipping" 1>&2
+        continue
+    }
+
+    ARTIST_ESC=$(echo "$ARTIST" | "$BASE/esc.sh")
+    INIT=$(echo "$ARTIST" | cut -c1)
+
+    [[ -d Music/Commercial/"$INIT" ]] || {
+        echo "Initial '$INIT' doesn't have directory in Music/Commercial" 1>&2
+        continue
+    }
+
+    [[ -d Music/Commercial/"$INIT"/"$ARTIST" ]] || {
+        echo "No directory for '$ARTIST'" 1>&2
+        echo "mkdir 'Music/Commercial/$INIT/$ARTIST_ESC'"
+        continue
+    }
+
+    echo "Looking for album tag in '$F'" 1>&2
+    ALBUM=$("$BASE/get_tag.sh" album "$F")
+
+    if [[ -n "$ALBUM" ]]
+    then
+        echo "Found album tag '$ALBUM'" 1>&2
+        ALBUM_ESC=$(echo "$ALBUM" | "$BASE/esc.sh")
+
+        if [[ -d Music/Commercial/"$INIT"/"$ARTIST"/"$ALBUM" ]]
+        then
+            echo "Found album dir '$ALBUM'" 1>&2
+            echo "mv -v '$F_ESC' 'Music/Commercial/$INIT/$ARTIST_ESC/$ALBUM_ESC/'"
+        else
+            echo "No album dir for '$ALBUM'" 1>&2
+            echo "mkdir 'Music/Commercial/$INIT/$ARTIST_ESC/$ALBUM_ESC'"
+
+            echo "To ignore the album, just run" 1>&2
+            echo "mv '$F_ESC' 'Music/Commercial/$INIT/$ARTIST_ESC/'"
+        fi
+    else
+        echo "No album tag for '$F'" 1>&2
+        echo "mv '$F_ESC' 'Music/Commercial/$INIT/$ARTIST_ESC'"
+    fi
+done
