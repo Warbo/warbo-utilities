@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Sun, 13 Aug 2017 01:43:16 +0100
+Subject: Re: Use kid3 for tag getting/setting
+Message-Id: <a9a177d4bb6ee1bb-d655051f99ef191a-artemis@nixos>
+References: <a9a177d4bb6ee1bb-0-artemis@nixos>
+In-Reply-To: <a9a177d4bb6ee1bb-0-artemis@nixos>
+
+Added a get_tag.sh script
