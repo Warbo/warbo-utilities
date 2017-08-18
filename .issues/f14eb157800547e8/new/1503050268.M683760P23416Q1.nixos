@@ -1,0 +1,12 @@
+From: Chris Warburton
+Date: Fri, 18 Aug 2017 10:56:17 +0100
+State: resolved
+Subject: Fix youtube-dl getting video instead of audio
+Message-Id: <f14eb157800547e8-0-artemis@nixos>
+resolution: fixed
+
+In get_album.sh we're getting video files instead of audio. Probably a
+change in youtube-dl options.
+
+Also, don't do the tmp_* stuff; just use set_tag to tag the artist and
+album.

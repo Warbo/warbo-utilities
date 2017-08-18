@@ -17,8 +17,8 @@ do
 done
 
 ARTIST="$1"
-ALBUM="$2"
-URL="$3"
+ ALBUM="$2"
+   URL="$3"
 
 echo "Fetching '$ALBUM' by '$ARTIST' from URL '$URL'. Kill me if wrong..." 1>&2
 
@@ -37,7 +37,7 @@ pushd "$DIR" > /dev/null
 if command -v "ts" > /dev/null 2>/dev/null
 then
     # Note: the best audio format may be a video format; we can sort these after
-    ts youtube-dl -i -f bestaudio "$URL"
+    ts youtube-dl -i -x "$URL"
     echo "Download is queued" 1>&2
     ts "$BASE/tag_album_dir.sh" "$(readlink -f .)"
 else
