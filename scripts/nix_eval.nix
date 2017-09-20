@@ -1,22 +1,22 @@
-{ bash, hydra, wrap }:
+{ bash, hydra, fail, wrap }:
 
 wrap {
   name   = "nix_eval";
-  paths  = [ bash hydra ];
+  paths  = [ bash fail hydra ];
   script = ''
     #!/usr/bin/env bash
 
     PKG_PATH=$(nix-instantiate --eval -E "<nixpkgs>")
     GC="/nix/var/nix/gcroots/per-user/$USER"
 
-    JOB="$PWD/release.nix"
-    [[ -z "$1" ]] || JOB=$(readlink -f "$1")
+    [[ -n "$JOB" ]] || JOB="$PWD/release.nix"
+    [[ -e "$JOB" ]] || fail "'$JOB' not found; maybe set JOB env var?"
 
     hydra-eval-jobs "$JOB"   \
         --gc-roots-dir "$GC" \
         -j 1                 \
         --show-trace         \
         -I "pwd=$PWD"        \
-        -I "nixpkgs=$PKG_PATH"
+        -I "nixpkgs=$PKG_PATH" "$@"
   '';
 }
