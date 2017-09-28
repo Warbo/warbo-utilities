@@ -1,3 +1,1 @@
-with import <nixpkgs> {};
-
-callPackage ./. {}
+import ./. {}
