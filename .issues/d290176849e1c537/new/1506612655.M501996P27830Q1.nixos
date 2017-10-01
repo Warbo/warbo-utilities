@@ -1,0 +1,25 @@
+From: Chris Warburton
+Date: Thu, 28 Sep 2017 16:22:52 +0100
+State: new
+Subject: "Deeper" stable/unstable distinction
+Message-Id: <d290176849e1c537-0-artemis@nixos>
+
+We want 'stable' in release.nix to be a fixed, never-changing build. If
+a version of something must be chosen, that choice is explicitly written
+down somewhere (not necessarily in this repo; if we're importing it from
+some other repo like nix-config, then it could be written down
+explicitly there), with a SHA256 hash, etc.
+
+We want 'unstable' to, as far as possible, defer choices until eval
+time. If there are git repos, we should use latestGit, etc. This way, we
+can keep an eye on bit rot, so if/when we want to bump some of those
+'stable' choices, we won't be faced with a mountain of fixes.
+
+That's all fine and dandy, but at the moment the distinction is a bit
+too superficial: for example, we may fetch a 'fixed' version of
+nix-config, but the derivations we take from it may be using latestGit!
+
+Maybe we should have a 'stable' flag, which gets passed down to each
+such decision point? We could begin by defining one for nix-config, and
+having "unstable" derivations like 'latestGit' assert that stable is
+false.

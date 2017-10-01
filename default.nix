@@ -2,19 +2,22 @@ with builtins;
 with rec {
   # We need a few helpers and packages from nix-config, so default to a
   # known-good version
-  config = (import <nixpkgs> {}).fetchgit {
+  stableConfig = (import <nixpkgs> {}).fetchgit {
     url    = http://chriswarbo.net/git/nix-config.git;
-    rev    = "00ef7f96541ed24ef72c69088620f27e6a3c8f5f";
-    sha256 = "1b7g4r144hwqa2a13cnfwmwxfkjd884pk4lqralxiqwbb0vr0nsw";
+    rev    = "d1b2b9b";
+    sha256 = "1rsax2izq5083wlxssg0ch4bxkg2g1hm2v61vp8frg5v9q55rlgr";
   };
 
-  withConfig = nixpkgs: config: import nixpkgs {
-    config = import "${config}/config.nix";
+  # An awkward mix of unstable <nixpkgs> and stable nix-config. We only use this
+  # to fetch other, purely stable/unstable package sets
+  bootstrapPkgs = import <nixpkgs> {
+    config = import "${stableConfig}/stable.nix";
   };
 
-  # <nixpkgs> is unstable since it could be any version, but repo1609 is a
-  # fixed-output derivation, which removes the instability.
-  stablePkgs = withConfig (withConfig <nixpkgs> config).repo1609 config;
+  # Uses stable config with stable nixpkgs (repo1609 is fixed-output)
+  stablePkgs = import bootstrapPkgs.repo1609 {
+    config = import "${stableConfig}/stable.nix";
+  };
 };
 
 {
@@ -58,4 +61,4 @@ with rec {
 
 if packageOnly
    then pkg
-   else { inherit pkg stablePkgs withConfig; }
+   else { inherit pkg stablePkgs; }
