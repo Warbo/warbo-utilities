@@ -16,6 +16,7 @@ do
 done
 
 echo "Scheduling push to Web and IPFS" 1>&2
+[[ -n "$IPFS_PATH" ]] || export IPFS_PATH=/var/lib/ipfs/.ipfs
 ts pushGitPages "$PWD"
 
 echo "Scheduling removal of related-looking test results" 1>&2
