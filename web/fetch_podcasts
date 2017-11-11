@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+set -e
+shopt -s nullglob
+
+function norm {
+    # Strip non-alphanumeric and convert to lowercase
+    tr '[[:upper:]]' '[[:lower:]]' | tr -dc '[[:alnum:]]'
+}
+
+POSSIBILITIES=""
+for POSSIBLE in ~/Audio/Non-fiction/*
+do
+    POSSIBILITIES=$(printf '%s\n%s' "$POSSIBILITIES" "$POSSIBLE")
+done
+POSSIBILITIES=$(echo "$POSSIBILITIES" | grep '^.')
+
+echo "Looking for BBC podcasts in ~/Mail/feeds" 1>&2
+
+for D in 50Things BornSmart,Equal,Different ComputingBritain CrowdScience \
+         HiddenHistoriesOfTheInformationAge InfiniteMonkeyCage \
+         InOurTimeScience InsideScience LifeScientific MoreOrLess \
+         NaturalHistories PuttingScienceToWork ReithLectures RutherfordAndFry \
+         ScienceInAction ScienceStories
+do
+    DIR="$HOME/Mail/feeds/$D/new"
+    [[ -d "$DIR" ]] || {
+        echo "Not a directory '$DIR', skipping" 1>&2
+        continue
+    }
+
+    GUESSTINATION=""
+    while read -r POSSIBLE
+    do
+        NORM_POSS=$(basename "$POSSIBLE" | norm)
+        NORM_D=$(echo "$D" | norm)
+        if echo "$NORM_POSS" | grep -F "$NORM_D"    > /dev/null
+           # || echo "$NORM_D"    | grep -F "$NORM_POSS" > /dev/null
+        then
+            [[ -z "$GUESSTINATION" ]] || {
+                echo "'$D' could be '$GUESSTINATION' or '$POSSIBLE', skip" 1>&2
+                exit 1
+            }
+            GUESSTINATION=$(basename "$POSSIBLE")
+        fi
+    done < <(echo "$POSSIBILITIES")
+    [[ -n "$GUESSTINATION" ]] || {
+        echo "Couldn't guess a destination for '$D', skipping" 1>&2
+        continue
+    }
+
+    for F in "$DIR"/*
+    do
+        echo "Guessing that '$D' should go in '$GUESSTINATION'" 1>&2
+        URL=""
+        URL=$(grep -F 'Link: http' < "$F" | grep -o 'http.*') || true
+        [[ -n "$URL" ]] || {
+            echo "No URL found in '$F', skipping" 1>&2
+            continue
+        }
+
+        mkdir -p "$HOME/Audio/TODO/$GUESSTINATION"
+        inDir "$HOME/Audio/TODO/$GUESSTINATION" get_bbc_podcast "$URL"
+        mv "$F" "$(dirname "$DIR")/cur/"
+    done
+done
+
+for X in FunctionalGeekery
+do
+    for F in "$HOME/Mail/feeds/$X/new"/*
+    do
+        PAGE=$(grep -o 'http[s]*://[^ "]*' < "$F" | head -n1) || continue
+        URL=$(wget -q -O- "$PAGE" | grep -o 'http[s]*://[^" ]*\.mp3' |
+                                    head -n1) || continue
+        if [[ -n "$URL" ]]
+        then
+            mkdir -p "$HOME/Audio/TODO/Functional Geekery"
+            pushd "$HOME/Audio/TODO/Functional Geekery"
+              sleep 2
+              wget "$URL"
+            popd
+            mv -v "$F" "$HOME/Mail/feeds/$X/cur/"
+        fi
+    done
+done
