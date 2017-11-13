@@ -84,6 +84,9 @@ wrap {
       done < <(getWithFirefox "$1" | xidel - -q -e '//iframe/@src')
     }
 
+    # Look for raw URLs
+    wget -q -O- "$1" | grep -o 'http[^ "]*mp4'
+
     # Loop over result links, getting videos and obfuscated javascript
     while read -r LNK
     do
