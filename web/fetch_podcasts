@@ -7,6 +7,12 @@ function norm {
     tr '[[:upper:]]' '[[:lower:]]' | tr -dc '[[:alnum:]]'
 }
 
+function markAsRead {
+    FULL=$(readlink -f "$1")
+    emacsclient --eval "(mu4e~proc-view-path \"$FULL\")"
+    sleep 1
+}
+
 POSSIBILITIES=""
 for POSSIBLE in ~/Audio/Non-fiction/*
 do
@@ -60,7 +66,8 @@ do
 
         mkdir -p "$HOME/Audio/TODO/$GUESSTINATION"
         inDir "$HOME/Audio/TODO/$GUESSTINATION" get_bbc_podcast "$URL"
-        mv "$F" "$(dirname "$DIR")/cur/"
+        #mv "$F" "$(dirname "$DIR")/cur/"
+        markAsRead "$F"
     done
 done
 
@@ -78,7 +85,8 @@ do
               sleep 2
               wget "$URL"
             popd
-            mv -v "$F" "$HOME/Mail/feeds/$X/cur/"
+            #mv -v "$F" "$HOME/Mail/feeds/$X/cur/"
+            markAsRead "$F"
         fi
     done
 done
