@@ -18,6 +18,7 @@ wrap {
       stripCrap '/sport/'                                         |
       stripCrap '/news/magazine-'                                 |
       stripCrap '/news/entertainment-arts'                        |
-      stripCrap '/news/in-pictures'
+      stripCrap '/news/in-pictures'                               |
+      stripCrap '/news/av/'
   '';
 }
