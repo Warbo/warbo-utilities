@@ -7,7 +7,7 @@ wrap {
     #!/usr/bin/env bash
     set -e
 
-    # Fetch BBC News with crap filtered out
+    echo "Fetching BBC News" 1>&2
 
     function stripCrap {
       # Remove item elements whose guid url contains the given text

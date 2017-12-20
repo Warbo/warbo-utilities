@@ -1,15 +1,16 @@
-{ bash, html2text, makeWrapper, runCommand, wget, writeScript, xidel,
-  xmlstarlet }:
+{ bash, html2text, makeWrapper, runCommand, wget, wrap, xidel, xmlstarlet }:
 
-with rec {
-  script = writeScript "get-eps" ''
-    #!${bash}/bin/bash
-     PAGE=$(wget -O- "$2")
-    DATES=$(echo "$PAGE" | xidel - -e '//table//tr/td[5]' |
-                           grep ' ('                      |
-                           grep -o '([0-9-]*)'            |
+wrap {
+  name   = "get-eps";
+  paths  = [ bash html2text wget xidel xmlstarlet ];
+  script = ''
+    #!/usr/bin/env bash
+     PAGE=$(wget -q -O- "$2")
+    DATES=$(echo "$PAGE" | xidel -q - -e '//table//tr/td[5]' |
+                           grep ' ('                         |
+                           grep -o '([0-9-]*)'               |
                            grep -o '[0-9-]*')
-    TITLE=$(echo "$PAGE" | xidel - -e '//title/text()')
+    TITLE=$(echo "$PAGE" | xidel -q - -e '//title/text()')
     FEED=$(mktemp '/tmp/get-eps-XXXXX.xml')
     cat <<EOF > "$FEED"
     <?xml version="1.0" encoding="utf-8"?>
@@ -33,7 +34,7 @@ with rec {
                              sed -e 's@</tr>@</tr>\n@g' |
                              grep '^<tr'                |
                              grep "$DATE"               |
-                             xidel - -e '//th/text()')
+                             xidel -q - -e '//th/text()')
         TITLE="My RSS entry"
         LINK="http://example.com/entry4711"
         DATE="$DATE"
@@ -53,12 +54,4 @@ with rec {
     cat "$FEED"
     rm "$FEED"
   '';
-};
-
-runCommand "get-eps" { buildInputs = [ makeWrapper ]; } ''
-  makeWrapper "${script}" "$out"        \
-    --prefix PATH : "${wget}/bin"       \
-    --prefix PATH : "${xidel}/bin"      \
-    --prefix PATH : "${xmlstarlet}/bin" \
-    --prefix PATH : "${html2text}/bin"
-''
+}

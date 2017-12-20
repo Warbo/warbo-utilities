@@ -87,7 +87,7 @@ with rec {
 
   getRss = mkBin {
     name   = "getRss";
-    paths  = [ coreutils fixRss get ];
+    paths  = [ coreutils fixRss ];
     script = ''
       #!/usr/bin/env bash
       ${get} "$2" | ${stripNonAscii} | fixRss "$1" > "$1.rss"
@@ -96,7 +96,7 @@ with rec {
 
   getAtom = mkBin {
     name   = "getAtom";
-    paths  = [ coreutils fixRss get libxslt.bin ];
+    paths  = [ coreutils fixRss libxslt.bin ];
     vars   = { xsl = /home/chris/System/Programs/atom2rss-exslt.xsl; };
     script = ''
       #!/usr/bin/env bash
@@ -134,22 +134,24 @@ with rec {
         echo "Getting feed $NAME" 1>&2
         case "$TYPE" in
           atom)
-            getAtom "$NAME" "$URL"
+            getAtom "$NAME" "$URL" || echo "Failed to get $NAME, skipping"
             ;;
           iplayer)
-            iplayer_feed "$NAME" "$URL" > "$NAME.rss"
+            iplayer_feed "$NAME" "$URL" > "$NAME.rss" ||
+              echo "Failed to get $NAME, skipping"
             ;;
           rss)
-            getRss "$NAME" "$URL"
+            getRss "$NAME" "$URL" || echo "Failed to get $NAME, skipping"
             ;;
           tv)
-            get_eps "$NAME" "$URL" > "$NAME.rss"
+            get_eps "$NAME" "$URL" > "$NAME.rss" ||
+              echo "Failed to get $NAME, skipping"
             ;;
           youtube)
-            getYouTube "$NAME" "$URL"
+            getYouTube "$NAME" "$URL" || echo "Failed to get $NAME, skipping"
             ;;
           *)
-            echo "Can't handle '$FEED'" 1>&2
+            echo "Can't handle '$FEED', skipping" 1>&2
             ;;
         esac
       done
@@ -184,7 +186,8 @@ wrap {
     do
       NAME=$(basename "$F" .rss)
       echo "$NAME" 1>&2
-      feed2maildir -s -m ~/Mail/feeds/"$NAME" -n "$NAME" < "$F"
+      feed2maildir -s -m ~/Mail/feeds/"$NAME" -n "$NAME" < "$F" ||
+        echo "Failed to convert $NAME, skipping" 1>&2
     done
 
     echo "Cleaning up old news" 1>&2
