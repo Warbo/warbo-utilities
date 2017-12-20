@@ -87,7 +87,7 @@ with rec {
 
   getRss = mkBin {
     name   = "getRss";
-    paths  = [ coreutils fixRss ];
+    paths  = [ coreutils fixRss wget ];
     script = ''
       #!/usr/bin/env bash
       ${get} "$2" | ${stripNonAscii} | fixRss "$1" > "$1.rss"
@@ -96,7 +96,7 @@ with rec {
 
   getAtom = mkBin {
     name   = "getAtom";
-    paths  = [ coreutils fixRss libxslt.bin ];
+    paths  = [ coreutils fixRss libxslt.bin wget ];
     vars   = { xsl = /home/chris/System/Programs/atom2rss-exslt.xsl; };
     script = ''
       #!/usr/bin/env bash
@@ -175,8 +175,11 @@ wrap {
       mkdir -p ~/.cache/rss
       cd ~/.cache/rss || fail "Couldn't cd to ~/.cache/rss"
 
-      bbcnews > BBCHeadlines.rss
-      courier
+      bbcnews > BBCHeadlines.rss ||
+        echo "Error getting BBC news, skipping" 1>&2
+
+      courier ||
+        echo "Error scraping Dundee Courier, skipping" 1>&2
 
       "$rss" ~/.cache/rss < ~/.feeds
     fi
