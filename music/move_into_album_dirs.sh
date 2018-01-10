@@ -6,39 +6,82 @@ function esc {
     "$BASE/esc.sh"
 }
 
+function same {
+    X=$(echo "$1" | tr -dc '[:alnum:]' | tr '[:upper:]' '[:lower:]')
+    Y=$(echo "$2" | tr -dc '[:alnum:]' | tr '[:upper:]' '[:lower:]')
+    if echo "$X" | grep "$Y" > /dev/null
+    then
+        return 0
+    fi
+    if echo "$Y" | grep "$X" > /dev/null
+    then
+        return 0
+    fi
+    return 1
+}
 
 TOP=$(readlink -f "Music/Commercial")
-for I in Music/Commercial/*
-do
-    [[ -d "$I" ]] || continue
-    INIT=$(basename "$I")
-    for A in "$I"/*
+
+function processDir {
+    DIR=$(readlink -f "$1")
+    echo "$DIR" | grep "^$TOP/" > /dev/null || {
+        echo "Given dir '$DIR' doesn't begin with '$TOP'" 1>&2
+        exit 1
+    }
+
+      BITS=$(echo "$DIR"  | sed  -e "s@^$TOP/@@g" | tr '/' '\n')
+    ARTIST=$(echo "$BITS" | head -n2 | tail -n1)
+
+    [[ -n "$INIT" ]] || INIT=$(echo "$ARTIST" | cut -c1)
+
+    [[ -d "$TOP/$INIT" ]] || {
+        echo "No dir '$TOP/$INIT'" 1>&2
+        exit 1
+    }
+
+    [[ -d "$TOP/$INIT/$ARTIST" ]] || {
+        echo "No dir '$TOP/$INIT/$ARTIST'" 1>&2
+        exit 1
+    }
+
+    while read -r F
     do
-        [[ -d "$A" ]] || continue
-        ARTIST=$(basename "$A")
-        while read -r F
+        ALBUM=""
+        TAGS=$("$BASE/tags_of.sh" "$F")
+        if echo "$TAGS" | grep "^  Album  " > /dev/null
+        then
+            ALBUM=$("$BASE/tags_of.sh" "$F" | grep '^  Album  '  |
+                                              sed -e 's/  */ /g' |
+                                              cut -d ' ' -f3-    | head -n1)
+        fi
+        [[ -n "$ALBUM" ]] || continue
+
+        D=$(dirname "$(readlink -f "$F")")
+        same "$D" "$TOP/$ARTIST/$ALBUM" || {
+            EF=$(echo "$F"                        | esc)
+            EA=$(echo "$ARTIST"                   | esc)
+            EB=$(echo "$ALBUM"                    | esc)
+            EP=$(echo "$TOP/$INIT/$ARTIST/$ALBUM" | esc)
+
+            echo "File '$F' has album '$ALBUM'; move with command:"
+            echo "mkdir -p '$EP'"
+            echo "mv '$EF' '$EP/'"
+        }
+    done < <(find "$DIR" -type f)
+}
+
+if [[ -n "$1" ]]
+then
+    processDir "$1"
+else
+    for I in Music/Commercial/*
+    do
+        [[ -d "$I" ]] || continue
+        INIT=$(basename "$I")
+        for A in "$I"/*
         do
-            ALBUM=""
-            if echo "$F" | grep -i '\.mp3' > /dev/null
-            then
-                if command -v mid3v2 > /dev/null 2> /dev/null
-                then
-                    ALBUM=$(mid3v2 -l "$F" | grep '^TALB=' | cut -d '=' -f2-)
-                fi
-            fi
-            [[ -n "$ALBUM" ]] || continue
-
-            DIR=$(dirname "$(readlink -f "$F")")
-            [[ "x$DIR" = "x$TOP/$INIT/$ARTIST/$ALBUM" ]] || {
-                EF=$(echo "$F"                        | esc)
-                EA=$(echo "$ARTIST"                   | esc)
-                EB=$(echo "$ALBUM"                    | esc)
-                EP=$(echo "$TOP/$INIT/$ARTIST/$ALBUM" | esc)
-
-                echo "File '$F' has album '$ALBUM'; move with command:"
-                echo "mkdir -p '$EP'"
-                echo "mv '$EF' '$EP/'"
-            }
-        done < <(find "$A" -type f)
+            [[ -d "$A" ]] || continue
+            processDir "$A"
+        done
     done
-done
+fi
