@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+URL="$1"
+[[ -n "$URL" ]] || {
+    echo "No URL given, reading from stdin" 1>&2
+    URL=$(cat)
+}
+
+wget -q -O- "$URL" | grep -o 'http[^ "]*mp4'
