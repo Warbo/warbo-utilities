@@ -9,11 +9,7 @@ function esc {
 function same {
     X=$(echo "$1" | tr -dc '[:alnum:]' | tr '[:upper:]' '[:lower:]')
     Y=$(echo "$2" | tr -dc '[:alnum:]' | tr '[:upper:]' '[:lower:]')
-    if echo "$X" | grep "$Y" > /dev/null
-    then
-        return 0
-    fi
-    if echo "$Y" | grep "$X" > /dev/null
+    if [[ "x$X" = "x$Y" ]]
     then
         return 0
     fi
@@ -57,7 +53,7 @@ function processDir {
         [[ -n "$ALBUM" ]] || continue
 
         D=$(dirname "$(readlink -f "$F")")
-        same "$D" "$TOP/$ARTIST/$ALBUM" || {
+        same "$D" "$TOP/$INIT/$ARTIST/$ALBUM" || {
             EF=$(echo "$F"                        | esc)
             EA=$(echo "$ARTIST"                   | esc)
             EB=$(echo "$ALBUM"                    | esc)
