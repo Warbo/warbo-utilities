@@ -12,6 +12,14 @@ with rec {
 
       echo "Opening Firefox on '$URL'" 1>&2
       [[ -n "$TIMEOUT" ]] || TIMEOUT=60
+
+      timeout $(( TIMEOUT + 5 )) x11vnc -quiet -localhost &
+      VNC_PID="$!"
+
+      echo "Display running, connect with 'vncviewer :0'" 1>&2
+      sleep 4
+
+      echo "Opening Firefox on '$URL'" 1>&2
       timeout "$TIMEOUT" firefox -safe-mode         \
                                  -profile "$FF_DIR" \
                                  -no-remote         \
