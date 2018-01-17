@@ -1,18 +1,27 @@
 # xvfb-run has a few annoyances. Most important are that, prior to the end of
 # 2017, it redirects stderr to stdout; it also clobbers itself if multiple
 # instances are run. We fix this, as well as providing niceties like VNC access.
-{ bash, fail, replace, runCommand, utillinux, wrap, xvfb_run }:
+{ bash, fail, replace, runCommand, utillinux, wrap, x11vnc, xvfb_run }:
 
 with rec {
   # Hack to avoid unwanted quasiquotes
   braced = s: "$" + "{" + s + "}";
 
+  # Patch xvfb_run to stop it merging stderr into stdout
   patched = runCommand "patch-xvfb-run"
     {
       buildInputs = [ fail replace ];
       old         = xvfb_run;
       broken      = ''DISPLAY=:$SERVERNUM XAUTHORITY=$AUTHFILE "$@" 2>&1'';
-      fixed       = ''DISPLAY=:$SERVERNUM XAUTHORITY=$AUTHFILE "$@"'';
+      fixed       = ''
+        if [[ "x$XVFB_VNC" = "x1" ]]
+        then
+          echo "Starting VNC server, as requested" 1>&2
+          DISPLAY=":$SERVERNUM" XAUTHORITY="$AUTHFILE" x11vnc -localhost \
+                                                              -quiet 1>&2 &
+        fi
+        DISPLAY=":$SERVERNUM" XAUTHORITY="$AUTHFILE" "$@"
+      '';
     }
     ''
       set -e
@@ -47,9 +56,10 @@ with rec {
       fi
     '';
 
+  # Wrap xvfb_run, so we can find a free DISPLAY number, etc.
   go = wrap {
     name   = "xvfb-run-safe";
-    paths  = [ bash fail utillinux patched ];
+    paths  = [ bash fail utillinux patched x11vnc ];
     script = ''
       #!/usr/bin/env bash
       set -e
