@@ -61,4 +61,4 @@ with rec {
 
 if packageOnly
    then pkg
-   else { inherit pkg stablePkgs; }
+   else { inherit cmds scripts pkg stablePkgs; }
