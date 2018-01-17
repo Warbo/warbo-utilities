@@ -31,9 +31,16 @@ with rec {
 
 with nixPkgs.lib;
 with rec {
-  scripts = mapAttrs' (f: _: {
+  # Calls a script file, like 'callPackage' but drawing arguments from the given
+  # set. We include nixpkgs, as usual, but we also allow scripts to depend on
+  # each other (but not themselves).
+  callScript = name: nixPkgs.newScope (nixPkgs // removeAttrs bin [ name ])
+                                      (./scripts + "/${name}.nix")
+                                      {};
+
+  scripts = mapAttrs' (f: _: rec {
                         name  = removeSuffix ".nix" f;
-                        value = nixPkgs.callPackage (./scripts + "/${f}") {};
+                        value = callScript name;
                       })
                       (readDir ./scripts);
 
@@ -42,7 +49,9 @@ with rec {
                {}
                [ ./svn ./system ./web ./git ./development ./testing ./docs ];
 
-  pkg = nixPkgs.attrsToDirs { bin = cmds // scripts; };
+  bin = cmds // scripts;
+
+  pkg = nixPkgs.attrsToDirs { inherit bin; };
 };
 
 if packageOnly
