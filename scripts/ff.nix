@@ -1,67 +1,12 @@
-{ coreutils, fail, firefox, utillinux, wrap, writeScript, xdotool, xsel,
-  xvfb_run }:
+{ bash, coreutils, fail, firefox, tightvnc, wrap, writeScript, x11vnc, xdotool,
+  xsel, xvfb-run-safe }:
 with rec {
-  # Hack to avoid unwanted quasiquotes
-  braced = s: "$" + "{" + s + "}";
-
-  xvfbrunsafe = wrap {
-    name   = "xvfb-run-safe";
-    paths  = [ fail utillinux xvfb_run ];
+  ff = wrap {
+    name   = "firefox-runner";
+    paths  = [ bash coreutils firefox tightvnc xdotool xsel x11vnc ];
     script = ''
       #!/usr/bin/env bash
       set -e
-
-      # allow settings to be updated via environment
-      : "${braced "xvfb_lockdir:=/tmp/xvfb-locks"}"
-      : "${braced "xvfb_display_min:=99"}"
-      : "${braced "xvfb_display_max:=599"}"
-
-      PERMISSIONS=$(stat -L -c "%a" "$xvfb_lockdir")
-            OCTAL="0$PERMISSIONS"
-         WRITABLE=$(( OCTAL & 0002 ))
-
-      if [[ "$WRITABLE" -ne 2 ]]
-      then
-        echo "ERROR: xvfb_lockdir '$xvfb_lockdir' isn't world writable" 1>&2
-        fail "This may cause users to clobber each others' DISPLAY"     1>&2
-      fi
-
-      mkdir -p -- "$xvfb_lockdir" ||
-        fail "Couldn't make xvfb_lockdir '$xvfb_lockdir'"
-
-      i="$xvfb_display_min"     # minimum display number
-      while (( i < xvfb_display_max ))
-      do
-        if [ -f "/tmp/.X$i-lock" ]
-        then
-          # still avoid an obvious open display
-          (( ++i ))
-          continue
-        fi
-
-        # open a lockfile
-        exec 5> "$xvfb_lockdir/$i" || {
-          # Skip if e.g. permission denied
-          (( ++i ))
-          continue
-        }
-
-        # try to lock it
-        if flock -x -n 5
-        then
-          # if locked, run xvfb-run
-          exec xvfb-run --server-num="$i" "$@"
-        fi
-        (( i++ ))
-      done
-    '';
-  };
-
-  ff = wrap {
-    name   = "firefox-runner";
-    paths  = [ coreutils firefox xdotool xsel ];
-    script = ''
-      #!/usr/bin/env bash
 
       FF_DIR=$(mktemp -d -t 'ff.sh-XXXXX')
 
@@ -107,7 +52,16 @@ with rec {
     '';
   };
 };
-writeScript "ff" ''
-  #!/usr/bin/env bash
-  URL="$1" "${xvfbrunsafe}" "${ff}"
-''
+
+wrap {
+  name   = "ff";
+  paths  = [ bash ];
+  vars   = {
+    inherit ff;
+    xvfb = xvfb-run-safe;
+  };
+  script = ''
+    #!/usr/bin/env bash
+    URL="$1" "$xvfb" "$ff"
+  '';
+}
