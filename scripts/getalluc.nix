@@ -1,9 +1,10 @@
 { bash, coreutils, firefox, jsbeautifier, lib, makeWrapper, phantomjs,
-  procps, runCommand, utillinux, writeScript, xdotool, xidel, xsel, xvfb_run }:
+  procps, runCommand, utillinux, writeScript, withDeps, xdotool, xidel, xsel,
+  xvfb_run }:
 
 with builtins;
 with lib;
-with (rec {
+with rec {
   wrapIn = pkgs: s:
     let args = concatMap (pkg: ["--prefix" "PATH" ":" "${pkg}/bin"]) pkgs;
      in runCommand "${s.name}-wrapped" { buildInputs = [ makeWrapper ]; } ''
@@ -64,61 +65,65 @@ with (rec {
 
     phantomjs "${phantom_save_page}" "$1"
   '');
-});
 
-wrapIn [xidel] (writeScript "getalluc" ''
-  #!${bash}/bin/bash
+  getalluc = wrapIn [xidel] (writeScript "getalluc" ''
+    #!${bash}/bin/bash
 
-  [[ -z "$DEBUG" ]] || set -x
+    [[ -z "$DEBUG" ]] || set -x
 
-  export SITE="http://www.alluc.ee"
+    export SITE="http://www.alluc.ee"
 
-  function search {
-    # Poor man's URL escaping
-    echo "$@" | sed -e 's/ /+/g'
-  }
+    function search {
+      # Poor man's URL escaping
+      echo "$@" | sed -e 's/ /+/g'
+    }
 
-  # Search for commandline arguments and get videos
-  Q=$(search "$@")
-  URL="$SITE/stream/$Q"
+    # Search for commandline arguments and get videos
+    Q=$(search "$@")
+    URL="$SITE/stream/$Q"
 
-  function runCurl {
-    echo "Downloading '$URL'" 1>&2
-    "${download_page}" "$URL"
-  }
+    function runCurl {
+      echo "Downloading '$URL'" 1>&2
+      "${download_page}" "$URL"
+    }
 
-  function allResults {
-    xidel - -q --extract '//div[@class="title"]/a/@href'
-  }
+    function allResults {
+      xidel - -q --extract '//div[@class="title"]/a/@href'
+    }
 
-  function removeAds {
-    grep -v "^/source/"
-  }
+    function removeAds {
+      grep -v "^/source/"
+    }
 
-  function prefixLinks {
-    while read -r REL
+    function prefixLinks {
+      while read -r REL
+      do
+        echo "$SITE""$REL"
+      done
+    }
+
+    while read -r LINK
     do
-      echo "$SITE""$REL"
-    done
-  }
+      echo "Getting vids from page '$LINK'" 1>&2
 
-  while read -r LINK
-  do
-    echo "Getting vids from page '$LINK'" 1>&2
+      # Avoid '.html' as it's often '.avi.html' and other such nonsense.
+      # Avoid 'thevideo.me' since their URLs contain Rick Rolls!
+      URLS=$(vidsfrompage "$LINK" | grep -v '\.html' | grep -v '\.thevideo\.me')
 
-    # Avoid '.html' as it's often '.avi.html' and other such nonsense.
-    # Avoid 'thevideo.me' since their URLs contain Rick Rolls!
-    URLS=$(vidsfrompage "$LINK" | grep -v '\.html' | grep -v '\.thevideo\.me')
+      while read -r URL
+      do
+        [[ -n "$URL" ]] || continue
 
-    while read -r URL
-    do
-      [[ -n "$URL" ]] || continue
+        echo "Got URL '$URL'" 1>&2
+        FIXED=$(echo "$URL" | sed -e "s/'$//g")
+        echo "inDir ~/Public/TODO wget -O '$*' '$FIXED'"
 
-      echo "Got URL '$URL'" 1>&2
-      FIXED=$(echo "$URL" | sed -e "s/'$//g")
-      echo "inDir ~/Public/TODO wget -O '$*' '$FIXED'"
+        [[ -z "$STOPONFIRST" ]] || exit
+      done < <(echo "$URLS")
+    done < <(runCurl | allResults | removeAds | prefixLinks)
+  '');
 
-      [[ -z "$STOPONFIRST" ]] || exit
-    done < <(echo "$URLS")
-  done < <(runCurl | allResults | removeAds | prefixLinks)
-'')
+  tests = [];
+};
+
+withDeps tests getalluc
