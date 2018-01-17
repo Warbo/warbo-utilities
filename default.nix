@@ -37,28 +37,14 @@ with rec {
                       })
                       (readDir ./scripts);
 
-  mkCmd = name: script: ''
-    makeWrapper "${script}" "$out/bin/${name}" --prefix PATH : "$out/bin"
-  '';
+  cmds = foldl (rest: dir: rest // mapAttrs (f: _: dir + "/${f}")
+                                            (readDir dir))
+               {}
+               [ ./svn ./system ./web ./git ./development ./testing ./docs ];
 
-  cmds = attrValues (mapAttrs mkCmd scripts);
-
-  pkg = with nixPkgs; stdenv.mkDerivation {
-    name                  = "warbo-utilities";
-    src                   = ./.;
-    buildInputs           = [ makeWrapper ];
-    propagatedBuildInputs = [ python ];
-    installPhase          = ''
-      mkdir -p "$out/bin"
-      for DIR in svn system web git development testing docs
-      do
-        cp "$DIR/"* "$out/bin/"
-      done
-      ${concatStringsSep "\n" cmds}
-    '';
-  };
+  pkg = nixPkgs.attrsToDirs { bin = cmds // scripts; };
 };
 
 if packageOnly
    then pkg
-   else { inherit cmds scripts pkg stablePkgs; }
+   else { inherit cmds scripts pkg nixPkgs; }
