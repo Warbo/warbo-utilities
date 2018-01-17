@@ -10,7 +10,21 @@ with rec {
 
       FF_DIR=$(mktemp -d -t 'ff.sh-XXXXX')
 
-      echo "Opening Firefox on '$URL'" 1>&2
+      function cleanUp {
+        [[ -z "$FF_PID" ]]  ||
+          kill -9 "$FF_PID" || echo "Stop it. Stop. He's already dead!" 1>&2
+
+        [[ -z "$VNC_PID" ]]  ||
+          kill -9 "$VNC_PID" || echo "He's dead, Jim." 1>&2
+
+        [[ -z "$VIEWER_PID" ]]  ||
+          kill -9 "$VIEWER_PID" || echo "Everybody's dead, Dave." 1>&2
+
+        rm -rf "$FF_DIR" || echo "Couldn't delete '$FF_DIR', oh well" 1>&2
+      }
+
+      trap cleanUp EXIT
+
       [[ -n "$TIMEOUT" ]] || TIMEOUT=60
 
       timeout $(( TIMEOUT + 5 )) x11vnc -quiet -localhost &
