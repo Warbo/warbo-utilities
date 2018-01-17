@@ -9,13 +9,25 @@ with rec {
     paths  = [ fail utillinux xvfb_run ];
     script = ''
       #!/usr/bin/env bash
+      set -e
 
       # allow settings to be updated via environment
       : "${braced "xvfb_lockdir:=/tmp/xvfb-locks"}"
       : "${braced "xvfb_display_min:=99"}"
       : "${braced "xvfb_display_max:=599"}"
 
-      mkdir -p -- "$xvfb_lockdir" || exit
+      PERMISSIONS=$(stat -L -c "%a" "$xvfb_lockdir")
+            OCTAL="0$PERMISSIONS"
+         WRITABLE=$(( OCTAL & 0002 ))
+
+      if [[ "$WRITABLE" -ne 2 ]]
+      then
+        echo "ERROR: xvfb_lockdir '$xvfb_lockdir' isn't world writable" 1>&2
+        fail "This may cause users to clobber each others' DISPLAY"     1>&2
+      fi
+
+      mkdir -p -- "$xvfb_lockdir" ||
+        fail "Couldn't make xvfb_lockdir '$xvfb_lockdir'"
 
       i="$xvfb_display_min"     # minimum display number
       while (( i < xvfb_display_max ))
@@ -28,13 +40,17 @@ with rec {
         fi
 
         # open a lockfile
-        exec 5>"$xvfb_lockdir/$i" || continue
+        exec 5> "$xvfb_lockdir/$i" || {
+          # Skip if e.g. permission denied
+          (( ++i ))
+          continue
+        }
 
         # try to lock it
         if flock -x -n 5
         then
           # if locked, run xvfb-run
-          exec xvfb-run --server-num="$i" "$@" || exit
+          exec xvfb-run --server-num="$i" "$@"
         fi
         (( i++ ))
       done
