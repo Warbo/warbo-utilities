@@ -1,4 +1,5 @@
-{ bash, lib, phantomjs, runCommand, wget, wrap, writeScript, withDeps, xidel }:
+{ bash, curl, lib, phantomjs, runCommand, wget, wrap, writeScript, withDeps,
+  xidel }:
 
 with builtins;
 with lib;
@@ -131,12 +132,12 @@ with rec {
       {
         inherit getalluc SITE;
         STOPONFIRST = "1";  # Short-circuit if we find anything
-        buildInputs = [ wget ];
+        buildInputs = [ curl ];
       }
       ''
         set -e
 
-        if wget -q -O- "$SITE" > /dev/null
+        if curl "$SITE" > /dev/null
         then
           echo "We seem to be online..." 1>&2
         else
