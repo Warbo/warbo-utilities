@@ -1,16 +1,9 @@
-{ bash, coreutils, firefox, jsbeautifier, lib, makeWrapper, phantomjs,
-  procps, runCommand, utillinux, writeScript, withDeps, xdotool, xidel, xsel,
-  xvfb_run }:
+{ bash, lib, phantomjs, runCommand, wget, wrap, writeScript, withDeps, xidel }:
 
 with builtins;
 with lib;
 with rec {
-  wrapIn = pkgs: s:
-    let args = concatMap (pkg: ["--prefix" "PATH" ":" "${pkg}/bin"]) pkgs;
-     in runCommand "${s.name}-wrapped" { buildInputs = [ makeWrapper ]; } ''
-          #!${bash}/bin/bash
-          makeWrapper "${s}" "$out" ${toString args}
-        '';
+  SITE = "http://www.alluc.ee";
 
   phantom_save_page = writeScript "phantom_save_page.js" ''
     // Use PhantomJS to load the URL given as a commandline argument, and write
@@ -55,75 +48,114 @@ with rec {
     };
   '';
 
-  download_page = wrapIn [phantomjs] (writeScript "download_page" ''
-    #!${bash}/bin/bash
+  download_page = wrap {
+    name   = "download_page";
+    paths  = [ bash phantomjs ];
+    vars   = { inherit phantom_save_page; };
+    script =  ''
+      #!/usr/bin/env bash
 
-    [[ -n "$1" ]] || {
-      echo "download_page needs a URL as argument" 1>&2
-      exit 1
-    }
+      [[ -n "$1" ]] || {
+        echo "download_page needs a URL as argument" 1>&2
+        exit 1
+      }
 
-    phantomjs "${phantom_save_page}" "$1"
-  '');
+      phantomjs "$phantom_save_page" "$1"
+    '';
+  };
 
-  getalluc = wrapIn [xidel] (writeScript "getalluc" ''
-    #!${bash}/bin/bash
+  getalluc = wrap {
+    name  = "getalluc";
+    paths = [ bash xidel ];
+    vars  = {
+      inherit download_page SITE;
+    };
+    script = ''
+      #!/usr/bin/env bash
 
-    [[ -z "$DEBUG" ]] || set -x
+      [[ -z "$DEBUG" ]] || set -x
 
-    export SITE="http://www.alluc.ee"
+      function search {
+        # Poor man's URL escaping
+        echo "$@" | sed -e 's/ /+/g'
+      }
 
-    function search {
-      # Poor man's URL escaping
-      echo "$@" | sed -e 's/ /+/g'
-    }
+      # Search for commandline arguments and get videos
+      Q=$(search "$@")
+      URL="$SITE/stream/$Q"
 
-    # Search for commandline arguments and get videos
-    Q=$(search "$@")
-    URL="$SITE/stream/$Q"
+      function runCurl {
+        echo "Downloading '$URL'" 1>&2
+        "$download_page" "$URL"
+      }
 
-    function runCurl {
-      echo "Downloading '$URL'" 1>&2
-      "${download_page}" "$URL"
-    }
+      function allResults {
+        xidel - -q --extract '//div[@class="title"]/a/@href'
+      }
 
-    function allResults {
-      xidel - -q --extract '//div[@class="title"]/a/@href'
-    }
+      function removeAds {
+        grep -v "^/source/"
+      }
 
-    function removeAds {
-      grep -v "^/source/"
-    }
+      function prefixLinks {
+        while read -r REL
+        do
+          echo "$SITE""$REL"
+        done
+      }
 
-    function prefixLinks {
-      while read -r REL
+      while read -r LINK
       do
-        echo "$SITE""$REL"
-      done
-    }
+        echo "Getting vids from page '$LINK'" 1>&2
 
-    while read -r LINK
-    do
-      echo "Getting vids from page '$LINK'" 1>&2
+        # Avoid '.html' as it's often '.avi.html' and other such nonsense.
+        # Avoid 'thevideo.me' since their URLs contain Rick Rolls!
+        URLS=$(vidsfrompage "$LINK" | grep -v '\.html' | grep -v '\.thevideo\.me')
 
-      # Avoid '.html' as it's often '.avi.html' and other such nonsense.
-      # Avoid 'thevideo.me' since their URLs contain Rick Rolls!
-      URLS=$(vidsfrompage "$LINK" | grep -v '\.html' | grep -v '\.thevideo\.me')
+        while read -r URL
+        do
+          [[ -n "$URL" ]] || continue
 
-      while read -r URL
-      do
-        [[ -n "$URL" ]] || continue
+          echo "Got URL '$URL'" 1>&2
+          FIXED=$(echo "$URL" | sed -e "s/'$//g")
+          echo "inDir ~/Public/TODO wget -O '$*' '$FIXED'"
 
-        echo "Got URL '$URL'" 1>&2
-        FIXED=$(echo "$URL" | sed -e "s/'$//g")
-        echo "inDir ~/Public/TODO wget -O '$*' '$FIXED'"
+          [[ -z "$STOPONFIRST" ]] || exit
+        done < <(echo "$URLS")
+      done < <(runCurl | allResults | removeAds | prefixLinks)
+    '';
+  };
 
-        [[ -z "$STOPONFIRST" ]] || exit
-      done < <(echo "$URLS")
-    done < <(runCurl | allResults | removeAds | prefixLinks)
-  '');
+  tests = attrValues {
+    bigBuckBunny = runCommand "test-big-buck-bunny"
+      {
+        inherit getalluc SITE;
+        STOPONFIRST = "1";  # Short-circuit if we find anything
+        buildInputs = [ wget ];
+      }
+      ''
+        set -e
 
-  tests = [];
+        if wget -q -O- "$SITE" > /dev/null
+        then
+          echo "We seem to be online..." 1>&2
+        else
+          echo "Not online, skipping test" 1>&2
+          mkdir "$out"
+          exit 0
+        fi
+
+        if "$getalluc" big buck bunny host:vidzi.tv | grep -m 1 "wget"
+        then
+          echo "Found video URL" 1>&2
+          mkdir "$out"
+          exit 0
+        fi
+
+        echo "No URL found" 1>&2
+        exit 1
+    '';
+  };
 };
 
 withDeps tests getalluc
