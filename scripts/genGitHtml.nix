@@ -1,7 +1,9 @@
-{ artemis, fail, git, git2html, mhonarc, pandocPkgs, runCommand, withDeps,
-  wrap, writeScript }:
+{ fail, git, git2html, mhonarc, pandocPkgs, pkgs, runCommand, withDeps, wrap,
+  writeScript }:
 
 with rec {
+  inherit (pkgs) artemis;
+
   script = wrap {
     name   = "genGitHtml";
     paths  = [ git git2html mhonarc pandocPkgs ];
