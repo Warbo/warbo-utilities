@@ -1,5 +1,5 @@
-{ bash, curl, lib, phantomjs, runCommand, wget, wrap, writeScript, withDeps,
-  xidel }:
+{ bash, curl, lib, phantomjs, runCommand, vidsfrompage, wrap, writeScript,
+  withDeps, xidel }:
 
 with builtins;
 with lib;
@@ -69,7 +69,7 @@ with rec {
     name  = "getalluc";
     paths = [ bash xidel ];
     vars  = {
-      inherit download_page SITE;
+      inherit download_page SITE vidsfrompage;
     };
     script = ''
       #!/usr/bin/env bash
@@ -111,7 +111,8 @@ with rec {
 
         # Avoid '.html' as it's often '.avi.html' and other such nonsense.
         # Avoid 'thevideo.me' since their URLs contain Rick Rolls!
-        URLS=$(vidsfrompage "$LINK" | grep -v '\.html' | grep -v '\.thevideo\.me')
+        URLS=$("$vidsfrompage" "$LINK" | grep -v '\.html' |
+                                         grep -v '\.thevideo\.me')
 
         while read -r URL
         do

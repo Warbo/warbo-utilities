@@ -1,14 +1,12 @@
-{ bash, coreutils, firefox, jsbeautifier, lib, makeWrapper, procps, runCommand,
-  utillinux, wrap, writeScript, xdotool, xidel, xsel, xvfb_run }:
+{ bash, curl, ff, jsbeautifier, lib, olc, procps, wget, wrap, xidel }:
 
 with builtins;
 with lib;
 with rec {
-  log = msg: ''if [[ -n "$DEBUG" ]]; then echo -e "${msg}"; fi'';
-
   scrapepage = wrap {
     name   = "scrapepage";
-    paths  = [ jsbeautifier ];
+    paths  = [ bash curl jsbeautifier xidel ];
+    vars   = { inherit ff; };
     script = ''
       #!/usr/bin/env bash
 
@@ -49,7 +47,7 @@ with rec {
       }
 
       CONTENT1=$(curl -s "$1")
-      CONTENT2=$(ff "$1")
+      CONTENT2=$("$ff" "$1")
       CONTENT=$(echo -e "$CONTENT1\n$CONTENT2")
       echo "$CONTENT" | getvid
       echo "$CONTENT" | geteval
@@ -59,7 +57,8 @@ with rec {
 
 wrap {
   name   = "vidsfrompage";
-  paths  = [ procps xdotool xidel ];
+  paths  = [ bash procps wget xidel ];
+  vars   = { inherit ff olc scrapepage; };
   script = ''
     #!/usr/bin/env bash
 
@@ -69,7 +68,7 @@ wrap {
         echo "Can't scrape pages while Firefox is open, aborting." 1>&2
         exit 1
       fi
-      ff "$1"
+      "$ff" "$1"
     }
 
     function scrapeWithFirefox {
@@ -95,11 +94,11 @@ wrap {
       # Special cases
       if echo "$LNK" | grep 'ad\.co' > /dev/null
       then
-        olc "$LNK" | grep -o "https://[^']*"
+        "$olc" "$LNK" | grep -o "https://[^']*"
       fi
 
       # Generic scraper
-      "${scrapepage}" "$LNK"
+      "$scrapepage" "$LNK"
     done < <(scrapeWithFirefox "$1")
   '';
 }

@@ -1,10 +1,12 @@
-{ coreutils, firefox, utillinux, wrap, writeScript, xdotool, xsel, xvfb_run }:
+{ coreutils, fail, firefox, utillinux, wrap, writeScript, xdotool, xsel,
+  xvfb_run }:
 with rec {
+  # Hack to avoid unwanted quasiquotes
   braced = s: "$" + "{" + s + "}";
 
   xvfbrunsafe = wrap {
     name   = "xvfb-run-safe";
-    paths  = [ utillinux xvfb_run ];
+    paths  = [ fail utillinux xvfb_run ];
     script = ''
       #!/usr/bin/env bash
 
