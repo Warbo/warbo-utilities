@@ -34,7 +34,7 @@ with rec {
   # Calls a script file, like 'callPackage' but drawing arguments from the given
   # set. We include nixpkgs, as usual, but we also allow scripts to depend on
   # each other (but not themselves).
-  callScript = name: nixPkgs.newScope (nixPkgs // removeAttrs bin [ name ])
+  callScript = name: nixPkgs.newScope (nixPkgs // bin)
                                       (./scripts + "/${name}.nix")
                                       {};
 

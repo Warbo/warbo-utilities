@@ -1,7 +1,8 @@
-{ man, wrap }:
+{ pkgs, wrap }:
 
 wrap {
-  name = "man";
+  name   = "man";
+  paths  = [ pkgs.man ];
   script = ''
     #!/usr/bin/env bash
     if [[ "x$TERM" = "xdumb" ]]
@@ -10,7 +11,7 @@ wrap {
       emacsclient -e "(man \"$1\")"
     else
       # We're outside Emacs, use the normal man binary
-      exec "${man}/bin/man" "$@"
+      exec man "$@"
     fi
   '';
 }
