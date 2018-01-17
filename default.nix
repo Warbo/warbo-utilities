@@ -31,16 +31,12 @@ with rec {
 
 with nixPkgs.lib;
 with rec {
-  # Calls a script file, like 'callPackage' but drawing arguments from the given
-  # set. We include nixpkgs, as usual, but we also allow scripts to depend on
-  # each other (but not themselves).
-  callScript = name: nixPkgs.newScope (nixPkgs // bin)
-                                      (./scripts + "/${name}.nix")
-                                      {};
-
+  # Let scripts depend on each other by adding 'bin' to the argument set
   scripts = mapAttrs' (f: _: rec {
                         name  = removeSuffix ".nix" f;
-                        value = callScript name;
+                        value = nixPkgs.newScope (nixPkgs // bin)
+                                                 (./scripts + "/${f}")
+                                                 {};
                       })
                       (readDir ./scripts);
 
