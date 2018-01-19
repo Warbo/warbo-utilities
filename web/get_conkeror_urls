@@ -1,6 +1,0 @@
-#! /usr/bin/env nix-shell
-#! nix-shell -i bash -p xsel
-
-conkeror -e 'writeToClipboard((function(s) { for_each_buffer(function(b) { s += b.document.location + "\n"; }); return s; })(""))'
-
-xsel --clipboard
