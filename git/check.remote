@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 (cd /opt/repos || exit 1
  echo "Make sure each repo in /opt/repos is linked in /opt/git/"
