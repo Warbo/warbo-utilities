@@ -14,10 +14,8 @@ with rec {
     config = import "${stableConfig}/stable.nix";
   };
 
-  # Uses stable config with stable nixpkgs (repo1609 is fixed-output)
-  stablePkgs = import bootstrapPkgs.repo1609 {
-    config = import "${stableConfig}/stable.nix";
-  };
+  # Uses stable config with stable nixpkgs
+  stablePkgs = bootstrapPkgs.customised.nixpkgs1709;
 };
 
 {
