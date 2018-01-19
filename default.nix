@@ -2,10 +2,10 @@ with builtins;
 with rec {
   # We need a few helpers and packages from nix-config, so default to a
   # known-good version
-  stableConfig = (import <nixpkgs> {}).fetchgit {
+  stableConfig = (import <nixpkgs> { config = {}; }).fetchgit {
     url    = http://chriswarbo.net/git/nix-config.git;
-    rev    = "d1b2b9b";
-    sha256 = "1rsax2izq5083wlxssg0ch4bxkg2g1hm2v61vp8frg5v9q55rlgr";
+    rev    = "9f66c43";
+    sha256 = "1x8340ns235gy76zrhf63v7hcfhw1qv630zbd7aabbcsb294hf20";
   };
 
   # An awkward mix of unstable <nixpkgs> and stable nix-config. We only use this
