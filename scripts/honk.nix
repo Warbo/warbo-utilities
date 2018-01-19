@@ -1,7 +1,12 @@
-{ alsaUtils, bash, pidgin, writeScript }:
+{ alsaUtils, bash, wrap }:
 
-writeScript "honk" ''
-  #!${bash}/bin/bash
-  ${alsaUtils}/bin/amixer sset Master unmute > /dev/null
-  ${alsaUtils}/bin/aplay ${pidgin}/share/sounds/purple/alert.wav > /dev/null 2>&1
-''
+wrap {
+  name   = "honk";
+  paths  = [ alsaUtils bash ];
+  vars   = { alert = ../data/alert.wav; };
+  script = ''
+    #!/usr/bin/env bash
+    amixer sset Master unmute > /dev/null
+    aplay "$alert" > /dev/null 2>&1
+  '';
+}
