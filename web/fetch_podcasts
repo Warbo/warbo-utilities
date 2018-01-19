@@ -4,7 +4,7 @@ shopt -s nullglob
 
 function norm {
     # Strip non-alphanumeric and convert to lowercase
-    tr '[[:upper:]]' '[[:lower:]]' | tr -dc '[[:alnum:]]'
+    tr '[:upper:]' '[:lower:]' | tr -dc '[:alnum:]'
 }
 
 function markAsRead {
@@ -71,22 +71,19 @@ do
     done
 done
 
-for X in FunctionalGeekery
+for F in "$HOME/Mail/feeds/FunctionalGeekery/new"/*
 do
-    for F in "$HOME/Mail/feeds/$X/new"/*
-    do
-        PAGE=$(grep -o 'http[s]*://[^ "]*' < "$F" | head -n1) || continue
-        URL=$(wget -q -O- "$PAGE" | grep -o 'http[s]*://[^" ]*\.mp3' |
+    PAGE=$(grep -o 'http[s]*://[^ "]*' < "$F" | head -n1) || continue
+    URL=$(wget -q -O- "$PAGE" | grep -o 'http[s]*://[^" ]*\.mp3' |
                                     head -n1) || continue
-        if [[ -n "$URL" ]]
-        then
-            mkdir -p "$HOME/Audio/TODO/Functional Geekery"
-            pushd "$HOME/Audio/TODO/Functional Geekery"
-              sleep 2
-              wget "$URL"
-            popd
-            #mv -v "$F" "$HOME/Mail/feeds/$X/cur/"
-            markAsRead "$F"
-        fi
-    done
+    if [[ -n "$URL" ]]
+    then
+        mkdir -p "$HOME/Audio/TODO/Functional Geekery"
+        pushd "$HOME/Audio/TODO/Functional Geekery"
+            sleep 2
+            wget "$URL"
+        popd
+        #mv -v "$F" "$HOME/Mail/feeds/FunctionalGeekery/cur/"
+        markAsRead "$F"
+    fi
 done
