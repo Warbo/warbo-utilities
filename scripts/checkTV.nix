@@ -6,11 +6,9 @@ wrap {
   paths  = [ bash openssl openssl.dev wget ];
   script = ''
     #!/usr/bin/env bash
+    set -e
 
-    NAME="$1"
-     URL="$2"
-
-    CONTENT=$(wget -q -O- "$URL")
+    CONTENT=$(wget -q -O- "$2")
 
     function process {
       echo "$CONTENT" | grep -io "$1\W0-9[0-9]*"  | tr '[:upper:]' '[:lower:]'

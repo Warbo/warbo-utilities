@@ -41,7 +41,7 @@ wrap {
           -s "//item[1]" -t elem -n link        -v "$2"           \
           -s "//item[1]" -t elem -n pubDate     -v "$DATE"        \
           -s "//item[1]" -t elem -n description -v "Episode $NUM" \
-          -s "//item[1]" -t elem -n guid        -v "$GUID"        "$FEED"
+          -s "//item[1]" -t elem -n guid        -v "$TITLE-$NUM"  "$FEED"
       fi
     done < <(echo "$DATES")
 
