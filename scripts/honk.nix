@@ -7,6 +7,8 @@ wrap {
   script = ''
     #!/usr/bin/env bash
     amixer sset Master unmute > /dev/null
+
+    # shellcheck disable=SC2154
     aplay "$alert" > /dev/null 2>&1
   '';
 }

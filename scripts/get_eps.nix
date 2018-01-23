@@ -35,12 +35,6 @@ wrap {
                              grep '^<tr'                |
                              grep "$DATE"               |
                              xidel -q - -e '//th/text()')
-        TITLE="My RSS entry"
-        LINK="http://example.com/entry4711"
-        DATE="$DATE"
-        DESC="Good news"
-        GUID="http://example.com/entry4711"
-
         xmlstarlet ed -L \
           -a "//channel" -t elem -n item        -v ""             \
           -s "//item[1]" -t elem -n title       -v "Episode $NUM" \

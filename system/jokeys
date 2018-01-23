@@ -5,4 +5,6 @@ MEDEV=/dev/input/event0
 
 echo "Sending ALL keyboard events to laptop"
 echo "Press Ctrl-C to stop"
+
+# shellcheck disable=SC2029
 sudo cat "$MEDEV" | ssh jo@debian.local "cat > $JODEV"

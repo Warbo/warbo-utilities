@@ -13,6 +13,8 @@ wrap {
     #!/usr/bin/env bash
     set -e
     C2N=$(cabal2nix ./.)
+
+    # shellcheck disable=SC2154
     nix-shell --show-trace --arg c2n "$C2N" -E "$expr" --run "$command $*"
   '';
 }
