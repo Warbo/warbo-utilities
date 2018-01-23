@@ -3,7 +3,7 @@
 wrap {
   name   = "checkTV";
   vars   = { SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt; };
-  paths  = [ bash openssl openssl.dev wget ];
+  paths  = [ bash openssl (openssl.dev or openssl) wget ];
   script = ''
     #!/usr/bin/env bash
     set -e

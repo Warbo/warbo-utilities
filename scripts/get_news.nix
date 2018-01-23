@@ -96,7 +96,7 @@ with rec {
 
   getAtom = mkBin {
     name   = "getAtom";
-    paths  = [ coreutils fixRss libxslt.bin wget ];
+    paths  = [ coreutils fixRss (libxslt.bin or libxslt) wget ];
     vars   = { xsl = ../data/atom2rss-exslt.xsl; };
     script = ''
       #!/usr/bin/env bash
