@@ -14,13 +14,16 @@ with rec {
       old         = xvfb_run;
       broken      = ''DISPLAY=:$SERVERNUM XAUTHORITY=$AUTHFILE "$@" 2>&1'';
       fixed       = ''
+        VNCPID=""
         if [[ "x$XVFB_VNC" = "x1" ]]
         then
           echo "Starting VNC server, as requested" 1>&2
           DISPLAY=":$SERVERNUM" XAUTHORITY="$AUTHFILE" x11vnc -localhost \
                                                               -quiet 1>&2 &
+          VNCPID="$!"
         fi
         DISPLAY=":$SERVERNUM" XAUTHORITY="$AUTHFILE" "$@"
+        [[ -z "$VNCPID" ]] || kill "$VNCPID"
       '';
     }
     ''
@@ -113,6 +116,10 @@ with rec {
 
           # Now run the command we were asked to
           xvfb-run --server-num="$i" "$@"
+          RET="$?"
+
+          # Break the loop
+          exit "$RET"
         fi
 
         # If we couldn't get the lock (e.g. due to a timeout), try the next
