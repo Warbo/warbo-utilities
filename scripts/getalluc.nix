@@ -1,4 +1,4 @@
-{ bash, curl, lib, phantomjs, runCommand, vidsfrompage, wrap, writeScript,
+{ bash, curl, lib, phantomjs, runCommand, vidsfrompage, wget, wrap, writeScript,
   withDeps, xidel }:
 
 with builtins;
@@ -66,13 +66,12 @@ with rec {
   };
 
   getalluc = wrap {
-    name  = "getalluc";
-    paths = [ bash xidel ];
-    vars  = {
-      inherit download_page SITE vidsfrompage;
-    };
+    name   = "getalluc";
+    paths  = [ bash wget xidel ];
+    vars   = { inherit download_page SITE vidsfrompage; };
     script = ''
       #!/usr/bin/env bash
+      set -e
 
       [[ -z "$DEBUG" ]] || set -x
 
@@ -111,8 +110,9 @@ with rec {
 
         # Avoid '.html' as it's often '.avi.html' and other such nonsense.
         # Avoid 'thevideo.me' since their URLs contain Rick Rolls!
-        URLS=$("$vidsfrompage" "$LINK" | grep -v '\.html' |
-                                         grep -v '\.thevideo\.me')
+        URLS=$("$vidsfrompage" "$LINK" | grep -v '\.html'         |
+                                         grep -v '\.thevideo\.me' |
+                                         grep -v 'uc\.ee')
 
         while read -r URL
         do
@@ -120,9 +120,20 @@ with rec {
 
           echo "Got URL '$URL'" 1>&2
           FIXED=$(echo "$URL" | sed -e "s/'$//g")
+
+          echo "Checking file type" 1>&2
+          RESPONSE=$(wget --server-response --spider "$FIXED" 2>&1) || continue
+          TYPE=$(echo "$RESPONSE" | grep 'Content-Type')            || continue
+          echo "$TYPE" 1>&2
+
+          if echo "$TYPE" | grep -i 'html' > /dev/null
+          then
+            continue
+          fi
+
           echo "inDir ~/Public/TODO wget -O '$*' '$FIXED'"
 
-          [[ -z "$STOPONFIRST" ]] || exit
+          [[ -z "$STOPONFIRST" ]] || exit 0
         done < <(echo "$URLS")
       done < <(runCurl | allResults | removeAds | prefixLinks)
     '';
@@ -147,7 +158,8 @@ with rec {
           exit 0
         fi
 
-        if "$getalluc" big buck bunny host:vidzi.tv | grep -m 1 "wget"
+        FOUND=$("$getalluc" big buck bunny host:vidzi.tv | tee >(cat >&2))
+        if echo "$FOUND" | grep "wget"
         then
           echo "Found video URL" 1>&2
           mkdir "$out"
@@ -156,7 +168,7 @@ with rec {
 
         echo "No URL found" 1>&2
         exit 1
-    '';
+      '';
   };
 };
 
