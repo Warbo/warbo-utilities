@@ -27,8 +27,12 @@ with rec {
   packageOnly ? true
 }:
 
+with builtins;
 with nixPkgs.lib;
 with rec {
+  inherit (nixPkgs) attrsToDirs fail haskellPackages newScope runCommand
+                    withDeps;
+
   # Let scripts depend on each other by adding 'bin' to the argument set
   scripts = mapAttrs' (f: _: rec {
                         name  = removeSuffix ".nix" f;
@@ -45,7 +49,45 @@ with rec {
 
   bin = cmds // scripts;
 
-  pkg = nixPkgs.attrsToDirs { inherit bin; };
+  check = mapAttrs (name: script: runCommand "check-${name}"
+                     {
+                       inherit script;
+                       buildInputs = [ fail haskellPackages.ShellCheck ];
+                     }
+                     ''
+                       set -e
+
+                       # Unwrap until we get to the real implementation
+                       while grep "extraFlagsArray" < "$script"
+                       do
+                         echo "Found wrapper '$script', unwrapping" 1>&2
+                         script=$(grep '^exec' < "$script" | cut -d ' ' -f2 |
+                                                             tr -d '"')
+                       done
+                       echo "Checking '$script'" 1>&2
+
+                       SHEBANG=$(head -n1 < "$script")
+                       echo "$SHEBANG" | grep '^#!' || {
+                         # Binaries, etc.
+                         mkdir "$out"
+                         exit 0
+                       }
+
+                       echo "$SHEBANG" | grep 'usr/bin/env' ||
+                       echo "$SHEBANG" | grep '/nix/store'  || {
+                         fail "Didn't use /usr/bin/env or /nix/store:\n$SHEBANG"
+                       }
+
+                       if echo "$SHEBANG" | grep 'bash'
+                       then
+                         shellcheck "$script"
+                       fi
+                       mkdir "$out"
+                     '')
+                   bin;
+
+  pkg = withDeps (attrValues check)
+                 (attrsToDirs { inherit bin; });
 };
 
 if packageOnly
