@@ -1,10 +1,19 @@
-with rec {
-  inherit (import ./. { packageOnly = false; }) pkg stablePkgs;
-};
-{
-    stable = pkg;
+rec {
+  stable   = import ./. { packageOnly = false; };
   unstable = import ./. {
-    # Unstable due to use of <nixpkgs> and latestGit
-    nixPkgs = import <nixpkgs> { config = stablePkgs.latestNixCfg; };
+    packageOnly = false;
+    nixPkgs     = import <nixpkgs> {
+      config =
+        with {
+          config-src = with builtins.tryEval <nix-config>;
+                       if success
+                          then value
+                          else stable.nixPkgs.latestGit {
+                            url    = http://chriswarbo.net/git/nix-config.git;
+                            stable = { unsafeSkip = true; };
+                          };
+        };
+        import "${config-src}/config.nix";
+    };
   };
 }
