@@ -25,7 +25,7 @@ with rec {
       }
 
       function geteval {
-        # Send any obfuscated javascript through js-beautify, then look for videos
+        # Send any obfuscated javascript through js-beautify, then look for vids
         EVALS=$(grep "eval" | sed -e 's/<[^>]*>//g')
         while read -r LINE
         do
@@ -47,6 +47,10 @@ with rec {
       }
 
       CONTENT1=$(curl -s "$1")
+
+      echo "Scraping '$1' with Firefox" 1>&2
+
+      # shellcheck disable=SC2154
       CONTENT2=$("$ff" "$1")
       CONTENT=$(echo -e "$CONTENT1\n$CONTENT2")
       echo "$CONTENT" | getvid
@@ -62,13 +66,22 @@ wrap {
   script = ''
     #!/usr/bin/env bash
 
-    function getWithFirefox {
-      if pgrep -f ".*firefox.*" | grep -v conkeror | grep fox > /dev/null
+    function debugDump {
+      if [[ -n "$DEBUG" ]]
       then
-        echo "Can't scrape pages while Firefox is open, aborting." 1>&2
-        exit 1
+        echo "Source code dump:" 1>&2
+        tee >(cat 1>&2)
+        echo "End source code"   1>&2
+      else
+        cat
       fi
-      "$ff" "$1"
+    }
+
+    function getWithFirefox {
+      echo "Looking for videos on '$1' with Firefox" 1>&2
+
+      # shellcheck disable=SC2154
+      "$ff" "$1" | debugDump | xidel - -q -e '//iframe/@src'
     }
 
     function scrapeWithFirefox {
@@ -80,7 +93,18 @@ wrap {
         else
           echo "$LINE" 1>&2
         fi
-      done < <(getWithFirefox "$1" | xidel - -q -e '//iframe/@src')
+      done < <(getWithFirefox "$1")
+    }
+
+    function skipUrl {
+      for PAT in 'recaptcha'
+      do
+        if echo "$1" | grep "$PAT" > /dev/null
+        then
+          return 0
+        fi
+      done
+      return 1
     }
 
     # Look for raw URLs
@@ -89,15 +113,18 @@ wrap {
     # Loop over result links, getting videos and obfuscated javascript
     while read -r LNK
     do
+      if skipUrl "$LNK"; then continue; fi
       echo "Scraping page '$LNK'" 1>&2
 
       # Special cases
       if echo "$LNK" | grep 'ad\.co' > /dev/null
       then
+        # shellcheck disable=SC2154
         "$olc" "$LNK" | grep -o "https://[^']*"
       fi
 
       # Generic scraper
+      # shellcheck disable=SC2154
       "$scrapepage" "$LNK"
     done < <(scrapeWithFirefox "$1")
   '';
