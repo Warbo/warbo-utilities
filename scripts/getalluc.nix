@@ -101,7 +101,7 @@ with rec {
           exit 0
         fi
 
-        FOUND=$("$getalluc" big buck bunny host:vidzi.tv | tee >(cat >&2))
+        FOUND=$("$getalluc" big buck bunny | tee >(cat >&2)) || true
         if echo "$FOUND" | grep "wget"
         then
           echo "Found video URL" 1>&2
