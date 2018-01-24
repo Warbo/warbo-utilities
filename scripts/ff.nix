@@ -198,6 +198,6 @@ wrap {
   script = ''
     #!/usr/bin/env bash
     # shellcheck disable=SC2154
-    URL="$1" timeout 60 "$xvfb" "$ff"
+    URL="$1" "$xvfb" "$ff"
   '';
 }
