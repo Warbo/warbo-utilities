@@ -4,11 +4,10 @@
 with rec {
   inherit (nixpkgs1609) firefox;
 
-  ff = wrap {
-    name  = "firefox-runner";
-    paths = [ bash coreutils (dbus.tools or dbus) fail firefox xdotool
-              xorg.xwininfo xsel ];
-    vars  = {
+  runFF = wrap {
+    name = "runFF";
+    paths  = [ bash (dbus.tools or dbus) fail firefox python ];
+    vars   = {
       ffSettings = writeScript "user.js" ''
         // Don't show bookmark icons
         user_pref("browser.shell.checkDefaultBrowser", false);
@@ -21,113 +20,170 @@ with rec {
         # Reuse the same window/tab
         user_pref("browser.link.open_newwindow",       1);
       '';
-
-      pullOutPage = wrap {
-        name   = "pullOutPage.py";
-        paths  = [ python ];
-        script = ''
-          #!/usr/bin/env python
-          import os
-          import sys
-
-          text = sys.stdin.read()
-          html = 'PRE' in text and 'POST' in text
-
-          if not html:
-            sys.stderr.write('\nNo PRE/POST sentinels found\n')
-
-          if (os.getenv('DEBUG') != None) or not html:
-            sys.stderr.write('\n' + text + '\n')
-
-          if html:
-            print(text.split('PRE')[1].split('POST')[0])
-        '';
-      };
     };
+    script = ''
+      #!/usr/bin/env python
+      import os
+      import select
+      import shutil
+      import subprocess
+      import sys
+      import threading
+      import time
+
+      # Helper functions
+
+      msg = lambda s: sys.stderr.write(s + '\n')
+      def fail(s):
+        msg(s)
+        sys.exit(1)
+
+      # Gather arguments
+
+      url, dir = map(os.getenv, ['URL', 'DIR'])
+
+      if url is None:
+        fail('No URL')
+      if dir is None:
+        fail('No DIR')
+      if not os.path.isdir(dir):
+        fail('Directory "' + dir + '" not found')
+
+      # Create working environmsnt
+
+      ff_dir = dir + '/firefox-profile'
+      home   = dir + '/home'
+
+      os.makedirs(ff_dir)
+      os.makedirs(home)
+
+      shutil.copy(os.getenv('ffSettings'), ff_dir + '/user.js')
+
+      # Launch Firefox
+
+      handle = subprocess.Popen(
+        ['dbus-launch', 'firefox', '-profile', ff_dir, '-no-remote',
+          '-new-instance', url],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        env={
+          'HOME': home,
+          'PATH':    os.getenv('PATH'),
+          'DISPLAY':    os.getenv('DISPLAY'),
+          'XAUTHORITY': os.getenv('XAUTHORITY')
+        })
+
+      # Read output, using threads to ensure pipes get flushed
+
+      def readInThread(handle, buffer, stayAlive):
+        while stayAlive[0]:
+          # We shouldn't read unless there's at least one byte available. We
+          # check for this using select, with a 1 second timeout.
+          r, _, _ = select.select([handle], [], [], 0.1)
+          if handle in r:
+            buffer.append(os.read(handle.fileno(), 1024))
+        handle.close()
+
+      def readFrom(handle):
+        buffer    = []
+        stayAlive = [True]
+        thread    = threading.Thread(
+          target=readInThread,
+          args=(handle, buffer, stayAlive))
+        thread.start()
+        return (buffer, stayAlive, thread)
+
+      stdout_buff, stdout_alive, stdout_thread = readFrom(handle.stdout)
+      stderr_buff, stderr_alive, stderr_thread = readFrom(handle.stderr)
+
+      # Control Firefox
+
+      def stillAlive():
+        return handle.poll() is None
+
+      def assertAlive():
+        if not stillAlive():
+          msg("".join(stdout_buff))
+          msg("".join(stderr_buff))
+          raise Exception("Firefox died")
+
+      def xdo(args):
+        assertAlive()
+        subprocess.check_call(['xdotool'] + args)
+
+      def sleep(n):
+        while n > 0:
+          assertAlive()
+          time.sleep(1)
+          n -= 1
+
+      sleep(20)
+
+      extra = os.getenv('FF_EXTRA_CODE')
+      if extra is not None:
+        subprocess.check_call([extra])
+
+      msg("Opening Web console")
+      xdo(['key', 'ctrl+shift+K'])
+      sleep(10)
+
+      msg("Extracting body HTML")
+      xdo(['type',
+           'window.dump("PRE" + document.documentElement.outerHTML + "POST");'])
+      sleep(3)
+      xdo(['key', '--clearmodifiers', 'Return'])
+      sleep(2)
+
+      # Stop reading
+
+      stdout_alive[0] = False
+      stderr_alive[0] = False
+      stdout_thread.join()
+      stderr_thread.join()
+
+      # Close Firefox
+      handle.terminate()
+      handle.wait()
+
+      # Extract HTML
+
+      out = "".join(stdout_buff)
+      err = "".join(stderr_buff)
+      got = None
+
+      if 'PRE' in out and 'POST' in out:
+        got = out
+      if 'PRE' in err and 'POST' in err:
+        got = err
+
+      if got is None:
+        msg(out)
+        msg(err)
+        fail('No PRE/POST sentinels found')
+
+      print(got.split('PRE')[1].split('POST')[0])
+    '';
+  };
+
+  ff = wrap {
+    name  = "firefox-runner";
+    paths = [ bash coreutils fail xdotool xorg.xwininfo xsel ];
+    vars  = { inherit runFF; };
     script = ''
       #!/usr/bin/env bash
       set -e
 
-         DIR=$(mktemp -d -t 'ff-XXXXX')
-      FF_DIR="$DIR/firefox-profile"
-        HOME="$DIR/home"
-      mkdir "$FF_DIR" "$HOME"
-      export HOME
-
-      cp "$ffSettings" "$FF_DIR/user.js"
-
-      function firefoxAlive {
-        ps -p "$FF_PID" > /dev/null
-      }
-
-      function waitForFirefox {
-        for X in $(seq 1 "$1")
-        do
-          sleep 1
-          firefoxAlive || fail "Firefox died"
-        done
-      }
-
-      function firefoxOpen {
-        xwininfo -root -children | grep -i firefox > /dev/null
-      }
+      # Firefox messes with the disk a lot, so put it in a throwaway dir
+      DIR=$(mktemp -d -t 'ff-XXXXX')
+      export DIR
 
       function cleanUp {
-        if firefoxAlive
-        then
-          kill "$FF_PID" || true
-          sleep 1
-        fi
-
-        rm -rf "$DIR" || true
-
-        pids=$(jobs -pr)
-        if [[ -n "$pids" ]]; then kill $pids; fi
-
-        exit
+        rm -rf "$DIR"
       }
 
       trap cleanUp EXIT
 
-      [[ -n "$TIMEOUT" ]] || TIMEOUT=300
-
-      echo "Opening Firefox on '$URL', using profile dir '$FF_DIR'" 1>&2
-      dbus-launch firefox -profile "$FF_DIR" \
-                          -no-remote         \
-                          -new-instance      \
-                          "$URL"             > "$DIR/dump.txt" 2>&1 &
-      FF_PID="$!"
-
-      for X in $(seq 1 3)
-      do
-        sleep 5
-        if firefoxOpen; then break; fi
-      done
-
-      firefoxOpen || fail "Gave up waiting for firefox to start"
-
-      waitForFirefox 15
-
-      [[ -z "$FF_EXTRA_CODE" ]] || "$FF_EXTRA_CODE"
-
-      echo "Opening Web console" 1>&2
-      xdotool key ctrl+shift+K
-      waitForFirefox 10
-
-      echo "Extracting body HTML" 1>&2
-
-      # shellcheck disable=SC2016
-      xdotool type 'window.dump("PRE");'
-      xdotool type 'window.dump(document.documentElement.outerHTML);'
-      xdotool type 'window.dump("POST");'
-      waitForFirefox 3
-
-      xdotool key --clearmodifiers Return
-      sleep 2
-
-      kill "$FF_PID"
-      sleep 2
-      "$pullOutPage" < "$DIR/dump.txt"
+      echo "Opening Firefox on '$URL'" 1>&2
+      "$runFF"
     '';
   };
 };
