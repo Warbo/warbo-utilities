@@ -193,8 +193,7 @@ wrap {
   paths  = [ bash coreutils ];
   vars   = {
     inherit ff;
-    xvfb     = xvfb-run-safe;
-    XVFB_VNC = "1";
+    xvfb = xvfb-run-safe;
   };
   script = ''
     #!/usr/bin/env bash
