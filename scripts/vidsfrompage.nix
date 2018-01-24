@@ -51,7 +51,7 @@ with rec {
       echo "Scraping '$1' with Firefox" 1>&2
 
       # shellcheck disable=SC2154
-      CONTENT2=$("$ff" "$1")
+      CONTENT2=$("$ff" "$1") || CONTENT2=""
       CONTENT=$(echo -e "$CONTENT1\n$CONTENT2")
       echo "$CONTENT" | getvid
       echo "$CONTENT" | geteval
@@ -93,11 +93,11 @@ wrap {
         else
           echo "$LINE" 1>&2
         fi
-      done < <(getWithFirefox "$1")
+      done < <(getWithFirefox "$1" || echo "")
     }
 
     function skipUrl {
-      for PAT in 'recaptcha'
+      for PAT in recaptcha "luc.ee#\$"
       do
         if echo "$1" | grep "$PAT" > /dev/null
         then
@@ -125,7 +125,7 @@ wrap {
 
       # Generic scraper
       # shellcheck disable=SC2154
-      "$scrapepage" "$LNK"
+      "$scrapepage" "$LNK" || true
     done < <(scrapeWithFirefox "$1")
   '';
 }
