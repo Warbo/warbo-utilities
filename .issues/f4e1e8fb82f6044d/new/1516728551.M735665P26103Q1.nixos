@@ -1,0 +1,14 @@
+From: Chris Warburton
+Date: Tue, 23 Jan 2018 17:26:06 +0000
+State: new
+Subject: Make vidsfrompage, etc. quieter
+Message-Id: <f4e1e8fb82f6044d-0-artemis@nixos>
+
+They produce a lot of noise, which it would be nice to lower. We can set
+the DEBUG var if we want to see everything, after all.
+
+Note that simple solutions, like using '2> >(grep -v '^#' >&2)' to
+suppress the big x11vnc warning, ran into some difficulties, presumably
+due to job control, etc. (using "$!" to get the previous command's PID
+might cause complications if that command involved process substitution,
+etc.)

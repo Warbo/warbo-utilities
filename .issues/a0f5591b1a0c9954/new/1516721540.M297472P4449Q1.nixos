@@ -1,0 +1,43 @@
+From: Chris Warburton
+Date: Tue, 23 Jan 2018 15:23:53 +0000
+Subject: Re: Fix HTML escaping when rendering README
+Message-Id: <a0f5591b1a0c9954-fca2827cd6fd3da2-artemis@nixos>
+References: <a0f5591b1a0c9954-0-artemis@nixos>
+In-Reply-To: <a0f5591b1a0c9954-0-artemis@nixos>
+
+Regarding the 'Contents of follows', this was a simple typo, so now (in
+uncommitted changes) it says 'Contents of README.md follows' (or
+whatever the filename is).
+
+Regarding the rendering, this is a bit trickier. We would like markdown
+to be rendered to HTML, and spliced into the page. Yet these READMEs may
+come from external sources, so we don't want to allow XSS attacks.
+
+From doing a little research, it looks like sanitising markdown is
+rather hopeless: on the one hand, it allows raw HTML tags, like
+'<script>', which is dangerous. On the other, there are ways to make
+markdown render to dangerous HTML, like links to 'javascript:' URLs, and
+tricky issues like '> ' being used to mark up quotes. For example:
+
+> This will be treated as a quotation. What happens if we put an <a
+> onclick="maliciousJavascript">anchor</a> here?
+
+If we try to sanitise the '<a>' tag, we might parse it as '<a
+>'
+
+When actually that leading '>' is a quote indicator, and the actual
+anchor includes the malicious Javascript.
+
+Gah!
+
+Anyway, it looks like the best way to handle this is to render to HTML,
+then sanitise the HTML. There are various solutions to doing this, but
+the general advice is to use a whitelist of allowed tags and attributes;
+everything else should be stripped. This way, any future extensions to
+HTML (e.g. 'onFoo' handler attributes), or anything that we didn't think
+of, will just be silently stripped rather than having to play cat and
+mouse.
+
+Unfortunately I can't find a standalone Linux command which will do this
+santising. As with most security stuff, I'd rather not implement it
+myself...

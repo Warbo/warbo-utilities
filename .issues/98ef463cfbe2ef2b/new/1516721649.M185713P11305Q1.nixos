@@ -1,0 +1,12 @@
+From: Chris Warburton
+Date: Tue, 23 Jan 2018 15:33:10 +0000
+Subject: Re: genGitHtml split open from resolved
+Message-Id: <98ef463cfbe2ef2b-b5701782f6715292-artemis@nixos>
+References: <98ef463cfbe2ef2b-0-artemis@nixos>
+In-Reply-To: <98ef463cfbe2ef2b-0-artemis@nixos>
+
+We should ensure that there's some machine readable indicator in the
+HTML (e.g. an attribute), as well as human-readable.
+
+That way, we can include a little Javascript which will e.g. put open
+issues at the top, or something.
