@@ -63,8 +63,8 @@ with rec {
           '-new-instance', url],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         env={
-          'HOME': home,
-          'PATH':    os.getenv('PATH'),
+          'HOME':       home,
+          'PATH':       os.getenv('PATH'),
           'DISPLAY':    os.getenv('DISPLAY'),
           'XAUTHORITY': os.getenv('XAUTHORITY')
         })
@@ -72,12 +72,21 @@ with rec {
       # Read output, using threads to ensure pipes get flushed
 
       def readInThread(handle, buffer, stayAlive):
-        while stayAlive[0]:
+        # Keep reading until the main thread toggles stayAlive[0]
+        while True:
           # We shouldn't read unless there's at least one byte available. We
           # check for this using select, with a 1 second timeout.
-          r, _, _ = select.select([handle], [], [], 0.1)
+          r, _, _ = select.select([handle], [], [], 1)
+
+          # If data is available to be read from handle, read a chunk
           if handle in r:
             buffer.append(os.read(handle.fileno(), 1024))
+          elif not stayAlive[0]:
+            # Nothing left, and we've been told to die
+            break
+
+          # Wait to avoid thrashing the CPU
+          time.sleep(0.1)
         handle.close()
 
       def readFrom(handle):
