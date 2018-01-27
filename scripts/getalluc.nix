@@ -1,4 +1,4 @@
-{ bash, curl, ff, lib, runCommand, vidsfrompage, wget, wrap, writeScript,
+{ bash, curl, fail, ff, lib, runCommand, vidsfrompage, wget, wrap, writeScript,
   withDeps, xidel }:
 
 with builtins;
@@ -8,7 +8,7 @@ with rec {
 
   getalluc = wrap {
     name   = "getalluc";
-    paths  = [ bash wget xidel ];
+    paths  = [ bash fail wget xidel ];
     vars   = { inherit ff SITE vidsfrompage; };
     script = ''
       #!/usr/bin/env bash
@@ -18,51 +18,55 @@ with rec {
 
       function search {
         # Poor man's URL escaping
-        echo "$@" | sed -e 's/ /+/g'
+        ARGS="$@"
+        echo "${"$" + "{ARGS// /+}"}"
       }
 
       # Search for commandline arguments and get videos
       Q=$(search "$@")
       URL="$SITE/stream/$Q"
 
-      function allResults {
-        xidel - -q --extract '//div[@class="title"]/a/@href'
-      }
+      # shellcheck disable=SC2154
+      SEARCH_PAGE=$("$ff" "$URL") || fail "Failed to load search page"
 
-      function removeAds {
-        grep -v "^/source/" | grep -v "luc\.ee#\$"
-      }
+      LINKS=$(echo "$SEARCH_PAGE" |
+              xidel - -q --extract '//div[@class="title"]/a/@href') ||
+        fail "Couldn't extract search results"
 
-      function prefixLinks {
-        while read -r REL
-        do
-          echo "$SITE""$REL"
-        done
-      }
+      # Disable errexit temporarily, since we don't care if grep "fails"
+      set +e
+      STRIPPED=$(echo "$LINKS" | grep -v "^/source/" |
+                                 grep -v "luc\.ee#")
+      set -e
 
-      set -o pipefail
-      LINKS=$("$ff" "$URL" | allResults | removeAds | prefixLinks | uniq) ||
-        LINKS=""
-      set +o pipefail
+      # shellcheck disable=SC2001
+      PREFIXED=$(echo "$STRIPPED" | sed -e "s@^@$SITE@g")
 
-      echo -e "Search results:\n$LINKS" 1>&2
+      FINAL=$(echo "$PREFIXED" | sort -u)
+
+      echo -e "Search results:\n$FINAL" 1>&2
 
       while read -r LINK
       do
         echo "Getting vids from page '$LINK'" 1>&2
 
+        # shellcheck disable=SC2154
+        URLS=$("$vidsfrompage" "$LINK") || continue
+
         # Avoid '.html' as it's often '.avi.html' and other such nonsense.
         # Avoid 'thevideo.me' since their URLs contain Rick Rolls!
-        URLS=$("$vidsfrompage" "$LINK" | grep -v '\.html'         |
-                                         grep -v '\.thevideo\.me' |
-                                         grep -v 'uc\.ee')
+        set +e
+        FILTERED=$(echo "$URLS" | grep -v '\.html'         |
+                                  grep -v '\.thevideo\.me' |
+                                  grep -v 'uc\.ee')
+        set -e
 
         while read -r THIS_URL
         do
           [[ -n "$THIS_URL" ]] || continue
 
           echo "Got URL '$THIS_URL'" 1>&2
-          FIXED=$(echo "$THIS_URL" | sed -e "s/'$//g")
+          FIXED="${"$" + "{THIS_URL%\\'}"}"  # Drop any ' from end
 
           echo "Checking file type" 1>&2
           RESPONSE=$(wget --server-response --spider "$FIXED" 2>&1) || continue
@@ -77,8 +81,8 @@ with rec {
           echo "inDir ~/Public/TODO wget -O '$*' '$FIXED'"
 
           [[ -z "$STOPONFIRST" ]] || exit 0
-        done < <(echo "$URLS")
-      done < <(echo "$LINKS")
+        done < <(echo "$FILTERED")
+      done < <(echo "$FINAL")
     '';
   };
 
