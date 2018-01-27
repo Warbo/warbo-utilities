@@ -1,10 +1,10 @@
 { bash, coreutils, dbus, fail, firefox, python, wrap, writeScript, xdotool,
-  xorg, xsel, xvfb-run-safe }:
+  xvfb-run-safe }:
 
 with rec {
   runFF = wrap {
     name = "runFF";
-    paths  = [ bash (dbus.tools or dbus) fail firefox python ];
+    paths  = [ bash (dbus.tools or dbus) fail firefox python xdotool ];
     vars   = {
       ffSettings = writeScript "user.js" ''
         // Don't show bookmark icons
@@ -164,7 +164,7 @@ with rec {
 
   ff = wrap {
     name  = "firefox-runner";
-    paths = [ bash coreutils fail xdotool xorg.xwininfo xsel ];
+    paths = [ bash coreutils ];
     vars  = { inherit runFF; };
     script = ''
       #!/usr/bin/env bash
@@ -188,7 +188,7 @@ with rec {
 
 wrap {
   name   = "ff";
-  paths  = [ bash coreutils ];
+  paths  = [ bash ];
   vars   = {
     inherit ff;
     xvfb = xvfb-run-safe;
