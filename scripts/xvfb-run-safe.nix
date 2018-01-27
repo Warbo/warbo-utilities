@@ -101,7 +101,19 @@ with rec {
           continue
         fi
 
-        # Otherwise, try locking a file for this ourselves
+        # Skip if we don't have write permission (racy, but suppresses messages)
+        if [[ -e "$xvfb_lockdir/$i" ]]
+        then
+          if [[ -w "$xvfb_lockdir/$i" ]]
+          then
+            true
+          else
+            (( ++i ))
+            continue
+          fi
+        fi
+
+        # Now try creating/locking this file for ourselves
         exec 5> "$xvfb_lockdir/$i" || {
           # Skip if e.g. permission denied
           (( ++i ))
