@@ -141,6 +141,7 @@ with rec {
           # xdotool finished; we can stop waiting
           msg('\n')
           break
+      time.sleep(3)
 
       # At this point xdotool either spotted the window or we timed out. Either
       # way, we'll try to carry on and see what happens.
@@ -164,6 +165,7 @@ with rec {
       sleep(2)
 
       msg('\nReading output')
+      sleep(3)
 
       stdout_alive[0] = False
       stderr_alive[0] = False
