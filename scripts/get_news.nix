@@ -181,6 +181,7 @@ wrap {
       courier ||
         echo "Error scraping Dundee Courier, skipping" 1>&2
 
+      # shellcheck disable=SC2154
       "$rss" ~/.cache/rss < ~/.feeds
     fi
 
@@ -194,6 +195,7 @@ wrap {
     done
 
     echo "Cleaning up old news" 1>&2
+    # shellcheck disable=SC2154
     "$cleanUp"
   '';
 }

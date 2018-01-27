@@ -18,7 +18,7 @@ with rec {
 
       function search {
         # Poor man's URL escaping
-        ARGS="$@"
+        ARGS="$*"
         echo "${"$" + "{ARGS// /+}"}"
       }
 
