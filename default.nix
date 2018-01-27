@@ -15,7 +15,9 @@ with rec {
   };
 
   # Uses stable config with stable nixpkgs
-  stablePkgs = bootstrapPkgs.customised.nixpkgs1709;
+  stablePkgs = bootstrapPkgs.customised.nixpkgs1709 // {
+    inherit (bootstrapPkgs.customised.nixpkgs1609) firefox;
+  };
 };
 
 {

@@ -1,9 +1,7 @@
-{ bash, coreutils, dbus, fail, nixpkgs1609, python, wrap, writeScript, xdotool,
+{ bash, coreutils, dbus, fail, firefox, python, wrap, writeScript, xdotool,
   xorg, xsel, xvfb-run-safe }:
 
 with rec {
-  inherit (nixpkgs1609) firefox;
-
   runFF = wrap {
     name = "runFF";
     paths  = [ bash (dbus.tools or dbus) fail firefox python ];
