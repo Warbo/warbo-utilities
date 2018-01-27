@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+FAILED=""
+if systemctl status inboxen | grep 'FAILURE' > /dev/null
+then
+    FAILED="<fc=#ff0000>MAIL ERROR</fc> "
+fi
+
  GMAIL=$(find ~/Mail/gmail/INBOX/new  -type f | wc -l)
 DUNDEE=$(find ~/Mail/dundee/INBOX/new -type f | wc -l)
 
@@ -17,4 +23,4 @@ else
     DUNDEECOL="dd <fc=#44ff66>$DUNDEE</fc>"
 fi
 
-echo "$GMAILCOL | $DUNDEECOL"
+echo "$FAILED$GMAILCOL | $DUNDEECOL"
