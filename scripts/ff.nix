@@ -31,10 +31,9 @@ with rec {
 
       # Helper functions
 
-      msg = lambda s: sys.stderr.write(s + '\n')
+      msg = sys.stderr.write
       def fail(s):
-        msg(s)
-        sys.exit(1)
+        raise Exception(s + '\n')
 
       # Gather arguments
 
@@ -57,7 +56,7 @@ with rec {
 
       shutil.copy(os.getenv('ffSettings'), ff_dir + '/user.js')
 
-      # Launch Firefox
+      msg('\nLaunching Firefox\n')
 
       handle = subprocess.Popen(
         ['dbus-launch', 'firefox', '-profile', ff_dir, '-no-remote',
@@ -100,49 +99,49 @@ with rec {
 
       def assertAlive():
         if not stillAlive():
-          msg("".join(stdout_buff))
-          msg("".join(stderr_buff))
-          raise Exception("Firefox died")
+          fail('\n'.join(["".join(stdout_buff),
+                          "".join(stderr_buff),
+                          'Firefox died']))
 
       def xdo(args):
         assertAlive()
         subprocess.check_call(['xdotool'] + args)
 
       def sleep(n):
-        while n > 0:
+        for _ in range(n):
           assertAlive()
+          msg('.')
           time.sleep(1)
-          n -= 1
 
-      sleep(20)
-
+      msg('Waiting for Firefox window to appear')
       extra = os.getenv('FF_EXTRA_CODE')
       if extra is not None:
+        msg('Running ' + extra + '\n')
         subprocess.check_call([extra])
 
-      msg("Opening Web console")
+      msg('\nOpening Web console')
       xdo(['key', 'ctrl+shift+K'])
       sleep(10)
 
-      msg("Extracting body HTML")
+      msg('\nExtracting body HTML')
       xdo(['type',
            'window.dump("PRE" + document.documentElement.outerHTML + "POST");'])
       sleep(3)
       xdo(['key', '--clearmodifiers', 'Return'])
       sleep(2)
 
-      # Stop reading
+      msg('\nReading output')
 
       stdout_alive[0] = False
       stderr_alive[0] = False
       stdout_thread.join()
       stderr_thread.join()
 
-      # Close Firefox
+      msg('\nClosing Firefox')
       handle.terminate()
       handle.wait()
 
-      # Extract HTML
+      msg('\nExtracting HTML\n')
 
       out = "".join(stdout_buff)
       err = "".join(stderr_buff)
@@ -154,11 +153,10 @@ with rec {
         got = err
 
       if got is None:
-        msg(out)
-        msg(err)
-        fail('No PRE/POST sentinels found')
+        fail('\n'.join([out, err, 'No PRE/POST sentinels found']))
 
       print(got.split('PRE')[1].split('POST')[0])
+      msg('\nDone\n')
     '';
   };
 
