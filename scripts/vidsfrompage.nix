@@ -9,52 +9,59 @@ with rec {
     vars   = { inherit ff; };
     script = ''
       #!/usr/bin/env bash
+      set -e
 
-      function findurl {
-        # Try to narrow-down output lines to just URLs
-        grep -o 'http[^ "<>]*' | grep -o '[^"]*' | grep -v 'ads.ad-center.com'
-      }
+      # Try a basic curl request, to get the raw source
+      CONTENT1=$(curl -s "$1") || CONTENT1=""
 
-      function getvid {
-        # Look for video URLs
-        INCOMING=$(cat)
-        echo "$INCOMING" | xidel -q - -e '//video/@src'
-        echo "$INCOMING" | getfmt mp4 | findurl
-        echo "$INCOMING" | getfmt flv | findurl
-        echo "$INCOMING" | getfmt avi | findurl
-      }
-
-      function geteval {
-        # Send any obfuscated javascript through js-beautify, then look for vids
-        EVALS=$(grep "eval" | sed -e 's/<[^>]*>//g')
-        while read -r LINE
-        do
-          echo "$LINE" | js-beautify -i | getvid
-        done < <(echo "$EVALS")
-      }
-
-      function getfmt {
-        # Look for URLs of a particular video format
-        INPUT=$(cat)
-        while read -r CANDIDATE
-        do
-          # If we find '"foo.$1"' then use that, otherwise use the whole line
-          if ! echo "$CANDIDATE" | grep -io "\"[^\"]*\.$1[^\"]*\""
-          then
-            echo "$CANDIDATE"
-          fi
-        done < <(echo "$INPUT" | grep -i "\.$1")
-      }
-
-      CONTENT1=$(curl -s "$1")
-
+      # Load with Firefox, in case Javascript modifies the page after load
       echo "Scraping '$1' with Firefox" 1>&2
-
       # shellcheck disable=SC2154
       CONTENT2=$("$ff" "$1") || CONTENT2=""
-      CONTENT=$(echo -e "$CONTENT1\n$CONTENT2")
-      echo "$CONTENT" | getvid
-      echo "$CONTENT" | geteval
+
+      # Try to de-obfuscate Javascript with js-beautify, to find more URLs
+      EVALS=$(echo -e "$CONTENT1\n$CONTENT2" |
+              grep "eval" | sed -e 's/<[^>]*>//g') || EVALS=""
+
+      CONTENT3=""
+      while read -r LINE
+      do
+        BEAUT=$(echo "$LINE" | js-beautify -i) || true
+        CONTENT3=$(echo -e "$CONTENT3\n$BEAUT")
+      done < <(echo "$EVALS")
+
+      # Take everything we've got and look for video URLs
+      CONTENT=$(echo -e "$CONTENT1\n$CONTENT2\n$CONTENT3")
+
+      VIDSRC1=$(echo "$CONTENT1" | xidel -q - -e '//video/@src') || true
+      VIDSRC2=$(echo "$CONTENT2" | xidel -q - -e '//video/@src') || true
+
+      VIDURLS=""
+      for VID in mp4 flv avi
+      do
+        VIDS=$(echo "$CONTENT" | grep -i "\.$VID") || true
+        NARROWED=""
+        while read -r CANDIDATE
+        do
+          # If we find '"foo.$VID"' then use that, otherwise use the whole line
+          NARROW=$(echo "$CANDIDATE" | grep -vo "\"[^\"]*\.$VID[^\"]*\"") ||
+            true
+          [[ -n "$NARROW" ]] || NARROW="$CANDIDATE"
+
+          NARROWED=$(echo -e "$NARROWED\n$NARROW")
+        done < <(echo "$VIDS")
+
+        VIDURLS=$(echo -e "$VIDURLS\n$NARROWED")
+      done
+
+      set +e
+      # Try to narrow-down output lines to just URLs
+      OUTURLS=$(echo -e "$VIDSRC1\n$VIDSRC2\n$VIDURLS" |
+                grep -o 'http[^ "<>]*'                 |
+                grep -o '[^"]*'                        |
+                grep -v 'ads.ad-center.com')
+
+      echo "$OUTURLS" | sort -u
     '';
   };
 };
@@ -65,55 +72,48 @@ wrap {
   vars   = { inherit ff olc scrapepage; };
   script = ''
     #!/usr/bin/env bash
-
-    function debugDump {
-      if [[ -n "$DEBUG" ]]
-      then
-        echo "Source code dump:" 1>&2
-        tee >(cat 1>&2)
-        echo "End source code"   1>&2
-      else
-        cat
-      fi
-    }
-
-    function getWithFirefox {
-      echo "Looking for videos on '$1' with Firefox" 1>&2
-
-      # shellcheck disable=SC2154
-      "$ff" "$1" | debugDump | xidel - -q -e '//iframe/@src'
-    }
-
-    function scrapeWithFirefox {
-      while read -r LINE
-      do
-        if echo "$LINE" | grep "^http" > /dev/null
-        then
-          echo "$LINE"
-        else
-          echo "$LINE" 1>&2
-        fi
-      done < <(getWithFirefox "$1" || echo "")
-    }
-
-    function skipUrl {
-      for PAT in recaptcha "luc.ee#\$"
-      do
-        if echo "$1" | grep "$PAT" > /dev/null
-        then
-          return 0
-        fi
-      done
-      return 1
-    }
+    set -e
 
     # Look for raw URLs
-    wget -q -O- "$1" | grep -o 'http[^ "]*mp4'
+    CONTENT1=$(wget -q -O- "$1") || CONTENT1=""
+    LINKS1=$(echo "$CONTENT1" | grep -o 'http[^ "]*mp4') || LINKS1=""
+    echo "$LINKS1"
+
+    # Runs at most one iteration; allows us to break early
+    LINKS2=""
+    while true
+    do
+      echo "Looking for videos on '$1' with Firefox" 1>&2
+      # shellcheck disable=SC2154
+      CONTENT2=$("$ff" "$1") || break
+
+      if [[ -n "$DEBUG" ]]
+      then
+        echo -e "Source code dump:\n$CONTENT2\nEnd source code" 1>&2
+      fi
+      IFRAMES=$(echo "$CONTENT2" | xidel - -q -e '//iframe/@src') || break
+
+      LINKS2=$(echo "$IFRAMES" | grep '^http') || break
+
+      echo -e "Found iframes for:\n$LINKS2" 1>&2
+      break
+    done
 
     # Loop over result links, getting videos and obfuscated javascript
     while read -r LNK
     do
-      if skipUrl "$LNK"; then continue; fi
+      [[ -n "$LNK" ]] || continue
+
+      SKIP=0
+      for PAT in recaptcha "luc.ee#"
+      do
+        if echo "$LNK" | grep "$PAT" > /dev/null
+        then
+          SKIP=1
+        fi
+      done
+      if [[ "$SKIP" -eq 1 ]]; then continue; fi
+
       echo "Scraping page '$LNK'" 1>&2
 
       # Special cases
@@ -125,7 +125,7 @@ wrap {
 
       # Generic scraper
       # shellcheck disable=SC2154
-      "$scrapepage" "$LNK" || true
-    done < <(scrapeWithFirefox "$1")
+      "$scrapepage" "$LNK" || continue
+    done < <(echo "$LINKS2")
   '';
 }
