@@ -37,19 +37,19 @@ with rec {
 
       # Gather arguments
 
-      url, dir = map(os.getenv, ['URL', 'DIR'])
+      url, out = map(os.getenv, ['URL', 'DIR'])
 
       if url is None:
         fail('No URL')
-      if dir is None:
+      if out is None:
         fail('No DIR')
-      if not os.path.isdir(dir):
-        fail('Directory "' + dir + '" not found')
+      if not os.path.isdir(out):
+        fail('Directory "' + out + '" not found')
 
       # Create working environmsnt
 
-      ff_dir = dir + '/firefox-profile'
-      home   = dir + '/home'
+      ff_dir = out + '/firefox-profile'
+      home   = out + '/home'
 
       os.makedirs(ff_dir)
       os.makedirs(home)
