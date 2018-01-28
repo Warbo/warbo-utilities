@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Tue, 25 Jul 2017 12:14:58 +0100
-State: new
+State: resolved
 Subject: Fix HTML escaping when rendering README
 Message-Id: <a0f5591b1a0c9954-0-artemis@nixos>
+resolution: fixed
 
 In particular, code blocks containing `import <nixpkgs> {}` become
 `import <lt;nixpkgs>gt; {}`.

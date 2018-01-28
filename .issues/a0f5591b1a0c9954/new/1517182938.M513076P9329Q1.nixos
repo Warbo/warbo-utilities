@@ -1,0 +1,13 @@
+From: Chris Warburton
+Date: Sun, 28 Jan 2018 23:37:49 +0000
+Subject: Re: Fix HTML escaping when rendering README
+Message-Id: <a0f5591b1a0c9954-f54e8469e957dfed-artemis@nixos>
+References: <a0f5591b1a0c9954-0-artemis@nixos>
+In-Reply-To: <a0f5591b1a0c9954-0-artemis@nixos>
+
+Use Pandoc to render to HTML (assuming markdown), then use Bleach to
+strip all but a whitelist of HTML elements, attributes and protocols.
+
+This way, elements like '<script>alert("XSS")</script>' get escaped;
+attributes like 'onclick="alert(\"XSS\")"' get removed and URLs like
+'javascript:alert("XSS")' get removed.
