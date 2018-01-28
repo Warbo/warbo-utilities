@@ -7,7 +7,7 @@ wrap {
     #!/usr/bin/env bash
      PAGE=$(wget -q -O- "$2")
     DATES=$(echo "$PAGE" | xidel -q - -e '//table//tr/td[5]' |
-                           grep ' ('                         |
+                           grep -P '\x00\xa0\('              |
                            grep -o '([0-9-]*)'               |
                            grep -o '[0-9-]*')
     TITLE=$(echo "$PAGE" | xidel -q - -e '//title/text()')
