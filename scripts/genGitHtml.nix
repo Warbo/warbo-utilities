@@ -1,5 +1,5 @@
-{ fail, git, git2html, mhonarc, pandocPkgs, pkgs, runCommand, withDeps, wrap,
-  writeScript }:
+{ fail, git, git2html, mhonarc, pandocPkgs, pkgs, python, runCommand, withDeps,
+  wrap, writeScript }:
 
 with rec {
   inherit (pkgs) artemis;
@@ -7,6 +7,40 @@ with rec {
   script = wrap {
     name   = "genGitHtml";
     paths  = [ git git2html mhonarc pandocPkgs ];
+    vars   = {
+      splicer = wrap {
+        name   = "splicer";
+        paths  = [ python ];
+        script = ''
+          #!/usr/bin/env python
+          import os
+          import sys
+          pre, post = sys.stdin.read().split('READMESENTINEL')
+          print(pre)
+          print(open(os.getenv('READMEFILE'), 'r').read())
+          print(post)
+        '';
+      };
+
+      cleaner = wrap {
+        name   = "cleaner.py";
+        paths  = [ (python.withPackages (p: [ p.bleach ])) ];
+        script = ''
+          #!/usr/bin/env python
+          import bleach
+          import sys
+
+          print(bleach.clean(
+            sys.stdin.read(),
+            tags=['a', 'b', 'i', 'emph', 'strong', 'h1', 'h2', 'h3', 'h4',
+                  'img', 'p'],
+            attributes={
+              'a'   : ['href', 'rel'],
+              'img' : ['alt',  'src'],
+            }))
+        '';
+      };
+    };
     script = ''
       #!/usr/bin/env bash
       set -e
@@ -48,17 +82,28 @@ with rec {
       fi
 
       echo "Generating index page" 1>&2
+
+      # Defaults
       README_MSG="No README found"
-      README=""
+      READMEFILE="$2/readme.html"
+      echo '<span />' > "$READMEFILE"
+      export READMEFILE
+
+      echo "Looking for a README file" 1>&2
       for F in README.md README README.txt
       do
         if [[ -e "$2/git/repository/$F" ]]
         then
-          README_MSG=$(echo -e "Contents of $f follows\n\n---\n\n")
-          README=$(cat "$2/git/repository/$F" | sed -e 's/</&lt;/g' |
-                                                sed -e 's/>/&gt;/g' )
+          README_MSG=$(echo -e "Contents of $F follows\n\n---\n\n")
+          pandoc -f markdown -t html < "$2/git/repository/$F" > "$READMEFILE"
         fi
       done
+
+      echo "Sanitising README HTML (if any), to prevent XSS" 1>&2
+      SANITISED="$2/readme.sanitised"
+      "$cleaner" < "$READMEFILE" > "$SANITISED"
+      rm "$READMEFILE"
+      mv "$SANITISED" "$READMEFILE"
 
       pushd "$2/git/repository"
         DATE=$(git log -n 1 --format=%ci)
@@ -81,11 +126,19 @@ with rec {
       [View issue tracker](issues/threads.html)
 
       $README_MSG
-      $README
+
+      READMESENTINEL
+
       EOF
       }
 
-      render | pandoc --standalone -f markdown -o "$2/index.html"
+      render | pandoc --standalone -f markdown -o "$2/index.html.pre"
+
+      # shellcheck disable=SC2154
+      "$splicer" < "$2/index.html.pre" > "$2/index.html"
+
+      rm "$2/index.html.pre"
+      rm "$READMEFILE"
 
       # Kill the working tree used by git2html
       rm -rf "$2/git/repository"
@@ -118,6 +171,17 @@ with rec {
         sed -i -e "s@^Subject: .*@Subject: $SUBJECT@g" "$1"
         sed -i -e "s@Detailed description.@$BODY@g"    "$1"
       '';
+      testReadme = ''
+        # Title 1 #
+
+        Some text.
+
+        ## Title 2 ##
+
+        A [link](http://example.org).
+
+        <script type="text/javascript">alert("XSS");</script>
+      '';
     }
     ''
       mkdir home
@@ -135,10 +199,11 @@ with rec {
         git commit -m "Added foo"
 
         SUBJECT="Need a bar" BODY="More testing" git artemis add
-        echo "Testing" >> foo
-        echo "123" > bar
-        git add foo bar
-        git commit -m "Added bar"
+        echo "Testing"     >> foo
+        echo "123"         >  bar
+        echo "$testReadme" >  README.md
+        git add foo bar README.md
+        git commit -m "Added bar and README"
       popd
 
       if "$script"
@@ -162,7 +227,7 @@ with rec {
       [[ -e html/git/index.html      ]] || fail "No git/index.html"
       [[ -e html/issues/threads.html ]] || fail "No issues/threads.html"
 
-      echo pass > "$out"
+      mv html "$out"
     '';
 };
 withDeps [ test ] script
