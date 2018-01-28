@@ -1,0 +1,24 @@
+From: Chris Warburton
+Date: Sat, 27 Jan 2018 23:33:05 +0000
+Subject: Re: Mark podcasts as read
+Message-Id: <8be70eab777f70fa-a32fdc5a616a9ae0-artemis@nixos>
+References: <8be70eab777f70fa-0-artemis@nixos>
+In-Reply-To: <8be70eab777f70fa-0-artemis@nixos>
+
+Two thoughts:
+
+ - Could we dedupe the resulting files, so even if we download something
+   multiple times we never get it in our TODO folder?
+ - Should we be including podcasts in our general feed at all? What if
+   we just managed them separately, e.g. having get_news write URLs to
+   files in an "Audio/Incoming/urls" folder, then fetch_podcasts could
+   download them to "Audio/TODO" then delete the URL file.
+
+Some considerations:
+
+ - We want to have the feeds checked automatically, e.g. as part of
+   get_news.
+ - We don't want to download the mp3s automatically, since it's highly
+   non-atomic and may get interrupted without us noticing, e.g. during a
+   suspend/resume. We should keep the fetch_podcasts command to get
+   them.

@@ -55,6 +55,7 @@ with rec {
                      {
                        inherit script;
                        buildInputs = [ fail haskellPackages.ShellCheck ];
+                       LANG        = "en_US.UTF-8";
                      }
                      ''
                        set -e
