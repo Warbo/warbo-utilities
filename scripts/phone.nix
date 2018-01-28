@@ -1,16 +1,24 @@
-#!/usr/bin/env bash
-set -e
+{ bash, iptables, wrap }:
 
-[[ -n "$DEVICE" ]] || DEVICE="enp0s29f0u2"
-echo "Using DEVICE '$DEVICE'" 1>&2
+wrap {
+  name   = "phone";
+  paths  = [ bash iptables ];
+  script = ''
+    #!/usr/bin/env bash
+    set -e
 
-# "Easy" method; unreliable
-#sudo ip address add 192.168.0.200/24 dev "$DEVICE"
-#sudo ip link set dev "$DEVICE" up
+    [[ -n "$DEVICE" ]] || DEVICE="enp0s29f0u2"
+    echo "Using DEVICE '$DEVICE'" 1>&2
 
-# "Harder" method; seems to work, also forwards the Internet connection
-sudo iptables -A POSTROUTING -t nat -j MASQUERADE -s 192.168.0.0/24
-sudo sysctl -w net.ipv4.ip_forward=1
-sudo ip addr add 192.168.0.200/24 dev "$DEVICE"
+    # "Easy" method; unreliable
+    #sudo ip address add 192.168.0.200/24 dev "$DEVICE"
+    #sudo ip link set dev "$DEVICE" up
 
-echo "Phone should now be available at 192.168.0.202" 1>&2
+    # "Harder" method; seems to work, also forwards the Internet connection
+    sudo iptables -A POSTROUTING -t nat -j MASQUERADE -s 192.168.0.0/24
+    sudo sysctl -w net.ipv4.ip_forward=1
+    sudo ip addr add 192.168.0.200/24 dev "$DEVICE"
+
+    echo "Phone should now be available at 192.168.0.202" 1>&2
+  '';
+}
