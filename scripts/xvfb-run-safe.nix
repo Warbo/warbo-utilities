@@ -68,8 +68,13 @@ with rec {
       set -e
 
       # allow settings to be updated via environment
+      # shellcheck disable=SC2154
       : "${braced "xvfb_lockdir:=/tmp/xvfb-locks"}"
+
+      # shellcheck disable=SC2154
       : "${braced "xvfb_display_min:=99"}"
+
+      # shellcheck disable=SC2154
       : "${braced "xvfb_display_max:=599"}"
 
       PERMISSIONS=$(stat -L -c "%a" "$xvfb_lockdir")
@@ -135,7 +140,7 @@ with rec {
         fi
 
         # If we couldn't get the lock (e.g. due to a timeout), try the next
-        (( i++ ))
+        (( ++i ))
       done
     '';
   };
