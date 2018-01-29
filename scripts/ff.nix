@@ -4,7 +4,9 @@
 with rec {
   runFF = wrap {
     name = "runFF";
-    paths  = [ bash (dbus.tools or dbus) fail firefox python xdotool ];
+    paths  = [ bash (dbus.tools or dbus) fail firefox
+               (python.withPackages (p: [ p.xlib ]))
+               xdotool ];
     vars   = {
       ffSettings = writeScript "user.js" ''
         // Don't show bookmark icons
@@ -28,6 +30,7 @@ with rec {
       import sys
       import threading
       import time
+      import Xlib.display
 
       # Helper functions
 
@@ -55,6 +58,11 @@ with rec {
       os.makedirs(home)
 
       shutil.copy(os.getenv('ffSettings'), ff_dir + '/user.js')
+
+      def currentWindows():
+        return Xlib.display.Display().screen().root.query_tree().children
+
+      priorWindowCount = len(currentWindows())
 
       msg('\nLaunching Firefox\n')
 
@@ -131,8 +139,16 @@ with rec {
           time.sleep(1)
 
       msg('Waiting for Firefox window to appear')
-      sleep(23)
-      # Assume it's ready
+      for _ in range(120):  # Give a long timeout just in case
+        if len(currentWindows()) > priorWindowCount:
+          break  # Use Xlib to break out early if we see a window
+        sleep(1)
+
+      if len(currentWindows()) > priorWindowCount:
+        # Give FF some time to sort itself out
+        sleep(15)
+      else:
+        fail("No Firefox window found")
 
       # If FF_EXTRA_CODE is given, it's a script which can do arbitrary stuff
       # before we grab the HTML.
