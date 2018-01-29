@@ -101,6 +101,7 @@ with rec {
 
       echo "Sanitising README HTML (if any), to prevent XSS" 1>&2
       SANITISED="$2/readme.sanitised"
+      # shellcheck disable=SC2154
       "$cleaner" < "$READMEFILE" > "$SANITISED"
       rm "$READMEFILE"
       mv "$SANITISED" "$READMEFILE"
