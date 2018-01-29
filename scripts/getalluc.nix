@@ -16,15 +16,10 @@ with rec {
 
       [[ -z "$DEBUG" ]] || set -x
 
-      function search {
-        # Poor man's URL escaping
-        ARGS="$*"
-        echo "${"$" + "{ARGS// /+}"}"
-      }
-
-      # Search for commandline arguments and get videos
-      Q=$(search "$@")
-      URL="$SITE/stream/$Q"
+      # Search for commandline arguments. Poor man's URL escaping ' ' -> '+'.
+      ARGS="$*"
+         Q="${"$" + "{ARGS// /+}"}"
+       URL="$SITE/stream/$Q"
 
       # shellcheck disable=SC2154
       SEARCH_PAGE=$("$ff" "$URL") || fail "Failed to load search page"
