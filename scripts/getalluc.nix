@@ -86,6 +86,17 @@ with rec {
         inherit ff getalluc SITE;
         buildInputs = [ curl fail ];
         DEBUG       = builtins.getEnv "DEBUG";
+        MESSAGE     = ''
+          Testing that getalluc works:
+           - This test will be skipped if we can't reach the site with curl
+             (e.g. if us or them are offline)
+           - For more verbose output, set the DEBUG env var to 1 (it will be
+             inherited by the builder)
+           - To start an x11vnc server in the xvfb screens, set the XVFB_VNC env
+             var to 1 (it will be inherited by the builder)
+           - To automatically connect to such x11vnc servers, try having the
+             pollvnc script running
+        '';
         STOPONFIRST = "1";  # Short-circuit if we find anything
         XVFB_VNC    = builtins.getEnv "XVFB_VNC";
       }
@@ -93,6 +104,7 @@ with rec {
         set -e
         set -o pipefail
 
+        echo "$MESSAGE" 1>&2
 
         if curl "$SITE" > /dev/null
         then
