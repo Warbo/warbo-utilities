@@ -1,5 +1,5 @@
-{ bash, curl, fail, ff, lib, runCommand, vidsfrompage, wget, wrap, writeScript,
-  withDeps, xidel }:
+{ bash, coreutils, curl, fail, ff, lib, runCommand, vidsfrompage, wget, wrap,
+  writeScript, withDeps, xidel }:
 
 with builtins;
 with lib;
@@ -8,7 +8,7 @@ with rec {
 
   getalluc = wrap {
     name   = "getalluc";
-    paths  = [ bash fail wget xidel ];
+    paths  = [ bash coreutils fail wget xidel ];
     vars   = { inherit ff SITE vidsfrompage; };
     script = ''
       #!/usr/bin/env bash
@@ -22,7 +22,8 @@ with rec {
        URL="$SITE/stream/$Q"
 
       # shellcheck disable=SC2154
-      SEARCH_PAGE=$("$ff" "$URL") || fail "Failed to load search page"
+      SEARCH_PAGE=$(timeout 300 "$ff" "$URL") ||
+        fail "Failed to load search page"
 
       LINKS=$(echo "$SEARCH_PAGE" |
               xidel - -q --extract '//div[@class="title"]/a/@href') ||
@@ -45,7 +46,7 @@ with rec {
         echo "Getting vids from page '$LINK'" 1>&2
 
         # shellcheck disable=SC2154
-        URLS=$("$vidsfrompage" "$LINK") || continue
+        URLS=$(timeout 300 "$vidsfrompage" "$LINK") || continue
 
         # Avoid '.html' as it's often '.avi.html' and other such nonsense.
         # Avoid 'thevideo.me' since their URLs contain Rick Rolls!
@@ -63,8 +64,9 @@ with rec {
           FIXED="${"$" + "{THIS_URL%\\'}"}"  # Drop any ' from end
 
           echo "Checking file type" 1>&2
-          RESPONSE=$(wget --server-response --spider "$FIXED" 2>&1) || continue
-          TYPE=$(echo "$RESPONSE" | grep 'Content-Type')            || continue
+          RESPONSE=$(timeout 60 wget --server-response \
+                                     --spider "$FIXED" 2>&1) || continue
+          TYPE=$(echo "$RESPONSE" | grep 'Content-Type')     || continue
           echo "$TYPE" 1>&2
 
           if echo "$TYPE" | grep -i 'html' > /dev/null
