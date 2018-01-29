@@ -30,8 +30,7 @@ with rec {
 
       # Disable errexit temporarily, since we don't care if grep "fails"
       set +e
-      STRIPPED=$(echo "$LINKS" | grep -v "^/source/" |
-                                 grep -v "luc\.ee#")
+      STRIPPED=$(echo "$LINKS" | grep -v "^/source/" | grep -v "^#")
       set -e
 
       # shellcheck disable=SC2001
