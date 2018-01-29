@@ -123,28 +123,8 @@ with rec {
           time.sleep(1)
 
       msg('Waiting for Firefox window to appear')
-
-      # Run xdotool and seeing if/when it exits. If it doesn't stop after 20
-      # seconds, we ignore it to prevent hanging forever (this is why we use a
-      # separate thread).
-      windowThread = threading.Thread(
-        target=lambda: xdo(['search', '--sync', '--onlyvisible',
-                            '--class', 'firefox']))
-      windowThread.start()
-
-      for _ in range(20):
-        if windowThread.isAlive():
-          # xdotool hasn't spotted a Firefox window yet, keep waiting
-          msg('.')
-          sleep(1)
-        else:
-          # xdotool finished; we can stop waiting
-          msg('\n')
-          break
-      time.sleep(3)
-
-      # At this point xdotool either spotted the window or we timed out. Either
-      # way, we'll try to carry on and see what happens.
+      sleep(23)
+      # Assume it's ready
 
       # If FF_EXTRA_CODE is given, it's a script which can do arbitrary stuff
       # before we grab the HTML.
