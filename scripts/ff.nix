@@ -95,11 +95,17 @@ with rec {
         thread    = threading.Thread(
           target=readInThread,
           args=(handle, buffer, stayAlive))
-        thread.start()
-        return (buffer, stayAlive, thread)
 
-      stdout_buff, stdout_alive, stdout_thread = readFrom(handle.stdout)
-      stderr_buff, stderr_alive, stderr_thread = readFrom(handle.stderr)
+        def stopReading():
+          stayAlive[0] = False
+          thread.join()
+          return "".join(buffer)
+
+        thread.start()
+        return stopReading
+
+      getStdout = readFrom(handle.stdout)
+      getStderr = readFrom(handle.stderr)
 
       # Control Firefox
 
@@ -108,9 +114,11 @@ with rec {
 
       def assertAlive():
         if not stillAlive():
-          fail('\n'.join(["".join(stdout_buff),
-                          "".join(stderr_buff),
-                          'Firefox died']))
+          fail(repr({
+            'stdout': getStdout(),
+            'stderr': getStderr(),
+            'error' : 'Firefox died'
+          }))
 
       def xdo(args):
         assertAlive()
@@ -142,15 +150,11 @@ with rec {
            'window.dump("PRE" + document.documentElement.outerHTML + "POST");'])
       sleep(3)
       xdo(['key', '--clearmodifiers', 'Return'])
-      sleep(2)
+      sleep(5)
 
       msg('\nReading output')
-      sleep(3)
-
-      stdout_alive[0] = False
-      stderr_alive[0] = False
-      stdout_thread.join()
-      stderr_thread.join()
+      out = getStdout()
+      err = getStderr()
 
       msg('\nClosing Firefox')
       handle.terminate()
@@ -158,8 +162,6 @@ with rec {
 
       msg('\nExtracting HTML\n')
 
-      out = "".join(stdout_buff)
-      err = "".join(stderr_buff)
       got = None
 
       if 'PRE' in out and 'POST' in out:
