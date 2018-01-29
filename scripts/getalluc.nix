@@ -83,24 +83,34 @@ with rec {
   tests = attrValues {
     bigBuckBunny = runCommand "test-big-buck-bunny"
       {
-        inherit getalluc SITE;
+        inherit ff getalluc SITE;
+        buildInputs = [ curl fail ];
+        DEBUG       = builtins.getEnv "DEBUG";
         STOPONFIRST = "1";  # Short-circuit if we find anything
-        buildInputs = [ curl ];
+        XVFB_VNC    = builtins.getEnv "XVFB_VNC";
       }
       ''
         set -e
+        set -o pipefail
+
 
         if curl "$SITE" > /dev/null
         then
           echo "We seem to be online..." 1>&2
         else
-          echo "Not online, skipping test" 1>&2
+          echo "WARNING: Curl failed; assume we're offline, skipped test." 1>&2
           mkdir "$out"
           exit 0
         fi
 
-        FOUND=$("$getalluc" big buck bunny | tee >(cat >&2)) || true
-        if echo "$FOUND" | grep "wget"
+        if "$ff" "http://example.com" | grep 'body' > /dev/null
+        then
+          echo "Firefox can get page source..." 1>&2
+        else
+          fail "Firefox couldn't get example.com page source." 1>&2
+        fi
+
+        if "$getalluc" big buck bunny | grep "wget"
         then
           echo "Found video URL" 1>&2
           mkdir "$out"
