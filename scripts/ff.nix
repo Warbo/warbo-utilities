@@ -117,6 +117,17 @@ with rec {
 
       # Control Firefox
 
+      def fail(s):
+        # Force threads to die
+        getStdout()
+        getStderr()
+
+        # Force Firefox to die
+        handle.terminate()
+        handle.wait()
+
+        raise Exception(s + '\n')
+
       def stillAlive():
         return handle.poll() is None
 
