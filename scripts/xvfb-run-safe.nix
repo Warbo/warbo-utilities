@@ -14,6 +14,7 @@ with rec {
       old         = xvfb_run;
       broken      = ''DISPLAY=:$SERVERNUM XAUTHORITY=$AUTHFILE "$@" 2>&1'';
       fixed       = ''
+        [[ -z "$DEBUG" ]] || set -x
         VNCPID=""
         if [[ "x$XVFB_VNC" = "x1" ]]
         then
@@ -66,6 +67,7 @@ with rec {
     script = ''
       #!/usr/bin/env bash
       set -e
+      [[ -z "$DEBUG" ]] || set -x
 
       # allow settings to be updated via environment
       # shellcheck disable=SC2154
@@ -81,6 +83,10 @@ with rec {
             OCTAL="0$PERMISSIONS"
          WRITABLE=$(( OCTAL & 0002 ))
 
+      function debugMsg {
+        [[ -z "$DEBUG" ]] || echo -e "$*" 1>&2
+      }
+
       if [[ "$WRITABLE" -ne 2 ]]
       then
         echo "ERROR: xvfb_lockdir '$xvfb_lockdir' isn't world writable" 1>&2
@@ -91,36 +97,50 @@ with rec {
         fail "Couldn't make xvfb_lockdir '$xvfb_lockdir'"
 
       function cleanUp {
-        rm -f "$xvfb_lockdir/$i" ||
-          echo "Failed to delete xvfb lockfile '$xvfb_lockdir/$i'. Oh well" 1>&2
+        # Gracefully stop 'tail' command
+        [[ -z "$ERRPID" ]] || {
+          # Fire off a bg job which waits, then kills tail (if still running)
+          (sleep 1; kill "$ERRPID" 2> /dev/null || true;) &
+
+          # Wait for tail to die by making it an fg job (if still running)
+          fg 2> /dev/null || true
+        }
+        for F in "$xvfb_lockdir/$i" "/tmp/.X$i-lock" "/tmp/.X11-unix/X$i" \
+                 "$xvfb_lockdir/$i.err"
+        do
+          rm -f "$F" || debugMsg "Failed to delete '$F'. Oh well."
+        done
       }
+      trap cleanUp EXIT
 
       # Look for a free DISPLAY number, starting from min and going to max
+      ERRPID=""
       i="$xvfb_display_min"
       while (( i < xvfb_display_max ))
       do
-        # Skip this number if there's an X display using it
-        if [[ -f "/tmp/.X$i-lock" ]]
+        if [[ -e "/tmp/.X$i-lock" ]]
         then
+          debugMsg "Skipping X display on :$i"
           (( ++i ))
           continue
         fi
 
-        # Skip if we don't have write permission (racy, but suppresses messages)
-        if [[ -e "$xvfb_lockdir/$i" ]]
+        if [[ -e "/tmp/.X11-unix/X$i" ]]
         then
-          if [[ -w "$xvfb_lockdir/$i" ]]
-          then
-            true
-          else
-            (( ++i ))
-            continue
-          fi
+          debugMsg "Skipping existing socket '/tmp/.X11-unix/X$i'"
+          (( ++i ))
+          continue
         fi
 
-        # Now try creating/locking this file for ourselves
+        if [[ -e "$xvfb_lockdir/$i" ]]
+        then
+          debugMsg "Skipping existing lock file '$xvfb_lockdir/$i'"
+          (( ++i ))
+          continue
+        fi
+
         exec 5> "$xvfb_lockdir/$i" || {
-          # Skip if e.g. permission denied
+          debugMsg "Couldn't lock '$xvfb_lockdir/$i', skipping"
           (( ++i ))
           continue
         }
@@ -128,14 +148,20 @@ with rec {
         # Wait for the lock
         if flock -x -n 5
         then
-          # We got a lock, make sure we clean up after ourselves
-          trap cleanUp EXIT
+          debugMsg "Aquired lock '$xvfb_lockdir/$i', running command"
 
-          # Now run the command we were asked to
-          xvfb-run --server-num="$i" "$@"
+          # Stream stderr (process substitution doesn't seem to work)
+          touch "$xvfb_lockdir/$i.err"
+          if [[ -n "$DEBUG" ]]
+          then
+            tail -f "$xvfb_lockdir/$i.err" >&2 &
+            ERRPID="$!"
+          fi
+
+          xvfb-run --server-num="$i" -e "$xvfb_lockdir/$i.err" "$@"
           RET="$?"
 
-          # Break the loop
+          # Break the loop now that we've finished
           exit "$RET"
         fi
 

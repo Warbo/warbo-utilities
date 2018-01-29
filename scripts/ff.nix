@@ -49,6 +49,8 @@ with rec {
       if not os.path.isdir(out):
         fail('Directory "' + out + '" not found')
 
+      debug = os.getenv('DEBUG') is not None
+
       # Create working environmsnt
 
       ff_dir = out + '/firefox-profile'
@@ -141,7 +143,8 @@ with rec {
 
       def xdo(args):
         assertAlive()
-        subprocess.check_call(['xdotool'] + args)
+        subprocess.check_output(['xdotool'] + args,
+                                stderr=None if debug else subprocess.STDOUT)
 
       def sleep(n):
         for _ in range(n):
@@ -237,6 +240,9 @@ wrap {
   };
   script = ''
     #!/usr/bin/env bash
+    set -e
+    [[ -z "$DEBUG" ]] || set -x
+
     # shellcheck disable=SC2154
     URL="$1" "$xvfb" "$ff"
   '';
