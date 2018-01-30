@@ -69,10 +69,16 @@ with rec {
           TYPE=$(echo "$RESPONSE" | grep 'Content-Type')     || continue
           echo "$TYPE" 1>&2
 
-          if echo "$TYPE" | grep -i 'html' > /dev/null
-          then
-            continue
-          fi
+          SKIP=0
+          for UNWANTED in html javascript
+          do
+            if echo "$TYPE" | grep -i "$UNWANTED" > /dev/null
+            then
+              SKIP=1
+            fi
+          done
+
+          [[ "$SKIP" -eq 0 ]] || continue
 
           echo "inDir ~/Public/TODO wget -O '$*' '$FIXED'"
 
