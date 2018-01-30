@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Tue, 30 Jan 2018 22:32:13 +0000
+Subject: Re: "Deeper" stable/unstable distinction
+Message-Id: <d290176849e1c537-bacaa85610fb7373-artemis@nixos>
+References: <d290176849e1c537-0-artemis@nixos>
+In-Reply-To: <d290176849e1c537-0-artemis@nixos>
+
+This is solved at the nix-config level now.

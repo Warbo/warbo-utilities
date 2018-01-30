@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Thu, 28 Sep 2017 16:22:52 +0100
-State: new
+State: resolved
 Subject: "Deeper" stable/unstable distinction
 Message-Id: <d290176849e1c537-0-artemis@nixos>
+resolution: fixed
 
 We want 'stable' in release.nix to be a fixed, never-changing build. If
 a version of something must be chosen, that choice is explicitly written

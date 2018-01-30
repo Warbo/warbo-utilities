@@ -26,7 +26,7 @@ for D in 50Things BornSmart,Equal,Different ComputingBritain CrowdScience \
          HiddenHistoriesOfTheInformationAge InfiniteMonkeyCage \
          InOurTimeScience InsideScience LifeScientific MoreOrLess \
          NaturalHistories PuttingScienceToWork ReithLectures RutherfordAndFry \
-         ScienceInAction ScienceStories
+         ScienceHour ScienceInAction ScienceStories
 do
     DIR="$HOME/Mail/feeds/$D/new"
     [[ -d "$DIR" ]] || {

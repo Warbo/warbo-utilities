@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Tue, 23 Jan 2018 17:26:06 +0000
-State: new
+State: resolved
 Subject: Make vidsfrompage, etc. quieter
 Message-Id: <f4e1e8fb82f6044d-0-artemis@nixos>
+resolution: fixed
 
 They produce a lot of noise, which it would be nice to lower. We can set
 the DEBUG var if we want to see everything, after all.

@@ -1,0 +1,13 @@
+From: Chris Warburton
+Date: Tue, 30 Jan 2018 22:33:12 +0000
+State: new
+Subject: Make bbcpodcast news type
+Message-Id: <f40c2fa64a8969cc-0-artemis@nixos>
+
+At the moment, we have a hard-coded list of podcast names in
+fetch_podcasts for BBC podcasts.
+
+To make this more flexible, we should add a 'bbcpodcast' type to
+~/.feeds and get_news, which fetches the feeds in the same way as the
+'rss' type. The fetch_podcasts script can then look through these
+entries to see which ones to fetch mp3s from.

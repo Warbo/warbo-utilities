@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Tue, 30 Jan 2018 22:30:31 +0000
+Subject: Re: Make vidsfrompage, etc. quieter
+Message-Id: <f4e1e8fb82f6044d-8290fe53a02f02f0-artemis@nixos>
+References: <f4e1e8fb82f6044d-0-artemis@nixos>
+In-Reply-To: <f4e1e8fb82f6044d-0-artemis@nixos>
+
+Lots of refactoring, and now it's quieter (without DEBUG)
