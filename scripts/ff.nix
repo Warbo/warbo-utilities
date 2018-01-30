@@ -125,7 +125,10 @@ with rec {
         getStderr()
 
         # Force Firefox to die
-        handle.terminate()
+        try:
+          handle.terminate()
+        except OSError:
+          pass
         handle.wait()
 
         raise Exception(s + '\n')
