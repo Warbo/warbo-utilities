@@ -246,7 +246,14 @@ wrap {
     set -e
     [[ -z "$DEBUG" ]] || set -x
 
+    export URL="$1"
+
     # shellcheck disable=SC2154
-    URL="$1" "$xvfb" "$ff"
+    if [[ -n "$EXISTING_DISPLAY" ]]
+    then
+      "$ff"
+    else
+      "$xvfb" "$ff"
+    fi
   '';
 }
