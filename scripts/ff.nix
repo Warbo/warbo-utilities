@@ -163,7 +163,7 @@ with rec {
 
       if len(currentWindows()) > priorWindowCount:
         # Give FF some time to sort itself out
-        sleep(15)
+        sleep(25)
       else:
         fail("No Firefox window found")
 
