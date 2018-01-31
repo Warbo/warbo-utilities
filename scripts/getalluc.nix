@@ -99,9 +99,11 @@ with rec {
       set -e
       if [[ -n "$EXISTING_DISPLAY" ]]
       then
+        # shellcheck disable=SC2154
         exec "$inner" "$@"
       else
         export EXISTING_DISPLAY=1
+        # shellcheck disable=SC2154
         exec "$xvfb" "$inner" "$@"
       fi
     '';
