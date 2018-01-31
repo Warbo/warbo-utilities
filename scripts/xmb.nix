@@ -5,8 +5,30 @@ with rec {
     name   = "random_mail";
     script = ''
       #!/usr/bin/env bash
-      F=$(find ~/Mail/gmail/INBOX/new -type f | shuf | head -n1)
-      grep '^Subject:' < "$F" | sed -e 's/^Subject: //g'
+
+      # Look up one email from each inbox
+      G=$(find ~/Mail/gmail/INBOX/new  -type f | shuf | head -n1)
+      D=$(find ~/Mail/dundee/INBOX/new -type f | shuf | head -n1)
+
+      # Pick one or the other
+      M=""
+      [[ -n "$G" ]] || M="$D"
+      [[ -n "$D" ]] || M="$G"
+      [[ -n "$M" ]] || {
+        if [[ "$(( RANDOM % 3 ))" -eq 0 ]]
+        then
+          M="$D"
+        else
+          M="$G"
+        fi
+      }
+
+      if [[ -n "$M" ]]
+      then
+        grep '^Subject:' < "$M" | sed -e 's/^Subject: //g'
+      else
+        echo "No mail?"
+      fi
     '';
   };
   next = mkBin {
