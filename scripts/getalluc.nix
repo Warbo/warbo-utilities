@@ -1,12 +1,12 @@
 { bash, coreutils, curl, fail, ff, lib, runCommand, vidsfrompage, wget, wrap,
-  writeScript, withDeps, xidel }:
+  writeScript, withDeps, xidel, xvfb-run-safe }:
 
 with builtins;
 with lib;
 with rec {
   SITE = "http://www.alluc.ee";
 
-  getalluc = wrap {
+  inner = wrap {
     name   = "getalluc";
     paths  = [ bash coreutils fail wget xidel ];
     vars   = { inherit ff SITE vidsfrompage; };
@@ -88,10 +88,35 @@ with rec {
     '';
   };
 
+  getalluc = wrap {
+    name   = "with-display";
+    vars   = {
+      inherit inner;
+      xvfb = xvfb-run-safe;
+    };
+    script = ''
+      #!/usr/bin/env bash
+      set -e
+      if [[ -n "$EXISTING_DISPLAY" ]]
+      then
+        exec "$inner" "$@"
+      else
+        export EXISTING_DISPLAY=1
+        exec "$xvfb" "$inner" "$@"
+      fi
+    '';
+  };
+
   tests = attrValues {
     bigBuckBunny = runCommand "test-big-buck-bunny"
-      {
-        inherit ff getalluc SITE;
+      (if getEnv "DEBUG_UI" == ""
+          then {}
+          else {
+            DISPLAY          = getEnv "DISPLAY";
+            EXISTING_DISPLAY = "1";
+            XAUTHORITY       = getEnv "XAUTHORITY";
+          } // {
+        inherit SITE;
         buildInputs = [ curl fail ];
         DEBUG       = builtins.getEnv "DEBUG";
         MESSAGE     = ''
@@ -104,10 +129,39 @@ with rec {
              var to 1 (it will be inherited by the builder)
            - To automatically connect to such x11vnc servers, try having the
              pollvnc script running
-        '';
-        STOPONFIRST = "1";  # Short-circuit if we find anything
-        XVFB_VNC    = builtins.getEnv "XVFB_VNC";
-      }
+         '';
+        xvfb     = xvfb-run-safe;
+        XVFB_VNC = builtins.getEnv "XVFB_VNC";
+
+        inDisplay = wrap {
+          name   = "in-display";
+          vars   = {
+            inherit ff getalluc;
+            EXISTING_DISPLAY = "1";
+            STOPONFIRST = "1";  # Short-circuit if we find anything
+          };
+          script = ''
+            #!/usr/bin/env bash
+            set -e
+
+            if "$ff" "http://example.com" | grep 'body' > /dev/null
+            then
+              echo "Firefox can get page source..." 1>&2
+            else
+              fail "Firefox couldn't get example.com page source." 1>&2
+            fi
+
+            if "$getalluc" big buck bunny | grep "wget"
+            then
+              echo "Found video URL" 1>&2
+              mkdir "$out"
+              exit 0
+            fi
+
+            fail "No URL found"
+          '';
+        };
+      })
       ''
         set -e
         set -o pipefail
@@ -123,22 +177,13 @@ with rec {
           exit 0
         fi
 
-        if "$ff" "http://example.com" | grep 'body' > /dev/null
+        if [[ -n "$EXISTING_DISPLAY" ]]
         then
-          echo "Firefox can get page source..." 1>&2
+          "$inDisplay"
         else
-          fail "Firefox couldn't get example.com page source." 1>&2
+          export EXISTING_DISPLAY=1
+          "$xvfb" "$inDisplay"
         fi
-
-        if "$getalluc" big buck bunny | grep "wget"
-        then
-          echo "Found video URL" 1>&2
-          mkdir "$out"
-          exit 0
-        fi
-
-        echo "No URL found" 1>&2
-        exit 1
       '';
   };
 };
