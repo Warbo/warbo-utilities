@@ -36,12 +36,24 @@
  do
      name=$(basename "$repo")
      (cd "$repo/hooks" || exit 1
+      DEST="../../post-receive.hook"
       for hook in post-receive post-update
       do
-          if [ ! -h "$hook" ]
+          if [ -e "$hook" ]
           then
+              if [ -h "$hook" ]
+              then
+                  H=$(readlink -f "$hook")
+                  F=$(readlink -f "$DEST")
+                  [[ "x$H" = "x$F" ]] || {
+                      echo "File '$H' should be symlink to '$DEST'"
+                  }
+              else
+                  echo "File '$PWD/$hook' should be symlink but isn't"
+              fi
+          else
               # Use post-receive.hook for both
-              ln -s ../../post-receive.hook "$hook"
+              ln -s "$DEST" "$hook"
           fi
       done)
  done
