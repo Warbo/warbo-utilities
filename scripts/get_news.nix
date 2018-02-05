@@ -1,5 +1,5 @@
 { bash, coreutils, curl, fail, feed2maildirsimple, libxslt, mkBin, mu, openssl,
-  python, wget, wrap, xidel, xmlstarlet }:
+  python, sysPing, wget, wrap, writeScript, xidel, xmlstarlet }:
 
 with rec {
   cleanUp = wrap {
@@ -162,14 +162,15 @@ with rec {
 wrap {
   name   = "get-news-start";
   paths  = [ bash courier fail mu python feed2maildirsimple ];
-  vars   = { inherit cleanUp rss; };
+  vars   = { inherit cleanUp rss sysPing; };
   script = ''
     #!/usr/bin/env bash
     set -e
 
     # Grabs RSS feeds and dumps them in ~/.cache, so all of our news is in one
     # format and one place, ready to merge into our mail
-    if /var/setuid-wrappers/ping -c 1 google.com
+    # shellcheck disable=SC2154
+    if "$sysPing" -c 1 google.com
     then
       # Update all of our RSS files
       mkdir -p ~/.cache/rss
