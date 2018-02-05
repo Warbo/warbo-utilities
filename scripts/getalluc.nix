@@ -70,7 +70,7 @@ with rec {
           echo "$TYPE" 1>&2
 
           SKIP=0
-          for UNWANTED in html javascript jpeg png gif icon
+          for UNWANTED in html javascript jpeg png gif icon mpegurl
           do
             if echo "$TYPE" | grep -i "$UNWANTED" > /dev/null
             then
