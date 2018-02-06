@@ -111,13 +111,13 @@ with rec {
 
   tests = attrValues {
     bigBuckBunny = runCommand "test-big-buck-bunny"
-      (if getEnv "DEBUG_UI" == ""
+      ((if getEnv "DEBUG_UI" == ""
           then {}
           else {
             DISPLAY          = getEnv "DISPLAY";
             EXISTING_DISPLAY = "1";
             XAUTHORITY       = getEnv "XAUTHORITY";
-          } // {
+          }) // {
         inherit SITE;
         buildInputs = [ curl fail ];
         DEBUG       = builtins.getEnv "DEBUG";
