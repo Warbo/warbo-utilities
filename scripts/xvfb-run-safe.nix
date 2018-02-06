@@ -79,6 +79,11 @@ with rec {
       # shellcheck disable=SC2154
       : "${braced "xvfb_display_max:=599"}"
 
+      mkdir -p -- "$xvfb_lockdir" ||
+        fail "Couldn't make xvfb_lockdir '$xvfb_lockdir'"
+
+      chmod a+w "$xvfb_lockdir" 2> /dev/null || true
+
       PERMISSIONS=$(stat -L -c "%a" "$xvfb_lockdir")
             OCTAL="0$PERMISSIONS"
          WRITABLE=$(( OCTAL & 0002 ))
@@ -92,9 +97,6 @@ with rec {
         echo "ERROR: xvfb_lockdir '$xvfb_lockdir' isn't world writable" 1>&2
         fail "This may cause users to clobber each others' DISPLAY"     1>&2
       fi
-
-      mkdir -p -- "$xvfb_lockdir" ||
-        fail "Couldn't make xvfb_lockdir '$xvfb_lockdir'"
 
       function cleanUp {
         # Gracefully stop 'tail' command
