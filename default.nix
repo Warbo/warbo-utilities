@@ -105,4 +105,4 @@ with rec {
 
 if packageOnly
    then pkg
-   else { inherit cmds scripts pkg nixPkgs; }
+   else { inherit scripts pkg nixPkgs; }
