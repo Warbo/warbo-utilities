@@ -1,4 +1,4 @@
-rec {
+with rec {
   stable   = import ./. { packageOnly = false; };
   unstable = import ./. {
     packageOnly = false;
@@ -16,4 +16,8 @@ rec {
         import "${config-src}/config.nix";
     };
   };
+};
+{
+    stable = builtins.removeAttrs   stable [ "nixPkgs" ];
+  unstable = builtins.removeAttrs unstable [ "nixPkgs" ];
 }
