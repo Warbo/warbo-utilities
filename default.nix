@@ -2,17 +2,29 @@ with builtins;
 with rec {
   # We need a few helpers and packages from nix-config, so default to a
   # known-good version
-  stableConfig =
-    with rec {
-      rev = "9f66c431de0d324b3f2507bea4dca5f3c2574a0e";
-      url = "https://github.com/Warbo/nix-config/archive/${rev}.tar.gz";
-    };
-    fetchTarball url;
+  stableConfig = rec {
+    rev = "9f66c431de0d324b3f2507bea4dca5f3c2574a0e";
+    url = "https://github.com/Warbo/nix-config/archive/${rev}.tar.gz";
+  };
+
+  config =
+    with tryEval <nix-config>;
+    if success
+       then (import <nixpkgs> {
+              config = import "${value}/stable.nix";
+            }).latestGit {
+              url = http://chriswarbo.net/git/nix-config.git;
+              stable = {
+                rev    = stableConfig.rev;
+                sha256 = "1x8340ns235gy76zrhf63v7hcfhw1qv630zbd7aabbcsb294hf20";
+              };
+            }
+       else fetchTarball stableConfig.url;
 
   # An awkward mix of unstable <nixpkgs> and stable nix-config. We only use this
   # to fetch other, purely stable/unstable package sets
   bootstrapPkgs = import <nixpkgs> {
-    config = import "${stableConfig}/stable.nix";
+    config = import "${config}/stable.nix";
   };
 
   # Uses stable config with stable nixpkgs
