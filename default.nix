@@ -2,11 +2,12 @@ with builtins;
 with rec {
   # We need a few helpers and packages from nix-config, so default to a
   # known-good version
-  stableConfig = (import <nixpkgs> { config = {}; }).fetchgit {
-    url    = http://chriswarbo.net/git/nix-config.git;
-    rev    = "9f66c43";
-    sha256 = "1x8340ns235gy76zrhf63v7hcfhw1qv630zbd7aabbcsb294hf20";
-  };
+  stableConfig =
+    with rec {
+      rev = "9f66c431de0d324b3f2507bea4dca5f3c2574a0e";
+      url = "https://github.com/Warbo/nix-config/archive/${rev}.tar.gz";
+    };
+    fetchTarball url;
 
   # An awkward mix of unstable <nixpkgs> and stable nix-config. We only use this
   # to fetch other, purely stable/unstable package sets
