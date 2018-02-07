@@ -1,82 +1,70 @@
-{ coreutils, phantomjs, wrap, writeScript }:
+{ bash, curl, fail, ff, runCommand, wget, withDeps, wrap, writeScript, xdotool,
+  xidel }:
 
-wrap {
-  name   = "olc";
-  paths  = [ coreutils phantomjs ];
-  vars   = {
-    EXTRACTOR = writeScript "extractor.js" ''
-      // From https://gist.github.com/Tithen-Firion/8b3921d745131837519d5c5b95b86440
-
-      var separator = '\t';
-      var page = require('webpage').create(),
-        system = require('system'),
-        id, match;
-
-      if(system.args.length < 2) {
-        console.error('No URL provided');
-        phantom.exit(1);
-      }
-      match = system.args[1].match(
-        /https?:\/\/(?:o...l...\.(?:co|io)|ol...\.tv)\/(?:f|embed)\/([\w\-]+)/);
-      if(match === null) {
-        console.error('Could not find video ID in provided URL');
-        phantom.exit(2);
-      }
-      id = match[1];
-
-      // thanks @Mello-Yello :)
-      page.onInitialized = function() {
-        page.evaluate(function() {
-          delete window._phantom;
-          delete window.callPhantom;
-        });
+with rec {
+  scraper = wrap {
+    name = "olc-scraper";
+    file = ff;
+    vars = {
+      FF_EXTRA_CODE = wrap {
+        name   = "olc-clicky";
+        paths  = [ bash xdotool ];
+        script = ''
+          #!/usr/bin/env bash
+          set -e
+          sleep 10
+          xdotool key ctrl+shift+K
+          sleep 5
+          xdotool type 'document.getElementById("videooverlay").click();'
+          sleep 2
+          xdotool key --clearmodifiers Return
+          xdotool key ctrl+shift+I
+          sleep 2
+        '';
       };
-      page.settings.userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36";
-      page.open(system.args[1], function(status) {
-        var info = page.evaluate(function() {
-          return {
-            decoded_id: document.getElementById('streamurl').innerHTML,
-            title: document.querySelector('meta[name="og:title"],'
-              + 'meta[name=description]').content
-          };
-        });
-        var url = '/stream/' + info.decoded_id + '?mime=true';
-        console.log(url + separator + info.title);
-        phantom.exit();
-      });
+    };
+  };
+
+  go = wrap {
+    name   = "olc";
+    paths  = [ bash xidel ];
+    vars   = { inherit scraper; };
+    script = ''
+      #!/usr/bin/env bash
+
+      OUTPUT=$("$scraper" "$@")
+      echo "$OUTPUT" | xidel -q - -e '//video/@src' |
+                       sed -e 's@^@https://openload.co@g'
     '';
   };
-  script = ''
-    #!/usr/bin/env bash
-    OUTPUT=$(timeout 30 phantomjs --ssl-protocol=any "$EXTRACTOR" "$@")
 
-    FRAGMENT=""
-    NAME="INSERT NAME HERE"
-    while read -r RESULT
-    do
-      BIT=$(echo "$RESULT" | cut -f1)
-      if echo "$BIT" | grep '^/stream' > /dev/null
-      then
-        FRAGMENT="$BIT"
-        NAME=$(echo "$RESULT" | cut -f2 | "${../music/esc.sh}")
-      fi
-    done < <(echo "$OUTPUT")
-
-    [[ -n "$FRAGMENT" ]] || {
-      echo "No result, aborting" 1>&2
-      echo "Output:" 1>&2
-      echo "$OUTPUT" 1>&2
-      exit 1
+  bunny-test = runCommand "olc-bunny"
+    {
+      inherit go;
+      buildInputs   = [ curl fail wget ];
+      SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt;
+      URL           = "https://openload.co/embed/Iu-HYKyMz5Y/";
     }
+    ''
+      set -e
+      curl "$URL" > /dev/null || {
+        echo "WARNING: Couldn't fetch '$URL', maybe offline? Skipping test" 1>&2
+        mkdir "$out"
+        exit
+      }
 
-    if [[ -e ~/.olc ]]
-    then
-      PREFIX=$(cat ~/.olc)
-    else
-      echo "Warning: No ~/.olc prefix file found" 1>&2
-      PREFIX=""
-    fi
+      FOUND=$("$go" "$URL")
+      COUNT=$(echo "$FOUND" | wc -l)
+      [[ "$COUNT" -eq 1 ]] || fail "Expected 1 line, got '$COUNT' from '$FOUND'"
 
-    echo "inDir ~/Public/TODO wget -O '$NAME' '$PREFIX$FRAGMENT'"
-  '';
-}
+      HEADERS=$(wget --server-response --spider "$FOUND" 2>&1) ||
+        fail "Couldn't fetch '$FOUND'"
+
+      TYPE=$(echo "$HEADERS" | grep 'Content-Type')
+      echo "$TYPE" | grep 'video' || fail "Expected video, found '$TYPE'"
+
+      mkdir "$out"
+    '';
+};
+
+withDeps [ bunny-test ] go
