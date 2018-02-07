@@ -1,0 +1,12 @@
+From: Chris Warburton
+Date: Wed, 07 Feb 2018 02:45:50 +0000
+State: new
+Subject: Avoid lots of long-lived dbus-daemon processes
+Message-Id: <faf699002d4572fb-0-artemis@nixos>
+
+Just spotted that my laptop is running about 250 'dbus-daemon'
+processes, which I presume are due to 'ff' using 'dbus-launch'.
+
+Perhaps there is an alternative, e.g. see the discussion on:
+
+https://github.com/popcornmix/omxplayer/issues/59
