@@ -236,7 +236,7 @@ with rec {
 
 wrap {
   name   = "ff";
-  paths  = [ bash ];
+  paths  = [ bash coreutils ];
   vars   = {
     inherit ff;
     xvfb = xvfb-run-safe;
@@ -251,9 +251,9 @@ wrap {
     # shellcheck disable=SC2154
     if [[ -n "$EXISTING_DISPLAY" ]]
     then
-      "$ff"
+      timeout 300 "$ff"
     else
-      "$xvfb" "$ff"
+      timeout 300 "$xvfb" "$ff"
     fi
   '';
 }
