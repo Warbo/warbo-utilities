@@ -32,6 +32,7 @@ with rec {
     script = ''
       #!/usr/bin/env bash
 
+      # shellcheck disable=SC2154
       OUTPUT=$("$scraper" "$@")
       echo "$OUTPUT" | xidel -q - -e '//video/@src' |
                        sed -e 's@^@https://openload.co@g'
