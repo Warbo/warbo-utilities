@@ -20,15 +20,16 @@ with rec {
       CONTENT2=$("$ff" "$1") || CONTENT2=""
 
       # Try to de-obfuscate Javascript with js-beautify, to find more URLs
-      EVALS=$(echo -e "$CONTENT1\n$CONTENT2" |
-              grep "eval" | sed -e 's/<[^>]*>//g') || EVALS=""
-
       CONTENT3=""
-      while read -r LINE
-      do
-        BEAUT=$(echo "$LINE" | js-beautify -i) || true
-        CONTENT3=$(echo -e "$CONTENT3\n$BEAUT")
-      done < <(echo "$EVALS")
+      EVALTEMP=$(echo -e "$CONTENT1"                           |
+                 xidel -q - -e '//script[contains(., "eval")]' |
+                 js-beautify -i)
+      CONTENT3=$(echo -e "$CONTENT3\n$EVALTEMP")
+
+      EVALTEMP=$(echo -e "$CONTENT2"                           |
+                 xidel -q - -e '//script[contains(., "eval")]' |
+                 js-beautify -i)
+      CONTENT3=$(echo -e "$CONTENT3\n$EVALTEMP")
 
       # Take everything we've got and look for video URLs
       CONTENT=$(echo -e "$CONTENT1\n$CONTENT2\n$CONTENT3")
@@ -60,6 +61,7 @@ with rec {
                 grep -o 'http[^ "<>]*'                 |
                 grep -o '[^"]*'                        |
                 grep -v 'ads.ad-center.com')
+      set -e
 
       echo "$OUTURLS" | sort -u
     '';
