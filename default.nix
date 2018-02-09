@@ -15,7 +15,7 @@ with rec {
             {
               url    = http://chriswarbo.net/git/nix-config.git;
               rev    = "9f66c43";
-              sha256 = "1x8340ns235gy76zrhf63v7hcfhw1qv630zbd7aabbcsb294hf20";
+              sha256 = "1cjca1l61dmpk2h5i7p8bj11dhcppbnj8hpjhzpjj16j2l121ih6";
             };
 
   # An awkward mix of unstable <nixpkgs> and stable nix-config. We only use this
