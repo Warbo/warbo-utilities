@@ -74,4 +74,4 @@ with rec {
     '';
 };
 
-withDeps [ bunny-test ] go
+/*withDeps [ bunny-test ]*/ go
