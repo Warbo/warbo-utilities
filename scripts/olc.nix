@@ -12,14 +12,14 @@ with rec {
         script = ''
           #!/usr/bin/env bash
           set -e
-          sleep 10
+          sleep 30
           xdotool key ctrl+shift+K
           sleep 5
           xdotool type 'document.getElementById("videooverlay").click();'
-          sleep 2
+          sleep 5
           xdotool key --clearmodifiers Return
           xdotool key ctrl+shift+I
-          sleep 2
+          sleep 5
         '';
       };
     };
@@ -34,8 +34,13 @@ with rec {
 
       # shellcheck disable=SC2154
       OUTPUT=$("$scraper" "$@")
-      echo "$OUTPUT" | xidel -q - -e '//video/@src' |
-                       sed -e 's@^@https://openload.co@g'
+      URLS=$(echo "$OUTPUT" | xidel -q - -e '//video/@src')
+      if [[ -n "$URLS" ]]
+      then
+        echo "$URLS" | sed -e 's@^@https://openload.co@g'
+      else
+        echo "No olc URLs found" 1>&2
+      fi
     '';
   };
 
@@ -55,9 +60,10 @@ with rec {
       }
 
       FOUND=$("$go" "$URL")
-      COUNT=$(echo "$FOUND" | wc -l)
+      COUNT=$(echo "$FOUND" | grep '^.' | wc -l)
       [[ "$COUNT" -eq 1 ]] || fail "Expected 1 line, got '$COUNT' from '$FOUND'"
 
+      echo "Checking headers from '$FOUND'" 1>&2
       HEADERS=$(wget --server-response --spider "$FOUND" 2>&1) ||
         fail "Couldn't fetch '$FOUND'"
 
