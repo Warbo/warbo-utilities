@@ -34,10 +34,10 @@ with rec {
 
       # shellcheck disable=SC2154
       OUTPUT=$("$scraper" "$@")
-      URLS=$(echo "$OUTPUT" | xidel -q - -e '//video/@src')
-      if [[ -n "$URLS" ]]
+      URL=$(echo "$OUTPUT" | xidel -q - -e '//video/@src')
+      if [[ -n "$URL" ]]
       then
-        echo "$URLS" | sed -e 's@^@https://openload.co@g'
+        echo "https://openload.co$URL"
       else
         echo "No olc URLs found" 1>&2
       fi
