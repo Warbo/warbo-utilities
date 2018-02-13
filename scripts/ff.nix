@@ -251,9 +251,9 @@ wrap {
     # shellcheck disable=SC2154
     if [[ -n "$EXISTING_DISPLAY" ]]
     then
-      timeout 300 "$ff"
+      timeout 500 "$ff"
     else
-      timeout 300 "$xvfb" "$ff"
+      timeout 500 "$xvfb" "$ff"
     fi
   '';
 }
