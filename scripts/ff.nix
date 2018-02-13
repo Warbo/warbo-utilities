@@ -81,30 +81,30 @@ with rec {
 
       # Read output, using threads to ensure pipes get flushed
 
-      def readInThread(handle, buffer, stayAlive):
+      def readInThread(h, buffer, stayAlive):
         # Keep reading until the main thread toggles stayAlive[0]
         while True:
           # We shouldn't read unless there's at least one byte available. We
           # check for this using select, with a 1 second timeout.
-          r, _, _ = select.select([handle], [], [], 1)
+          r, _, _ = select.select([h], [], [], 1)
 
-          # If data is available to be read from handle, read a chunk
-          if handle in r:
-            buffer.append(os.read(handle.fileno(), 1024))
+          # If data is available to be read from h, read a chunk
+          if h in r:
+            buffer.append(os.read(h.fileno(), 1024))
           elif not stayAlive[0]:
             # Nothing left, and we've been told to die
             break
 
           # Wait to avoid thrashing the CPU
           time.sleep(0.1)
-        handle.close()
+        h.close()
 
-      def readFrom(handle):
+      def readFrom(h):
         buffer    = []
         stayAlive = [True]
         thread    = threading.Thread(
           target=readInThread,
-          args=(handle, buffer, stayAlive))
+          args=(h, buffer, stayAlive))
 
         def stopReading():
           stayAlive[0] = False

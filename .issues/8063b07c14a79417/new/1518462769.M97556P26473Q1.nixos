@@ -1,0 +1,10 @@
+From: Chris Warburton
+Date: Mon, 12 Feb 2018 19:00:05 +0000
+State: new
+Subject: Check for BBC redirects to crap
+Message-Id: <8063b07c14a79417-0-artemis@nixos>
+
+We ignore crap in BBC news feeds, but they still seem to be sending out
+crap with alternative URLs which then get redirected.
+
+We should do a wget or something to look for redirects.
