@@ -30,20 +30,20 @@ wrap {
 
     # Use xmodmap to map space bar to the 'left hyper' key
     spare_modifier="Hyper_L"
-    xmodmap" -e "keycode 65 = $spare_modifier"
+    xmodmap -e "keycode 65 = $spare_modifier"
 
     # Remove the normal 'left hyper' mapping
     # hyper_l is mod4 by default
-    xmodmap" -e "remove mod4 = $spare_modifier"
+    xmodmap -e "remove mod4 = $spare_modifier"
 
     # Map 'left hyper' to Control
-    xmodmap" -e "add Control = $spare_modifier"
+    xmodmap -e "add Control = $spare_modifier"
 
     # Map space to an unused keycode
-    xmodmap" -e "keycode any = space"
+    xmodmap -e "keycode any = space"
 
     # Make Alt Gr space
-    xmodmap" -e "keycode 108 = space"
+    xmodmap -e "keycode 108 = space"
 
     # Use xcape to make tapping 'left hyper' produce a space
     xcape -e "$spare_modifier=space"
