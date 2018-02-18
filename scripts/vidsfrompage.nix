@@ -1,4 +1,4 @@
-{ bash, curl, ff, jsbeautifier, lib, olc, procps, wget, wrap, xidel }:
+{ bash, curl, ff, jsbeautifier, lib, olc, procps, vzi, wget, wrap, xidel }:
 
 with builtins;
 with lib;
@@ -71,7 +71,7 @@ with rec {
 wrap {
   name   = "vidsfrompage";
   paths  = [ bash procps wget xidel ];
-  vars   = { inherit ff olc scrapepage; };
+  vars   = { inherit ff olc scrapepage vzi; };
   script = ''
     #!/usr/bin/env bash
     set -e
@@ -123,6 +123,11 @@ wrap {
       then
         # shellcheck disable=SC2154
         "$olc" "$LNK" | grep -o "https://[^']*"
+      fi
+      if echo "$LNK" | grep 'zi.tv' > /dev/null
+      then
+        # shellcheck disable=SC2154
+        "vzi" "$LNK"
       fi
 
       # Generic scraper
