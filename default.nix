@@ -71,27 +71,25 @@ with rec {
                        set -e
 
                        # Unwrap until we get to the real implementation
-                       while grep "extraFlagsArray" < "$script"
+                       while grep "extraFlagsArray" < "$script" > /dev/null
                        do
-                         echo "Found wrapper '$script', unwrapping" 1>&2
                          script=$(grep '^exec' < "$script" | cut -d ' ' -f2 |
                                                              tr -d '"')
                        done
                        echo "Checking '$script'" 1>&2
 
                        SHEBANG=$(head -n1 < "$script")
-                       echo "$SHEBANG" | grep '^#!' || {
+                       echo "$SHEBANG" | grep '^#!' > /dev/null || {
                          # Binaries, etc.
                          mkdir "$out"
                          exit 0
                        }
 
-                       echo "$SHEBANG" | grep 'usr/bin/env' ||
-                       echo "$SHEBANG" | grep '/nix/store'  || {
+                       echo "$SHEBANG" | grep 'usr/bin/env' > /dev/null ||
+                       echo "$SHEBANG" | grep '/nix/store'  > /dev/null ||
                          fail "Didn't use /usr/bin/env or /nix/store:\n$SHEBANG"
-                       }
 
-                       if echo "$SHEBANG" | grep 'bash'
+                       if echo "$SHEBANG" | grep 'bash' > /dev/null
                        then
                          shellcheck "$script"
                        fi
