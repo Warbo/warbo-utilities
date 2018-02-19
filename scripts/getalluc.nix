@@ -37,7 +37,8 @@ with rec {
       # shellcheck disable=SC2001
       PREFIXED=$(echo "$STRIPPED" | sed -e "s@^@$SITE@g")
 
-      FINAL=$(echo "$PREFIXED" | sort -u)
+      DEDUPED=$(echo "$PREFIXED" | sort -u)
+      FINAL=$(echo "$DEDUPED" | grep 'zi.tv'; echo "$DEDUPED" | grep -v 'zi.tv')
 
       echo -e "Search results:\n$FINAL" 1>&2
 
