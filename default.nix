@@ -42,8 +42,8 @@ with rec {
 with builtins;
 with nixPkgs.lib;
 with rec {
-  inherit (nixPkgs) attrsToDirs fail haskellPackages newScope runCommand
-                    withDeps;
+  inherit (nixPkgs) attrsToDirs fail haskellPackages makeWrapper newScope
+                    runCommand withDeps;
 
   # Let scripts depend on each other by adding 'bin' to the argument set
   scripts = mapAttrs' (f: _: rec {
@@ -98,7 +98,23 @@ with rec {
                    bin;
 
   pkg = withDeps (attrValues check)
-                 (attrsToDirs { inherit bin; });
+                 (runCommand "warbo-utilities"
+                   {
+                     bin         = attrsToDirs bin;
+                     buildInputs = [ makeWrapper ];
+                   }
+                   ''
+                     echo "Tying the knot between scripts" 1>&2
+                     mkdir -p "$out/bin"
+                     for P in "$bin"/*
+                     do
+                       F=$(readlink -f "$P")
+                       N=$(basename    "$P")
+                       cp "$F"  "$out/bin/$N"
+                       chmod +x "$out/bin/$N"
+                       wrapProgram "$out/bin/$N" --prefix PATH : "$out/bin"
+                     done
+                   '');
 };
 
 if packageOnly
