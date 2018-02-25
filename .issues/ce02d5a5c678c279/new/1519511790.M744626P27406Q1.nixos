@@ -1,0 +1,7 @@
+From: Chris Warburton
+Date: Sat, 24 Feb 2018 22:35:55 +0000
+State: new
+Subject: Music scripts should check for Samba/FAT-incompatible filenames
+Message-Id: <ce02d5a5c678c279-0-artemis@nixos>
+
+So basically anything containing ':'. Replace with '_'.

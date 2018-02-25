@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Fri, 23 Feb 2018 17:33:45 +0000
+State: new
+Subject: Speed up converting feeds to maildir
+Message-Id: <c9555dc3a106a91e-0-artemis@nixos>
+
+Maybe do the loop in Python, to avoid startup time? Maybe something
+else?

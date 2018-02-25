@@ -1,0 +1,7 @@
+From: Chris Warburton
+Date: Fri, 23 Feb 2018 17:34:23 +0000
+State: new
+Subject: Add tests to get_eps
+Message-Id: <e640c96a800595a1-0-artemis@nixos>
+
+We know the date of certain things, so see if they get picked up.

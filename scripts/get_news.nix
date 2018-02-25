@@ -3,9 +3,24 @@
 
 with rec {
   cleanUp = wrap {
-    name = "clean-up-news";
+    name   = "clean-up-news";
+    paths  = [ bash mu ];
     script = ''
       #!/usr/bin/env bash
+
+      function stopMu {
+        while ps auxww | grep 'mu server' | grep -v grep | grep 'server'
+        do
+          pkill -2 -u "$UID" -f 'mu server'
+          sleep 2
+        done
+      }
+
+      function removeMessage {
+        stopMu
+        rm "$1"
+        mu remove "$1"
+      }
 
       # Some feeds are high-volume and only interesting for a short time. We
       # clean up their articles 1 month after posting
@@ -18,7 +33,7 @@ with rec {
           SECS=$(date -d "$D" "+%s")
           if [[ "$SECS" -lt "$CUTOFF" ]]
           then
-            rm "$F"
+            removeMessage "$F"
           fi
         done < <(find "$HOME/Mail/feeds/$FEED/cur" -type f)
       done
@@ -29,8 +44,28 @@ with rec {
       # modification time (rather than posted date) is older than a month
       for FEED in iPlayerComedy iPlayerFilms iPlayerSciNat
       do
-        find "$HOME/Mail/feeds/$FEED/cur" -type f -mtime +30 -delete
+        while read -r F
+        do
+          removeMessage "$F"
+        done < <(find "$HOME/Mail/feeds/$FEED/cur" -type f -mtime +30)
       done
+
+      # Limit Reddit feeds to 100 messages. They only include about the latest
+      # 25 posts, so we shouldn't get any dupes creeping in.
+      for FEED in RedditHaskell RedditStallmanWasRight Intercept \
+                  ScienceBulletin BBCHeadlines TEDTalks HackerNews
+      do
+        while read -r F
+        do
+          removeMessage "$F"
+        done < <(mu find --fields="l" --sortfield='d' --reverse \
+                         maildir:/feeds/"$FEED" not flag:unread |
+                 tail -n+100                                    |
+                 head -n20                                      )
+      done
+
+      stopMu
+      mu index --maildir="$HOME/Mail"
     '';
   };
 
@@ -198,5 +233,10 @@ wrap {
     echo "Cleaning up old news" 1>&2
     # shellcheck disable=SC2154
     "$cleanUp"
+
+    # Re-index (after stopping any existing instance, e.g. the server for mu4e)
+    pkill -2 -u "$UID" mu
+    sleep 2
+    mu index --maildir="$HOME/Mail"
   '';
 }
