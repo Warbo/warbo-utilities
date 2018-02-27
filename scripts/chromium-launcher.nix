@@ -56,7 +56,6 @@ with rec {
       inherit env PROOT_NO_SECCOMP;
       launcher = writeScript "chrome-launcher.sh" ''
         #!/usr/bin/env bash
-        env 1>&2
         chromium --disable-namespace-sandbox --no-sandbox "$@"
       '';
     };
