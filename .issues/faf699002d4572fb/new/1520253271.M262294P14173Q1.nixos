@@ -1,0 +1,9 @@
+From: Chris Warburton
+Date: Mon, 05 Mar 2018 12:34:16 +0000
+Subject: Re: Avoid lots of long-lived dbus-daemon processes
+Message-Id: <faf699002d4572fb-c6c99b53e2f6d76a-artemis@nixos>
+References: <faf699002d4572fb-0-artemis@nixos>
+In-Reply-To: <faf699002d4572fb-0-artemis@nixos>
+
+Doesn't seem to be an issue now that we're using headless instead of
+xvfb

@@ -1,7 +1,8 @@
 From: Chris Warburton
 Date: Tue, 13 Feb 2018 05:44:42 +0000
-State: new
+State: resolved
 Subject: Make video tests reliable and re-enable
 Message-Id: <8daf17567e26a80d-0-artemis@nixos>
+resolution: fixed
 
 They're so flaky I've disabled them for now

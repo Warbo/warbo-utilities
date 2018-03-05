@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Tue, 27 Feb 2018 10:47:16 +0000
-State: new
+State: resolved
 Subject: Replace ff with chromium headless
 Message-Id: <dd3268894f549f5f-0-artemis@nixos>
+resolution: fixed
 
 Or firefox headless, if we can get a binary to work.
 

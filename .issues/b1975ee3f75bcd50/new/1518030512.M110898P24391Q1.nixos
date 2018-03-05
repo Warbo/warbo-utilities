@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Wed, 07 Feb 2018 19:06:56 +0000
-State: new
+State: resolved
 Subject: Try to avoid loading whole other nixpkgs versions
 Message-Id: <b1975ee3f75bcd50-0-artemis@nixos>
+resolution: fixed
 
 Rather than doing something like 'nixpkgs1609.foo', try doing
 'self.callPackage "${repo1609}/pkgs/foo.nix" {}'.
