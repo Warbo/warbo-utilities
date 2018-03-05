@@ -1,0 +1,14 @@
+From: Chris Warburton
+Date: Fri, 02 Mar 2018 19:41:37 +0000
+State: new
+Subject: Give jo/jovolterm fallback file
+Message-Id: <a5c2ab265e530c27-0-artemis@nixos>
+
+Commands like jo, jovol, etc. try to contact debian.local, but this
+isn't always up to date with the actual IP address. We already allow
+per-invocation fallbacks, with the JO_HOST env var.
+
+We should add another fallback, which looks for a file like ~/.johost
+and tries using its contents as an IP address. This way, we can write to
+that file once and the commands will "just work", at least until a
+different IP gets picked.

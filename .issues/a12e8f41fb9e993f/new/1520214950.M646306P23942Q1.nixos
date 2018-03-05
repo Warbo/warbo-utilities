@@ -1,0 +1,17 @@
+From: Chris Warburton
+Date: Mon, 05 Mar 2018 01:52:53 +0000
+State: new
+Subject: Support code-folding of debug output
+Message-Id: <a12e8f41fb9e993f-0-artemis@nixos>
+
+It's a good idea to dump out ephemeral information as we go, in case
+it's useful for diagnosing an error which occurs later. For example, we
+might print out the content of a file, then try parsing it, etc.
+
+Yet this data is useless when things work properly, which (if we're
+doing it right) should be most of the time.
+
+Since we use Emacs to run commands, perhaps we could delimit such
+messages in a way that Emacs will automatically code-fold them. That way
+they're there if we need them, but we can skip over them when we don't
+care.
