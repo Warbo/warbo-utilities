@@ -1,4 +1,4 @@
-{ bash, coreutils, curl, fail, feed2maildirsimple, libxslt, mkBin, mu, openssl,
+{ bash, coreutils, fail, feed2maildirsimple, libxslt, mkBin, mu, openssl,
   python, sysPing, wget, wrap, writeScript, xidel, xmlstarlet }:
 
 with rec {

@@ -34,7 +34,7 @@ with rec {
     ''
       set -e
 
-      if curl "http://www.bbc.co.uk" > /dev/null
+      if curl -s "http://www.bbc.co.uk" > /dev/null
       then
         echo "Looks like we're online..." 1>&2
       else

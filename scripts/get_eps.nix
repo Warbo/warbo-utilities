@@ -15,7 +15,7 @@ with rec {
       echo "$2" | grep 'epguides.com' > /dev/null ||
         fail 'get_eps URL should be from epguides.com'
 
-      curl -f 'http://epguides.com' > /dev/null ||
+      curl -s -f 'http://epguides.com' > /dev/null ||
         fail "Can't contact epguides.com, aborting"
 
       FEED=$(mktemp '/tmp/get-eps-XXXXX.xml')
@@ -95,7 +95,7 @@ with rec {
         URL         = "http://epguides.com/common/exportToCSVmaze.asp?maze=1825";
       }
       ''
-        curl http://epguides.com > /dev/null || {
+        curl -s http://epguides.com > /dev/null || {
           echo "WARNING: Couldn't access epguides (offline?). Skipping test" 1>&2
           mkdir "$out"
           exit
@@ -117,7 +117,7 @@ with rec {
         URL         = "http://epguides.com/common/exportToCSVmaze.asp?maze=73";
       }
       ''
-        curl http://epguides.com > /dev/null || {
+        curl -s http://epguides.com > /dev/null || {
           echo "WARNING: Couldn't access epguides (offline?). Skipping test" 1>&2
           mkdir "$out"
           exit
