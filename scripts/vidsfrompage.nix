@@ -1,12 +1,53 @@
-{ bash, curl, ff, jsbeautifier, lib, olc, procps, vzi, wget, wrap, xidel }:
+{ bash, curl, fail, iframeUrls, jsbeautifier, lib, procps, runCommand,
+  sleepDumpPage, wget, withDeps, wrap, xidel }:
 
 with builtins;
 with lib;
 with rec {
+  olcextra = with rec {
+    go = wrap {
+      name   = "olcextra";
+      paths  = [ bash ];
+      script = ''
+        #!/usr/bin/env bash
+        echo '(function(elem) { if (elem == null) { return; } else { elem.click(); } })(document.getElementById("videooverlay"))'
+        sleep 10
+      '';
+    };
+
+    olctest = runCommand "olc-test"
+      {
+        inherit go sleepDumpPage;
+        buildInputs   = [ curl fail xidel ];
+        url           = "https://open" + "loa" + "d.co/f/miEoI5oT8JE/";
+        SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt;
+      }
+      ''
+        curl "$url" > /dev/null || {
+          echo "WARNING: Couldn't download page (offline?), skipping test" 1>&2
+          mkdir "$out"
+          exit 0
+        }
+
+        OUTPUT=$(EXTRA="$go" "$sleepDumpPage" "$url") || {
+          echo "OUTPUT: $OUTPUT" 1>&2
+          fail "Couldn't get page"
+        }
+
+        URLS=$(echo "$OUTPUT" | xidel -q -e '//video/@src' -)
+        echo "URLS: $URLS" 1>&2
+
+        echo "$URLS" | grep '^.' > /dev/null || fail "No URLs found"
+
+        mkdir "$out"
+      '';
+  };
+  withDeps [ olctest ] go;
+
   scrapepage = wrap {
     name   = "scrapepage";
     paths  = [ bash curl jsbeautifier xidel ];
-    vars   = { inherit ff; };
+    vars   = { inherit olcextra sleepDumpPage; };
     script = ''
       #!/usr/bin/env bash
       set -e
@@ -14,10 +55,14 @@ with rec {
       # Try a basic curl request, to get the raw source
       CONTENT1=$(curl -s "$1") || CONTENT1=""
 
-      # Load with Firefox, in case Javascript modifies the page after load
-      echo "Scraping '$1' with Firefox" 1>&2
+      if echo "$1" | grep 'ad.co' > /dev/null
+      then
+        EXTRA="$olcextra"
+        export EXTRA
+      fi
+
       # shellcheck disable=SC2154
-      CONTENT2=$("$ff" "$1") || CONTENT2=""
+      CONTENT2=$("$sleepDumpPage" "$1") || CONTENT2=""
 
       # Try to de-obfuscate Javascript with js-beautify, to find more URLs
       CONTENT3=""
@@ -36,6 +81,16 @@ with rec {
 
       VIDSRC1=$(echo "$CONTENT1" | xidel -q - -e '//video/@src') || true
       VIDSRC2=$(echo "$CONTENT2" | xidel -q - -e '//video/@src') || true
+
+      BASE=$(echo "$1" | sed -e 's#[^/]*//\([^@]*@\)\?\([^:/]*\).*#\2#')
+
+      VS1ABS=$(echo "$VIDSRC1" | grep    '^http'                       ) || true
+      VS1REL=$(echo "$VIDSRC1" | grep -v '^http' | sed -e "s#^#$BASE#g") || true
+      VS2ABS=$(echo "$VIDSRC2" | grep    '^http'                       ) || true
+      VS2REL=$(echo "$VIDSRC2" | grep -v '^http' | sed -e "s#^#$BASE#g") || true
+
+      VIDSRC1=$(echo -e "$VSABS1\n$VSREL1" | grep '^.') || true
+      VIDSRC2=$(echo -e "$VSABS2\n$VSREL2" | grep '^.') || true
 
       VIDURLS=""
       for VID in mp4 flv avi
@@ -71,7 +126,9 @@ with rec {
 wrap {
   name   = "vidsfrompage";
   paths  = [ bash procps wget xidel ];
-  vars   = { inherit ff olc scrapepage vzi; };
+  vars   = {
+    inherit iframeUrls scrapepage;
+  };
   script = ''
     #!/usr/bin/env bash
     set -e
@@ -85,15 +142,7 @@ wrap {
     LINKS2=""
     while true
     do
-      echo "Looking for videos on '$1' with Firefox" 1>&2
-      # shellcheck disable=SC2154
-      CONTENT2=$("$ff" "$1") || break
-
-      if [[ -n "$DEBUG" ]]
-      then
-        echo -e "Source code dump:\n$CONTENT2\nEnd source code" 1>&2
-      fi
-      IFRAMES=$(echo "$CONTENT2" | xidel - -q -e '//iframe/@src') || break
+      IFRAMES=$("$iframeUrls" "$1") || break
 
       LINKS2=$(echo "$IFRAMES" | grep '^http') || break
 
@@ -107,7 +156,7 @@ wrap {
       [[ -n "$LNK" ]] || continue
 
       SKIP=0
-      for PAT in recaptcha "luc.ee#"
+      for PAT in recaptcha "luc.ee#" addthis
       do
         if echo "$LNK" | grep "$PAT" > /dev/null
         then
@@ -116,19 +165,10 @@ wrap {
       done
       if [[ "$SKIP" -eq 1 ]]; then continue; fi
 
-      echo "Scraping page '$LNK'" 1>&2
+      # Worth a try...
+      echo "youtube-dl \"$LNK\""
 
-      # Special cases
-      if echo "$LNK" | grep 'ad\.co' > /dev/null
-      then
-        # shellcheck disable=SC2154
-        "$olc" "$LNK" | grep -o "https://[^']*"
-      fi
-      if echo "$LNK" | grep 'zi.tv' > /dev/null
-      then
-        # shellcheck disable=SC2154
-        "vzi" "$LNK"
-      fi
+      echo "Scraping page '$LNK'" 1>&2
 
       # Generic scraper
       # shellcheck disable=SC2154

@@ -1,15 +1,15 @@
-{ bash, coreutils, curl, fail, ff, lib, runCommand, vidsfrompage, wget, wrap,
-  writeScript, withDeps, xidel, xvfb-run-safe }:
+{ bash, coreutils, curl, fail, lib, runCommand, sleepDumpPage, vidsfrompage,
+  wget, wrap, writeScript, withDeps, xidel, xvfb-run-safe }:
 
 with builtins;
 with lib;
 with rec {
   SITE = "http://www.alluc.ee";
 
-  inner = wrap {
+  getalluc = wrap {
     name   = "getalluc";
     paths  = [ bash coreutils fail wget xidel ];
-    vars   = { inherit ff SITE vidsfrompage; };
+    vars   = { inherit SITE sleepDumpPage vidsfrompage; };
     script = ''
       #!/usr/bin/env bash
       set -e
@@ -22,7 +22,7 @@ with rec {
        URL="$SITE/stream/$Q"
 
       # shellcheck disable=SC2154
-      SEARCH_PAGE=$(timeout 300 "$ff" "$URL") ||
+      SEARCH_PAGE=$(timeout 300 "$sleepDumpPage" "$URL") ||
         fail "Failed to load search page"
 
       LINKS=$(echo "$SEARCH_PAGE" |
@@ -48,6 +48,9 @@ with rec {
 
         # shellcheck disable=SC2154
         URLS=$(timeout 300 "$vidsfrompage" "$LINK") || continue
+
+        echo "$URLS" | grep 'youtube-dl' | grep -v '.thevideo.me'
+        URLS=$(echo "$URLS" | grep -v 'youtube-dl')
 
         # Avoid '.html' as it's often '.avi.html' and other such nonsense.
         # Avoid 'thevideo.me' since their URLs contain Rick Rolls!
@@ -89,82 +92,17 @@ with rec {
     '';
   };
 
-  getalluc = wrap {
-    name   = "with-display";
-    vars   = {
-      inherit inner;
-      xvfb = xvfb-run-safe;
-    };
-    script = ''
-      #!/usr/bin/env bash
-      set -e
-      if [[ -n "$EXISTING_DISPLAY" ]]
-      then
-        # shellcheck disable=SC2154
-        exec "$inner" "$@"
-      else
-        export EXISTING_DISPLAY=1
-        # shellcheck disable=SC2154
-        exec "$xvfb" "$inner" "$@"
-      fi
-    '';
-  };
-
   tests = attrValues {
     bigBuckBunny = runCommand "test-big-buck-bunny"
-      ((if getEnv "DEBUG_UI" == ""
-          then {}
-          else {
-            DISPLAY          = getEnv "DISPLAY";
-            EXISTING_DISPLAY = "1";
-            XAUTHORITY       = getEnv "XAUTHORITY";
-          }) // {
-        inherit SITE;
+      {
+        inherit getalluc SITE sleepDumpPage;
         buildInputs = [ curl fail ];
-        DEBUG       = builtins.getEnv "DEBUG";
         MESSAGE     = ''
-          Testing that getalluc works:
-           - This test will be skipped if we can't reach the site with curl
-             (e.g. if us or them are offline)
-           - For more verbose output, set the DEBUG env var to 1 (it will be
-             inherited by the builder)
-           - To start an x11vnc server in the xvfb screens, set the XVFB_VNC env
-             var to 1 (it will be inherited by the builder)
-           - To automatically connect to such x11vnc servers, try having the
-             pollvnc script running
+          Testing that getalluc works. This test will be skipped if we can't
+          reach the site with curl (e.g. if us or them are offline)
          '';
-        xvfb     = xvfb-run-safe;
-        XVFB_VNC = builtins.getEnv "XVFB_VNC";
-
-        inDisplay = wrap {
-          name   = "in-display";
-          vars   = {
-            inherit ff getalluc;
-            EXISTING_DISPLAY = "1";
-            STOPONFIRST = "1";  # Short-circuit if we find anything
-          };
-          script = ''
-            #!/usr/bin/env bash
-            set -e
-
-            if "$ff" "http://example.com" | grep 'body' > /dev/null
-            then
-              echo "Firefox can get page source..." 1>&2
-            else
-              fail "Firefox couldn't get example.com page source." 1>&2
-            fi
-
-            if "$getalluc" big buck bunny | grep "wget"
-            then
-              echo "Found video URL" 1>&2
-              mkdir "$out"
-              exit 0
-            fi
-
-            fail "No URL found"
-          '';
-        };
-      })
+        STOPONFIRST = "1";  # Short-circuit if we find anything
+      }
       ''
         set -e
         set -o pipefail
@@ -180,15 +118,23 @@ with rec {
           exit 0
         fi
 
-        if [[ -n "$EXISTING_DISPLAY" ]]
+        if "$sleepDumpPage" "http://example.com" | grep 'body' > /dev/null
         then
-          "$inDisplay"
+          echo "Chromium can get page source..." 1>&2
         else
-          export EXISTING_DISPLAY=1
-          "$xvfb" "$inDisplay"
+          fail "Chromium couldn't get example.com page source." 1>&2
         fi
+
+        if "$getalluc" big buck bunny | grep "wget"
+        then
+          echo "Found video URL" 1>&2
+          mkdir "$out"
+          exit 0
+        fi
+
+        fail "No URL found"
       '';
   };
 };
 
-/*withDeps tests*/ getalluc
+withDeps tests getalluc
