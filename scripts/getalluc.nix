@@ -49,7 +49,14 @@ with rec {
         # shellcheck disable=SC2154
         URLS=$(timeout 300 "$vidsfrompage" "$LINK") || continue
 
-        echo "$URLS" | grep 'youtube-dl' | grep -v '.thevideo.me'
+        echo "$URLS" | grep 'youtube-dl' | grep -v '.thevideo.me' |
+          while read -r YT
+          do
+            echo "$YT" | grep '^.' > /dev/null || continue
+            echo "inDir ~/Public/TODO $YT"
+            [[ -z "$STOPONFIRST" ]] || exit 0
+          done
+
         URLS=$(echo "$URLS" | grep -v 'youtube-dl')
 
         # Avoid '.html' as it's often '.avi.html' and other such nonsense.
@@ -66,24 +73,6 @@ with rec {
 
           echo "Got URL '$THIS_URL'" 1>&2
           FIXED="${"$" + "{THIS_URL%\\'}"}"  # Drop any ' from end
-
-          echo "Checking file type" 1>&2
-          RESPONSE=$(timeout 60 wget --server-response \
-                                     --spider "$FIXED" 2>&1) || continue
-          TYPE=$(echo "$RESPONSE" | grep 'Content-Type')     || continue
-          echo "$TYPE" 1>&2
-
-          SKIP=0
-          for UNWANTED in html javascript jpeg png gif icon mpegurl
-          do
-            if echo "$TYPE" | grep -i "$UNWANTED" > /dev/null
-            then
-              SKIP=1
-            fi
-          done
-
-          [[ "$SKIP" -eq 0 ]] || continue
-
           echo "inDir ~/Public/TODO wget -O '$*' '$FIXED'"
 
           [[ -z "$STOPONFIRST" ]] || exit 0
@@ -109,7 +98,7 @@ with rec {
 
         echo "$MESSAGE" 1>&2
 
-        if curl "$SITE" > /dev/null
+        if curl -s "$SITE" > /dev/null
         then
           echo "We seem to be online..." 1>&2
         else

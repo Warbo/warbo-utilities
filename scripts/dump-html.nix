@@ -19,6 +19,8 @@ wrap {
     }
 
     export HOME="$FAKEHOME"
+
+    # shellcheck disable=SC2154
     "$chromium" --headless --disable-gpu --dump-dom "$@" 2> >(stripCruft >&2)
   '';
 }

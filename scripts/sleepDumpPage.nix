@@ -12,7 +12,7 @@ wrap {
 
     function genInput {
       printf "Waiting for Chromium to load page" 1>&2
-      for N in $(seq 1 "$TIMEOUT")
+      for _ in $(seq 1 "$TIMEOUT")
       do
         printf "." 1>&2
         echo ""
@@ -28,6 +28,7 @@ wrap {
       echo 'quit'
     }
 
+    # shellcheck disable=SC2154
     OUTPUT=$(genInput | "$cr" "$@")
      FOUND=$(echo "$OUTPUT" |
              jq -s 'map(select(.result | .type | . == "string"))')

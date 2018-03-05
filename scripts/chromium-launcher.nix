@@ -25,7 +25,7 @@ wrap {
     }
     trap cleanup EXIT
 
-    # shellcheck disable=SC2029
+    # shellcheck disable=SC2154
     "$ce" "$launcher" --user-data-dir="$CHROME_USER_DATA_DIR" "$@"
   '';
 }
