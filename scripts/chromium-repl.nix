@@ -1,7 +1,7 @@
 { bash, chromium-launcher, wrap }:
 
 wrap {
-  name   = "dump-html";
+  name   = "chromium-repl";
   paths  = [ bash ];
   vars   = { chromium = chromium-launcher; };
   script = ''
@@ -19,6 +19,7 @@ wrap {
     }
 
     export HOME="$FAKEHOME"
-    "$chromium" --headless --disable-gpu --dump-dom "$@" 2> >(stripCruft >&2)
+    "$chromium" --headless --disable-gpu --repl "$@" 2> >(stripCruft >&2) |
+      sed -e 's/^>>>//g' | sed -e 's/^ *//g'
   '';
 }
