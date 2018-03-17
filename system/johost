@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+# Return the DNS name or IP of living room laptop
+if ssh jo@debian.local true
+then
+    echo 'debian.local'
+    exit 0
+fi
+
+if [[ -n "$JO_HOST" ]] && ssh jo@"$JO_HOST" true
+then
+    echo "$JO_HOST"
+    exit 0
+fi
+
+FALLBACK="$HOME/.johost"
+if [[ -e "$FALLBACK" ]]
+then
+    IP=$(cat "$FALLBACK")
+    if ssh jo@"$IP" true
+    then
+        echo "$IP"
+        exit 0
+    fi
+fi
+
+echo "Couldn't find living room laptop" 1>&2
+exit 1

@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Sat, 17 Mar 2018 23:03:07 +0000
+Subject: Re: Give jo/jovolterm fallback file
+Message-Id: <a5c2ab265e530c27-d5ff6c8d0164ee63-artemis@nixos>
+References: <a5c2ab265e530c27-0-artemis@nixos>
+In-Reply-To: <a5c2ab265e530c27-0-artemis@nixos>
+
+Added johost command to get working domain/IP, including fallback file

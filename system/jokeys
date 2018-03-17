@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
+MACHINE=$(johost) || exit 1
+
 JODEV=/dev/input/by-path/platform-i8042-serio-0-event-kbd
 MEDEV=/dev/input/event0
 
-echo "Sending ALL keyboard events to laptop"
-echo "Press Ctrl-C to stop"
+echo "Sending ALL keyboard events to laptop" 1>&2
+echo "Press Ctrl-C to stop"                  1>&2
 
 # shellcheck disable=SC2029
-sudo cat "$MEDEV" | ssh jo@debian.local "cat > $JODEV"
+sudo cat "$MEDEV" | ssh jo@"$MACHINE" "cat > $JODEV"

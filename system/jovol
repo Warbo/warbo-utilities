@@ -1,13 +1,5 @@
 #!/usr/bin/env bash
 
-[[ -n "$JO_HOST" ]] || {
-    JO_HOST=debian.local
-}
+MACHINE=$(johost) || exit 1
 
-if ssh jo@"$JO_HOST" true
-then
-    ssh jo@"$JO_HOST" -t "./vol"
-else
-    echo "Couldn't connect to '$JO_HOST'" 1>&2
-    exit 1
-fi
+ssh jo@"$MACHINE" -t "./vol"

@@ -7,11 +7,9 @@ wrap {
   script = ''
     #!/usr/bin/env bash
 
-    [[ -n "$JO_HOST" ]] || {
-      JO_HOST=debian.local
-    }
+    MACHINE=$(johost) || exit 1
 
-    ssh -t jo@"$JO_HOST" "pkill x11vnc; DISPLAY=:0 x11vnc" &
+    ssh -t jo@"$MACHINE" "pkill x11vnc; DISPLAY=:0 x11vnc" &
 
     sleep 3
 

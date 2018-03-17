@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Fri, 02 Mar 2018 19:41:37 +0000
-State: new
+State: resolved
 Subject: Give jo/jovolterm fallback file
 Message-Id: <a5c2ab265e530c27-0-artemis@nixos>
+resolution: fixed
 
 Commands like jo, jovol, etc. try to contact debian.local, but this
 isn't always up to date with the actual IP address. We already allow
