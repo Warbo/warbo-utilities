@@ -25,8 +25,9 @@ wrap {
       setxkbmap -layout gb -option ctrl:nocaps # GB layout, CapsLock as Ctrl
     fi
 
-    # Kill any existing xcape instances
-    killall xcape || true
+    # Kill any existing xcape and xbindkeys instances
+    killall xcape     || true
+    killall xbindkeys || true
 
     # Use xmodmap to map space bar to the 'left hyper' key
     spare_modifier="Hyper_L"
@@ -47,5 +48,8 @@ wrap {
 
     # Use xcape to make tapping 'left hyper' produce a space
     xcape -e "$spare_modifier=space"
+
+    # Restart xbindkeys for volume, etc.
+    xbindkeys
   '';
 }
