@@ -54,6 +54,7 @@ with rec {
     with rec {
       scrapeSource = wrap {
         name   = "scrape-source";
+        paths  = [ bash xidel ];
         script = ''
           #!/usr/bin/env bash
 
@@ -106,6 +107,17 @@ with rec {
           if echo "$1" | grep 'dzi.tv' > /dev/null
           then
             echo "youtube-dl '$1'"
+            exit 0
+          fi
+
+          if echo "$1" | grep 'embed2.php' > /dev/null
+          then
+            CONTENT=$(curl -s "$1")
+            while read -r URL
+            do
+              echo "$URL" | grep '^.' > /dev/null || continue
+              echo "youtube-dl $URL"
+            done < <(echo "$CONTENT" | xidel -q -e '//a/@href' - | grep 'zi.tv')
             exit 0
           fi
 
