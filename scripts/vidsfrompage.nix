@@ -198,7 +198,7 @@ with rec {
         [[ -n "$LNK" ]] || continue
 
         SKIP=0
-        for PAT in recaptcha "luc.ee#" addthis
+        for PAT in recaptcha "luc.ee#" addthis thevideo.me
         do
           if echo "$LNK" | grep "$PAT" > /dev/null
           then
