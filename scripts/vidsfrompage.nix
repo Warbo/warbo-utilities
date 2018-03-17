@@ -213,9 +213,31 @@ with rec {
       done < <(echo "$LINKS2")
     '';
   };
+
+  vfpTest = runCommand "vfp-test"
+    (rec {
+      inherit SSL_CERT_FILE vfp;
+      DOMAIN      = "http://www.al" + "luc.ee";
+      URL         = DOMAIN + "/l/Sintel-2010-HD/rkpaclyq";
+      buildInputs = [ curl fail ];
+    })
+    ''
+      curl -s "$DOMAIN" > /dev/null || {
+        echo "WARNING: Skipping test (offline?)" 1>&2
+        mkdir "$out"
+        exit 0
+      }
+
+      FOUND=$("$vfp" "$URL")
+      echo "$FOUND" | grep '^youtube-dl' || {
+        echo "FOUND: $FOUND" 1>&2
+        fail "No youtube-dl command found"
+      }
+      mkdir "$out"
+    '';
 };
 
-wrap {
+withDeps [ vfpTest ] (wrap {
   name  = "vids-from-page-wrapper";
   vars  = { inherit SSL_CERT_FILE vfp; };
   paths = [ bash coreutils wget ];
@@ -259,4 +281,4 @@ wrap {
       echo "$URL"
     done
   '';
-}
+})
