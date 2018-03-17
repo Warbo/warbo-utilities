@@ -74,14 +74,14 @@ done
 for F in "$HOME/Mail/feeds/FunctionalGeekery/new"/*
 do
     PAGE=$(grep -o 'http[s]*://[^ "]*' < "$F" | head -n1) || continue
-    URL=$(wget -q -O- "$PAGE" | grep -o 'http[s]*://[^" ]*\.mp3' |
+     URL=$(wget -c -q -O- "$PAGE" | grep -o 'http[s]*://[^" ]*\.mp3' |
                                     head -n1) || continue
     if [[ -n "$URL" ]]
     then
         mkdir -p "$HOME/Audio/TODO/Functional Geekery"
         pushd "$HOME/Audio/TODO/Functional Geekery"
             sleep 2
-            wget "$URL"
+            wget -c "$URL"
         popd
         #mv -v "$F" "$HOME/Mail/feeds/FunctionalGeekery/cur/"
         markAsRead "$F"

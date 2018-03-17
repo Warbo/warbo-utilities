@@ -1,0 +1,13 @@
+From: Chris Warburton
+Date: Mon, 05 Mar 2018 13:42:25 +0000
+Subject: Re: Support code-folding of debug output
+Message-Id: <a12e8f41fb9e993f-b9487762a4f9bd6b-artemis@nixos>
+References: <a12e8f41fb9e993f-0-artemis@nixos>
+In-Reply-To: <a12e8f41fb9e993f-0-artemis@nixos>
+
+We can use folding-mode to make Emacs automatically fold text:
+
+https://emacs.stackexchange.com/questions/18007/folding-mode-start-fully-folded
+
+This seems to apply to opened files. Not sure how we'd do it in
+shell-mode as command input is streaming in... Maybe ask in #emacs?

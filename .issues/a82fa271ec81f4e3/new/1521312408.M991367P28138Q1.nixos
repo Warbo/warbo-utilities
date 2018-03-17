@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Sat, 17 Mar 2018 18:46:20 +0000
+State: resolved
+Subject: Resume partial podcast downloads
+Message-Id: <a82fa271ec81f4e3-0-artemis@nixos>
+resolution: fixed
+
+Use -c option for wget
