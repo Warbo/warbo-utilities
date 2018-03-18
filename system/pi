@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 fusermount -u /home/chris/Public
 sudo umount -l /home/chris/Public
-sshfs pi@raspberrypi:/opt/shared /home/chris/Public \
+sshfs pi@raspberrypi.local:/opt/shared /home/chris/Public \
       -o follow_symlinks -o allow_other
