@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-grep --exclude-dir=.git -rEI "TODO|FIXME" . 2>/dev/null
+grep --exclude-dir=.git    \
+     --exclude-dir=.issues \
+     --exclude-dir=.asv    -rEI "TODO|FIXME" . 2>/dev/null
 if git rev-parse --git-dir 1> /dev/null 2> /dev/null
 then
     git artemis list
