@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# Runs given command, ignoring stderr
+
+"$@" 2> /dev/null
+exit $?
