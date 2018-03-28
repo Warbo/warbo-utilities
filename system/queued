@@ -9,6 +9,7 @@ DIR=$(mktemp --tmpdir -d 'check-queue-XXXXX')
 
 function cleanUp {
     [[ -e "$DIR" ]] && rmdir -f "$DIR"
+    pkill -P $$
 }
 trap cleanUp EXIT
 
