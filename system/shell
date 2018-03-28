@@ -12,4 +12,4 @@ command -v dvtm > /dev/null || {
   exit 1
 }
 
-dtach -A ~/.sesh -r winch sesh
+exec dtach -A ~/.sesh -r winch sesh

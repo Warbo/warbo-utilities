@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-dvtm -M -m ^b
+exec dvtm -M -m ^b
