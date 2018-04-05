@@ -21,13 +21,13 @@ done
 POSSIBILITIES=$(echo "$POSSIBILITIES" | grep '^.')
 
 echo "Looking for BBC podcasts in ~/Mail/feeds" 1>&2
-
 for D in 50Things BornSmart,Equal,Different ComputingBritain CrowdScience \
          HiddenHistoriesOfTheInformationAge InfiniteMonkeyCage \
          InOurTimeScience InsideScience LifeScientific MoreOrLess \
          NaturalHistories PuttingScienceToWork ReithLectures RutherfordAndFry \
          ScienceHour ScienceInAction ScienceStories
 do
+    echo "Checking for $D" 1>&2
     DIR="$HOME/Mail/feeds/$D/new"
     [[ -d "$DIR" ]] || {
         echo "Not a directory '$DIR', skipping" 1>&2
@@ -70,20 +70,60 @@ do
         markAsRead "$F"
     done
 done
+echo "Done with BBC podcasts" 1>&2
 
-for F in "$HOME/Mail/feeds/FunctionalGeekery/new"/*
-do
-    PAGE=$(grep -o 'http[s]*://[^ "]*' < "$F" | head -n1) || continue
-     URL=$(wget -c -q -O- "$PAGE" | grep -o 'http[s]*://[^" ]*\.mp3' |
-                                    head -n1) || continue
-    if [[ -n "$URL" ]]
-    then
-        mkdir -p "$HOME/Audio/TODO/Functional Geekery"
-        pushd "$HOME/Audio/TODO/Functional Geekery"
-            sleep 2
-            wget -c "$URL"
+function getFromSrc {
+    # A hopefully generic podcast fetcher
+
+    # Grab our in and out directories from the first two arguments, then shift
+    # them off to leave an arbitrary number of grep patterns
+     IN="$1"
+    OUT="$2"
+    shift
+    shift
+    echo "Looking for $OUT podcasts" 1>&2
+
+    # Look for entries in the given dir
+    for F in "$HOME/Mail/feeds/$IN/new"/*
+    do
+        # Grab the source of the first Web link
+        PAGE=$(grep -o 'http[s]*://[^ "]*' < "$F" | head -n1) || continue
+        echo "Found link $PAGE" 1>&2
+
+        URL=$(wget -q -O- "$PAGE")
+
+        # Narrow down the page source to a URL using the remaining arguments as
+        # patterns for 'grep -o', applied one after the other (then apply head)
+        FOUND=1
+        for PAT in "$@"
+        do
+            URL=$(echo "$URL" | grep -o "$PAT") || FOUND=0
+        done
+        [[ "$FOUND" -eq 1 ]] || continue
+        URL=$(echo "$URL" | head -n1)
+
+        # Skip if we didn't get anything (e.g. not a podcast)
+        [[ -n "$URL" ]] || continue
+        echo "Found URL $URL" 1>&2
+
+        # Create and enter the output dir
+        mkdir -p "$HOME/Audio/TODO/$OUT"
+        pushd "$HOME/Audio/TODO/$OUT"
+
+          # Avoid hammering a site with too many requests
+          sleep 2
+
+          # Fetch the extracted file; use -c to resume previous attempts
+          wget -c "$URL"
         popd
-        #mv -v "$F" "$HOME/Mail/feeds/FunctionalGeekery/cur/"
+
+        # Try to mark as read; this seems to work, but needs mu4e open
+        #mv -v "$F" "$HOME/Mail/feeds/$IN/cur/"
         markAsRead "$F"
-    fi
-done
+    done
+}
+
+getFromSrc "FunctionalGeekery"  "Functional Geekery" 'http[s]*://[^" ]*\.mp3'
+
+getFromSrc "FlyingColoursMaths" "Wrong But Useful"   'href="http[^"]*\.mp3"' \
+                                                     'http.*mp3'
