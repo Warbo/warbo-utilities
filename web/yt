@@ -1,3 +1,9 @@
 #!/usr/bin/env bash
 
-python ~/System/Programs/whitey-0.3/src/yt/__init__.py
+EXTRA=""
+if echo "$*" | grep yout > /dev/null
+then
+    EXTRA="-f 43"
+fi
+
+youtube-dl --fixup never $EXTRA "$@"
