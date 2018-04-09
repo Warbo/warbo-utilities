@@ -52,7 +52,7 @@ with rec {
     '';
 };
 wrap {
-  name   = "chromium-exec";
+  name   = "in-chromium-env";
   paths  = [ bash proot ];
   vars   = { inherit env PROOT_NO_SECCOMP; };
   script = ''
