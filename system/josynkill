@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-MACHINE=$(johost) || exit 1
-
-ssh jo@"$MACHINE" 'ps auxww | grep syn | grep bash | grep "\./synergy" | sed -e "s/ [ ]*/ /g" | cut -d " " -f 2 | while read -r P; do kill "$P"; done'
-ssh jo@"$MACHINE" 'killall synergyc'

@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-
-if [[ -e shell.drv ]]
-then
-    nix-shell "$@" "$PWD"/shell.drv
-else
-    echo "Warning: No shell.drv found" 1>&2
-    nix-shell "$@"
-fi
