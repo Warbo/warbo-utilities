@@ -6,4 +6,5 @@ then
     EXTRA="-f 43"
 fi
 
+# shellcheck disable=SC2086
 youtube-dl --fixup never $EXTRA "$@"
