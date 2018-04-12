@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Wed, 11 Apr 2018 14:12:46 +0100
+State: new
+Subject: Fetch full content for feeds
+Message-Id: <a52c0830fd043f68-0-artemis@nixos>
+
+In particular for e.g. BBC news feeds, where there's just a single line
+of clickbait rather than actual news.

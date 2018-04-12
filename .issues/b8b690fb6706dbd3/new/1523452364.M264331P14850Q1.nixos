@@ -1,0 +1,10 @@
+From: Chris Warburton
+Date: Wed, 11 Apr 2018 14:11:49 +0100
+State: new
+Subject: Make artemis command more robust
+Message-Id: <b8b690fb6706dbd3-0-artemis@nixos>
+
+We can end up waiting for emacsclient in some sort of deadlock, and
+sometimes just get an instant quit.
+
+Maybe add some retries or something?
