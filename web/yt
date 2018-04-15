@@ -6,5 +6,10 @@ then
     EXTRA="-f 43"
 fi
 
+if echo "$*" | grep ted.com > /dev/null
+then
+    EXTRA="-f medium"
+fi
+
 # shellcheck disable=SC2086
 youtube-dl --fixup never $EXTRA "$@"
