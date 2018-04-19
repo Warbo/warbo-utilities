@@ -33,6 +33,12 @@ do
         echo "Not a directory '$DIR', skipping" 1>&2
         continue
     }
+    ANY=0
+    for F in "$DIR"/*
+    do
+        ANY=1
+    done
+    [[ "$ANY" -eq 1 ]] || continue
 
     GUESSTINATION=""
     while read -r POSSIBLE
