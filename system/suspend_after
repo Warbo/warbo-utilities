@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+sudo bash -c '
+  T=3600
+  while [[ "$T" -gt 1 ]]
+  do
+    T=$(( T - 1 ))
+    echo "Suspend in $T..."
+    sleep 1
+  done
+  pm-suspend'

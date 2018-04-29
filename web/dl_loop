@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+# Keep trying a download that may get stuck, by timing out and looping
+[[ -n "$TIMEOUT" ]] || TIMEOUT=120
+while ! timeout "$TIMEOUT" wget -o /dev/stderr -c -O "$1" "$2"; do sleep 3; done

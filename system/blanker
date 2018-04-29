@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+while true; do xset dpms force off; sleep 2; done
