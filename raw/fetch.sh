@@ -33,5 +33,23 @@ do
     done
 done
 
+echo "Looking for TED talks" 1>&2
+for F in "$HOME"/Mail/feeds/TEDTalks/new/*
+do
+    TITLE=$(grep '^Subject: ' < "$F" | cut -d ' ' -f2-)
+    read -r -p "Should we get TED Talk '$TITLE'?" answer
+    if [[ -z "$answer" ]] || echo "$answer" | grep -i y > /dev/null
+    then
+        URL=$(grep '^Link: ' < "$F" | cut -d ' ' -f2-)
+        echo "Queueing" 1>&2
+        pushd "$HOME/Downloads" > /dev/null
+          # shellcheck disable=SC2154
+          ts "$youtube_then_mark" "$F" "$URL"
+        popd > /dev/null
+    else
+        echo "Skipping" 1>&2
+    fi
+done
+
 # shellcheck disable=SC2154
 "$fetch_podcasts"
