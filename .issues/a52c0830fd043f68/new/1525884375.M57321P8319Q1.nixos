@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Wed, 09 May 2018 17:46:03 +0100
+Subject: Re: Fetch full content for feeds
+Message-Id: <a52c0830fd043f68-93a6e5783b30dc15-artemis@nixos>
+References: <a52c0830fd043f68-0-artemis@nixos>
+In-Reply-To: <a52c0830fd043f68-0-artemis@nixos>
+
+getBBCContent.py now does this
