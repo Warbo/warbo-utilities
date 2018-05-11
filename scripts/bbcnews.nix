@@ -28,16 +28,7 @@ with rec {
         xmlstarlet ed -d "//guid[contains(text(),'$1')]/.."
       }
 
-      function getContent {
-        INPUT=$(cat)
-         URLS=$(echo "$CAT" | xmlstarlet sel -t -v "//guid")
-        while read -r URL
-        do
-           DATA=$(wget -O- "$URL" | "$getContent")
-          INPUT=$(echo "$INPUT" | xmlstarlet ed )
-        done < <(echo "$URL")
-      }
-
+      # shellcheck disable=SC2154
       wget -q -O- "http://feeds.bbci.co.uk/news/rss.xml?edition=uk" |
         stripCrap '/sport/'                                         |
         stripCrap '/news/magazine-'                                 |
