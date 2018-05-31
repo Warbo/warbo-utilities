@@ -62,10 +62,14 @@ unset NOCAPS
 unset GB
 unset US
 
-# Use xbindkeys for volume, etc.
+# Use xbindkeys for hotkeys (volume, etc.)
 msg "Starting xbindkeys"
 killall xbindkeys > /dev/null || true
 xbindkeys
 
+# space2ctrl makes holding spacebar act like ctrl (useful for Emacs)
 s2cctl stop || true
 s2cctl start
+
+# What if we want to hold down a space key? Turn AltGr into another space
+xmodmap ~/.Xmodmap
