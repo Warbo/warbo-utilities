@@ -62,53 +62,10 @@ unset NOCAPS
 unset GB
 unset US
 
-# We use xmodmap to override a few keys. Note that triggering setxkbmap
-# above will override these.
-
-function key {
-    xmodmap -pke | grep "keycode $1" | grep "$2" > /dev/null || return 1
-}
-
-function mod {
-    xmodmap -pm | grep "$1" | grep "$2" > /dev/null || return 1
-}
-
-if [[ "x$HOST" != "xolpc" ]]
-then
-    # We don't have a 'left hyper' key, so we can use that as a "spare"
-    spare="Hyper_L"
-
-    # Use xmodmap to map space bar to the spare modifier
-    key 65 "$spare" || {
-        msg "Mapping space to $spare"
-        xmodmap -e "keycode 65 = $spare"
-    }
-
-    # Remove the normal spare mapping. Hyper_L is mod4 by default
-    mod mod4 "$spare" && {
-        msg "Unsetting mod4"
-        xmodmap -e "remove mod4 = $spare"
-    }
-
-    # Map spare modifier to Control
-    mod 'control' "$spare" || {
-        msg "Mapping $spare to ctrl"
-        xmodmap -e "add Control = $spare"
-    }
-
-    # Make Alt Gr space
-    key 108 space || {
-        msg "Mapping AltGr to space"
-        xmodmap -e "keycode 108 = space"
-    }
-fi
-
-# Use xcape to make tapping 'left hyper' produce a space
-msg "Starting xcape"
-killall xcape > /dev/null || true
-xcape -e "$spare=space"
-
 # Use xbindkeys for volume, etc.
 msg "Starting xbindkeys"
 killall xbindkeys > /dev/null || true
 xbindkeys
+
+s2cctl stop || true
+s2cctl start

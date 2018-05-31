@@ -1,0 +1,24 @@
+From: Chris Warburton
+Date: Thu, 31 May 2018 12:37:03 +0100
+State: new
+Subject: Use space2ctrl for keys
+Message-Id: <efdab4013c354a72-0-artemis@nixos>
+
+Pull out xcape and xmodmap in favour of space2ctrl. We used to use it
+many moons ago, I can't remember why we switched to xcape. In any case,
+our xcape setup is definitely complicated and flaky, so might as well
+try something simpler.
+
+One important question is whether we can spot the reason for keys
+becoming unresponsive. My current thoughts are:
+
+ - Suspend/resume might be messing with things
+ - Plugging/unplugging USB keyboards might be the cause
+ - Plugging/unplugging external monitors might be the cause
+ - Upgrading the kernel without rebooting might be the reason we need to
+   rmmod/modprobe to fix the keyboard (which breaks the mouse)
+
+It would be useful if we could either hook on to these
+suspend/resume/plug/unplug events to run the keys command, or if we
+could reliably spot when those events have happened and poll for
+them. Either way, we shouldn't be running keys over and over.
