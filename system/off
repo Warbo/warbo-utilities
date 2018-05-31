@@ -8,4 +8,4 @@ bash ~/.screenlayout/unplugged.sh
 setBg
 
 # Set up keyboard
-keys
+sleep 4; keys

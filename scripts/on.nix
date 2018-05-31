@@ -21,7 +21,7 @@ with rec {
     fi
 
     # Set up keyboard
-    keys
+    sleep 4; keys
   '';
 };
 
