@@ -14,8 +14,8 @@ with rec {
             (import <nixpkgs> { inherit (options) config; })
             {
               url    = http://chriswarbo.net/git/nix-config.git;
-              rev    = "4c82cb6";
-              sha256 = "0mhy16sjlyb6jy6mhigk11mv1fzgj3pzlawhfjm8hx9yzdy7vwxw";
+              rev    = "ce03e5e";
+              sha256 = "1qg4ihf5w7xzsk1cdba7kzdl34jmdzvaf7vr6x0r86zgxn0zc5yj";
             };
 
   # An awkward mix of unstable <nixpkgs> and stable nix-config. We only use this
