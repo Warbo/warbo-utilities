@@ -24,6 +24,8 @@ do
         # We've been asked to run but haven't done so yet. Update last-ran first
         # to minimise race conditions, then again in case 'keys' took a while.
         date '+%s' > "$RANFILE"
+        # Wait for keyboard to settle
+        sleep 3
         keys
         date '+%s' > "$RANFILE"
     fi
