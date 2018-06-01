@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -e
+
+# Checks every few seconds whether we should fix the keyboard (layout, hotkeys,
+# etc.). This is needed when we plug peripherals in/out, and ideally would be
+# done from udev. Unfortunately that doesn't seem to work properly, so we use
+# udev to *request* that the keyboard be fixed, and rely on this script (running
+# inside X, e.g. from ~/.xsession) to actually honour those requests.
+
+function readDefault {
+    [[ -f "$1" ]] || echo "$2" > "$1"
+    cat "$1"
+}
+
+RANFILE="/tmp/keys-last-ran"
+
+while true
+do
+    # Check for new requests, with a few seconds padding to debounce udev events
+    LASTRAN=$(readDefault "$RANFILE"            0)
+    LASTASK=$(readDefault "/tmp/keys-last-ask" 60)
+    if [[ "$(( LASTRAN + 3 ))" -lt "$LASTASK" ]]
+    then
+        # We've been asked to run but haven't done so yet. Update last-ran first
+        # to minimise race conditions, then again in case 'keys' took a while.
+        date '+%s' > "$RANFILE"
+        keys
+        date '+%s' > "$RANFILE"
+    fi
+    sleep 1
+done
