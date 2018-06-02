@@ -1,8 +1,10 @@
-{ bash, makeWrapper, stdenv, writeScript, xorg }:
+{ bash, wrap, xorg }:
 
-with rec {
-  raw = writeScript "on" ''
-    #!${bash}/bin/bash
+wrap {
+  name   = "on";
+  paths  = [ bash xorg.xrandr ];
+  script = ''
+    #!/usr/bin/env bash
 
     # Run when plugging laptop back in, eg. after a meeting
 
@@ -22,15 +24,5 @@ with rec {
 
     # Set up keyboard
     sleep 4; keys
-  '';
-};
-
-stdenv.mkDerivation {
-  name         = "on";
-  buildInputs  = [ makeWrapper ];
-  buildCommand = ''
-    #!${bash}/bin/bash
-    makeWrapper "${raw}" "$out" --prefix PATH : "${bash}/bin" \
-                                --prefix PATH : "${xorg.xrandr}/bin"
   '';
 }
