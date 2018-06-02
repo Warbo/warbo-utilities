@@ -1,11 +1,19 @@
-#!/usr/bin/env bash
+{ bash, feh, wrap, xorg }:
 
-# Run when unplugging laptop, eg. to go to a meeting
+wrap {
+  name   = "off";
+  paths  = [ bash feh xorg.xrandr ];
+  script = ''
+    #!/usr/bin/env bash
 
-# Turn off external display
-bash ~/.screenlayout/unplugged.sh
+    # Run when unplugging laptop, eg. to go to a meeting
 
-setBg
+    # Turn off external display
+    bash ~/.screenlayout/unplugged.sh
 
-# Set up keyboard
-sleep 4; keys
+    setBg
+
+    # Set up keyboard
+    sleep 4; keys
+  '';
+}
