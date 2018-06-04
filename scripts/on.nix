@@ -23,6 +23,6 @@ wrap {
     fi
 
     # Set up keyboard
-    sleep 4; keys
+    sleep 4; date '+%s' > /tmp/keys-last-ask
   '';
 }
