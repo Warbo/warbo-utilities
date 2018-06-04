@@ -1,9 +1,0 @@
-#!/usr/bin/env racket
-#lang racket
-
-(require shell/pipeline)
-
-(run-pipeline '(echo "(setf debug-on-quit nil)")
-              '(nix-shell -p xclip --run xclip))
-
-(run-pipeline '(killall -s USR2 emacs))
