@@ -1,0 +1,7 @@
+From: Chris Warburton
+Date: Tue, 05 Jun 2018 01:48:38 +0100
+State: new
+Subject: Symlink /opt/benchmarks on repo pages, if found
+Message-Id: <fe81a986deb8d2ef-0-artemis@nixos>
+
+Like .issues, etc.

@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-set -e
-
-results_related_to "$1" | while read -r RESULT
-do
-    echo "Removing '$RESULT', to force test re-run"
-    mkdir -p ~/System/Tests/results/check/
-    mv "$RESULT" ~/System/Tests/results/check/
-done
