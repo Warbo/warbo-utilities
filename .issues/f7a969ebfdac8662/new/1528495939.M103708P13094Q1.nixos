@@ -1,0 +1,9 @@
+From: Chris Warburton
+Date: Fri, 08 Jun 2018 23:11:38 +0100
+Subject: Re: Make trackGit idempotent
+Message-Id: <f7a969ebfdac8662-9ad806ad6f6051fc-artemis@nixos>
+References: <f7a969ebfdac8662-0-artemis@nixos>
+In-Reply-To: <f7a969ebfdac8662-0-artemis@nixos>
+
+Made existing trackGit functionality idempotent (setting up local and
+remote bare clones, setting remotes, etc.)
