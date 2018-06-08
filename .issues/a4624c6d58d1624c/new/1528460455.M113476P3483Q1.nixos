@@ -1,0 +1,20 @@
+From: Chris Warburton
+Date: Fri, 08 Jun 2018 13:15:37 +0100
+State: new
+Subject: Make trackGit ask if we want a pkgs.nix
+Message-Id: <a4624c6d58d1624c-0-artemis@nixos>
+
+If no pkgs.nix file is found, ask if we want one. If we do:
+
+ - Ask whether we want nix-config.
+ - Ask which nixpkgs revision to pin, with an example like '18.03'
+
+We should copy across a template from ~/.templates.
+
+We can look in ~/.templates for the requested nixpkgs revision and
+sha256, and plug those in with a find/replace.
+
+We can look in ~/.templates for a pkgs.nix template with nix-config or
+one without. The one with should have a sentinel string we can replace
+with the chosen nixpkgs version (perhaps with dots removed, e.g.
+'nixpkgsREVISION' and we replace 'REVISION' with '1803').

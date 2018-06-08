@@ -1,0 +1,50 @@
+From: Chris Warburton
+Date: Fri, 08 Jun 2018 13:21:36 +0100
+State: new
+Subject: Make trackGit ask whether to make ASV benchmarks
+Message-Id: <cc3f744da13eaf79-0-artemis@nixos>
+
+Ask if we want some ASV benchmarks, if not already found. If so we
+should make a benchmarks/ dir, a skeleton benchmarks/default.nix which
+takes root and dir, imports pkgs.nix from dir, defines 'fixed' and
+'measured' as imports of 'dir' and 'root' with 'packageOnly = false',
+and returns a wrapped default python binary (see below).
+
+We should ask whether we should use 'mkBin' from nix-config. There
+should be three options:
+
+ - No. Use makeWrapper in runCommand.
+ - Yes; we can get it from this project (assumes it's in pkgs.nix)
+ - Yes; we should fetch and import nix-config in the benchmarks.
+
+Each of these should have a separate template in ~/.templates:
+
+ - The "no" template should use runCommand and makeWrapper, assuming
+   that they're in pkgs.nix. 'dir' should be set, with var name
+   'measured'. An example of prefixing PATH should be given, but
+   commented-out.
+ - The "this project" template should use 'mkBin', assuming that our
+   import of pkgs.nix will do. An empty paths list should be included,
+   and vars should set 'measured' to 'dir'.
+ - The "fetch and import" template should define a nix-config variable
+   alongside pkgs, which we take mkBin from. Don't use 'with nix-config'
+   since that would override whatever we got from pkgs.nix. The import
+   of nix-config should use its defaults; if we cared about nixpkgs
+   versions we would be getting stuff from pkgs.nix anyway. The same
+   paths and vars as above should be used.
+
+We should also populate an asv.conf.json template with reasonable
+defaults:
+
+ - asv-nix plugin, environment, etc.
+ - Project name should be repo name (which trackGit should know)
+ - Repo can be chriswarbo.net/git/....git
+ - Builders and matrix should be included for 'dir'
+ - Installer should import benchmarks/ dir
+
+We should ask whether to define a default benchmark which tracks open
+issues, defaulting to yes. If yes, this should include a template Python
+file in benchmarks/ which looks up 'measured' from the environment and
+(if it exists), loops through the contents checking whether each one is
+closed (e.g. via a simple search for some header string; whatever
+artemis uses).

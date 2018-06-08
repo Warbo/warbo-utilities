@@ -1,0 +1,14 @@
+From: Chris Warburton
+Date: Fri, 08 Jun 2018 13:14:37 +0100
+State: new
+Subject: Make trackGit ask if we want a release.nix
+Message-Id: <dbf815300f36ff4e-0-artemis@nixos>
+
+If not found, ask if we want one. If yes, copy in a template from
+~/.templates, like:
+
+    {
+        stable = import ./. { packageOnly = false; };
+      unstable = import ./. { packageOnly = false;
+                              pkgs = import <nixpkgs> {}; };
+    }

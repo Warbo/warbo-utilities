@@ -1,0 +1,21 @@
+From: Chris Warburton
+Date: Fri, 08 Jun 2018 13:43:02 +0100
+State: new
+Subject: Make trackGit define declarative Hydra jobset
+Message-Id: <b21a6340e8a36977-0-artemis@nixos>
+
+I'm still not quite sure how declarative Hydra jobsets work, but it
+seems to involve a JSON file. We should have trackGit ask whether we
+want to define such a declarative jobset.
+
+If yes, we should define a suitably named jobset, containing two jobs:
+one called foo-release and one called foo.
+
+We should take this JSON, etc. from a template in ~/.templates.
+
+The template should have a comment at the top telling us how to use it.
+Since JSON doesn't allow comments, we may have to use a string inside
+the object (as long as Hydra doesn't complain about extra attributes).
+
+We need to make sure our release.nix template is suitable for use with
+such a foo-release/foo split.

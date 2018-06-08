@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Fri, 08 Jun 2018 13:13:22 +0100
+State: new
+Subject: Make trackGit generate IPNS keys
+Message-Id: <91430622082c0257-0-artemis@nixos>
+
+trackGit should check for an existing IPNS key. If not found we should
+generate one and back it up. We already have the repo name.

@@ -1,0 +1,63 @@
+From: Chris Warburton
+Date: Fri, 08 Jun 2018 12:48:54 +0100
+State: new
+Subject: Beef up trackGit
+Message-Id: <fef5a7d04933a4fc-0-artemis@nixos>
+
+trackGit adds a repo to chriswarbo.net/git and ~/Programming/repos. We
+should have it do a little more.
+
+At the very least we should generate and backup an IPNS key. We already
+have the repo name too!
+
+Other things we *might* want:
+
+ - A default.nix file: if not found, ask if we want one; if found, skip.
+ - A release.nix file: if not found, ask if we want one; if found, skip.
+ - A pkgs.nix file: if not found, ask if we want one; if found, skip.
+  - If we want a pkgs.nix, we should ask whether we want nix-config.
+  - If we want a pkgs.nix, we should ask which nixpkgs revision to pin.
+ - ASV benchmarks: if not found, ask if we want some; if found, skip.
+
+The default.nix, release.nix and pkgs.nix files should be copied from
+templates, e.g. stored in ~/.templates.
+
+A decent default.nix template would be:
+
+    {
+      packageOnly ? true,
+      pkgs        ? import ./pkgs.nix,
+      /* OTHER DEPENDENCIES GO HERE*/
+    }:
+    with builtins;
+    with pkgs;
+    with { defs = rec {
+      package = abort "Replace this with your main package derivation";
+    }; };
+    if packageOnly
+       then defs.package
+       else defs
+
+A release.nix template might be:
+
+    {
+        stable = import ./. { packageOnly = false; };
+      unstable = import ./. { packageOnly = false;
+                              pkgs = import <nixpkgs> {}; };
+    }
+
+If we ask for ASV benchmarks, we should make a benchmarks/ dir, a
+skeleton benchmarks/default.nix which takes root and dir, imports
+pkgs.nix from dir and wraps python with an empty paths and vars.
+
+We should also populate a skeletal asv.conf.json with reasonable
+defaults:
+
+ - asv-nix plugin, environment, etc.
+ - Project name should be repo name
+ - Repo can be chriswarbo.net/git/....git
+ - Builders and matrix should be included for 'dir'
+ - Installer should import benchmarks/ dir
+
+In the future we may add a declarative Hydra jobset, with a job to build
+the release.nix and a job which imports that built release.nix
