@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Fri, 08 Jun 2018 12:48:54 +0100
-State: new
+State: resolved
 Subject: Beef up trackGit
 Message-Id: <fef5a7d04933a4fc-0-artemis@nixos>
+resolution: fixed
 
 trackGit adds a repo to chriswarbo.net/git and ~/Programming/repos. We
 should have it do a little more.
