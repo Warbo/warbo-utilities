@@ -39,7 +39,7 @@ fi
 
 if [[ -n "$name" ]]
 then
-    read -p "Found repo name '$name', is this correct? (Y/n)? " answer
+    read -r -p "Found repo name '$name', is this correct? (Y/n)? " answer
     case "${answer:0:1}" in
         n|N )
             name=""
@@ -77,14 +77,14 @@ pushd "$localRepo" > /dev/null
     then
         rOrigin=$(git remote get-url origin)
     fi
-    if [[ "x$rOrigin" = "r$remoteRepo" ]]
+    if [[ "x$rOrigin" = "x$remoteRepo" ]]
     then
         echo "$localRepo is setup to push to chriswarbo.net" 1>&2
     else
         if [[ -n "$rOrigin" ]]
         then
             echo "Expected $localRepo origin $remoteRepo not '$rOrigin'" 1>&2
-            read -p "Keep origin '$rOrigin' of $localRepo? (Y/n)? " answer
+            read -r -p "Keep origin '$rOrigin' of $localRepo? (Y/n)? " answer
             case "${answer:0:1}" in
                 n|N )
                     git remote rm origin
@@ -115,7 +115,7 @@ else
     if [[ -n "$origin" ]]
     then
         echo "Expected $ROOT origin $localRepo not '$origin'" 1>&2
-        read -p "Keep origin '$origin' of $ROOT? (Y/n)? " answer
+        read -r -p "Keep origin '$origin' of $ROOT? (Y/n)? " answer
         case "${answer:0:1}" in
             n|N )
                 git remote rm origin
