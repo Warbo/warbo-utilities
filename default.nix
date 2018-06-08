@@ -57,7 +57,7 @@ with rec {
   cmds = foldl (rest: dir: rest // mapAttrs (f: _: dir + "/${f}")
                                             (readDir dir))
                {}
-               [ ./system ./web ./git ./development ./testing ./docs ];
+               [ ./system ./web ./git ./development ./docs ];
 
   bin = cmds // scripts;
 
