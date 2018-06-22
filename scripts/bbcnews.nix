@@ -9,7 +9,7 @@ with rec {
     vars   = { SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt; };
     paths  = [
       html2text
-      (python.withPackages (p: [ p.beautifulsoup p.feedparser p.PyRSS2Gen ]))
+      (python.withPackages (p: [ p.beautifulsoup4 p.feedparser p.PyRSS2Gen ]))
     ];
   };
 

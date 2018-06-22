@@ -37,9 +37,11 @@ def testStripCrap():
     with gzip.open(os.getenv('HTML_EXAMPLE'), 'rb') as f:
         content = f.read()
     html = BeautifulSoup(stripCrap(content))
-    assert html.body.div['class'] == identifier, repr({
+    got  = html.body.div['class']
+    assert got == [identifier], repr({
         'error'      : 'Expected top-level div to have identifier class',
         'identifier' : identifier,
+        'got'        : got,
         'html'       : html})
 
 ###
