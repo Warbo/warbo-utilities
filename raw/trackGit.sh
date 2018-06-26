@@ -64,7 +64,9 @@ else
     pushd "$REPOS" > /dev/null
         echo "Cloning $ROOT to $localRepo" 1>&2
         git clone --bare "$ROOT" "$name.git"
-        git remote rm origin  # We're downstream by default, should be upstream
+    popd > /dev/null
+    pushd "$localRepo" > /dev/null
+        git remote rm origin  # We're upstream, but default is downstream
     popd > /dev/null
 fi
 
