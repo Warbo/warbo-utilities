@@ -1,56 +1,15 @@
-with builtins;
-with rec {
-  # Old (< 2017) fetchgit gives different hashes, so allow override via NIX_PATH
-  options =
-    with tryEval <nix-config>;
-    if success
-       then { config = import "${value}/stable.nix"; f = "fetchGitHashless"; }
-       else { config = {};                           f = "fetchgit";         };
-
-  # We need a few helpers and packages from nix-config, so default to a
-  # known-good version
-  stableConfig =
-    getAttr (options.f)
-            (import <nixpkgs> { inherit (options) config; })
-            {
-              url    = http://chriswarbo.net/git/nix-config.git;
-              rev    = "ce03e5e";
-              sha256 = "1qg4ihf5w7xzsk1cdba7kzdl34jmdzvaf7vr6x0r86zgxn0zc5yj";
-            };
-
-  # An awkward mix of unstable <nixpkgs> and stable nix-config. We only use this
-  # to fetch other, purely stable/unstable package sets
-  bootstrapPkgs = import <nixpkgs> {
-    config = import "${stableConfig}/stable.nix";
-  };
-
-  # Uses stable config with stable nixpkgs
-  stablePkgs = bootstrapPkgs.customised.nixpkgs1709 // {
-    inherit (bootstrapPkgs.customised.nixpkgs1609) firefox;
-  };
-};
-
-{
-  # The nixpkgs set to use, e.g. if we want a particular revision. Should use
-  # some version of nix-config, else our dependencies will be missing.
-  nixPkgs ? stablePkgs,
-
-  # If false, returns some of our intermediate results alongside the package
-  packageOnly ? true
-}:
+{ attrsToDirs, fail, haskellPackages, lib, makeWrapper, newScope, runCommand,
+  withDeps }:
 
 with builtins;
-with nixPkgs.lib;
-with rec {
-  inherit (nixPkgs) attrsToDirs fail haskellPackages makeWrapper newScope
-                    runCommand withDeps;
-
+with lib;
+rec {
   # Let scripts depend on each other by adding 'bin' to the argument set
   scripts = mapAttrs' (f: _: rec {
                         name  = removeSuffix ".nix" f;
-                        value = nixPkgs.newScope (nixPkgs // bin)
-                                                 (./scripts + "/${f}")
-                                                 {};
+                        value = newScope (nixPkgs // bin)
+                                         (./scripts + "/${f}")
+                                         {};
                       })
                       (readDir ./scripts);
 
@@ -115,8 +74,4 @@ with rec {
                        wrapProgram "$out/bin/$N" --prefix PATH : "$out/bin"
                      done
                    '');
-};
-
-if packageOnly
-   then pkg
-   else { inherit scripts pkg nixPkgs; }
+}
