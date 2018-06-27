@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -e
+
+# Copies a file from one git repo to another, by making a patch containing that
+# file's history. Taken from https://stackoverflow.com/a/11426261/884682
+
+[[ -d ".git" ]] ||
+    fail "git-migrate-file should run from source repo root, but no .git found"
+
+FROM="$PWD"
+TO="$2"
+FILE="$1"
+
+[[ -n "$FILE" ]] ||
+    fail "First arg should be path to copy, none given (second should be dest)"
+
+[[ -n "$TO" ]] ||
+    fail "Second arg should be destination, none given (first should be file)"
+
+[[ -d "$TO/.git" ]] ||
+    fail "Destination '$TO' doesn't seem to be a git repo (no .git dir)"
+
+echo "Copying '$FILE' from '$PWD' to '$TO'" 1>&2
+git log --pretty=email --patch-with-stat --reverse -- "$FILE" |
+    (cd "$TO" && git am)
