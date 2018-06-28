@@ -1,4 +1,4 @@
-{ fetchurl, pythonPackages, wrap }:
+{ fetchurl, pythonPackages, raw, wrap }:
 with {
   python = pythonPackages.buildPythonPackage {
     name = "leveldb";
@@ -11,6 +11,6 @@ with {
 
 wrap {
   name  = "fix-leveldb";
-  file  = ../raw/fix-leveldb.py;
+  file  = raw."fix-leveldb.py";
   paths = [ python ];
 }

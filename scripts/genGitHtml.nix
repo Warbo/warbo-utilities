@@ -1,12 +1,12 @@
-{ fail, git, git2html, mhonarc, pandoc, pkgs, python, runCommand, withDeps,
-  wrap, writeScript }:
-
+{ git, nix-helpers, python, runCommand, warbo-packages, writeScript }:
+with {
+  inherit (nix-helpers) fail withDeps wrap;
+  inherit (warbo-packages) artemis git2html mhonarc pandocPkgs;
+};
 with rec {
-  inherit (pkgs) artemis;
-
   script = wrap {
     name   = "genGitHtml";
-    paths  = [ git git2html mhonarc pandoc ];
+    paths  = [ git git2html mhonarc pandocPkgs ];
     vars   = {
       splicer = wrap {
         name   = "splicer";
@@ -166,7 +166,7 @@ with rec {
   test = runCommand "genGitHtml-test"
     {
       inherit script;
-      buildInputs = [ artemis fail git git2html mhonarc pandoc ];
+      buildInputs = [ artemis fail git git2html mhonarc pandocPkgs ];
       EDITOR = writeScript "test-editor" ''
         #!/usr/bin/env bash
         sed -i -e "s@^Subject: .*@Subject: $SUBJECT@g" "$1"

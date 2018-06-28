@@ -1,11 +1,12 @@
 { bash, coreutils, curl, fail, glibc, html2text, makeWrapper, mkBin,
-  pythonPackages, runCommand, wget, withDeps, wrap, xidel, xmlstarlet }:
+  pythonPackages, nix-helpers, runCommand, wget, withDeps, wrap, xidel,
+  xmlstarlet }:
 
 with builtins;
 with rec {
   go = wrap {
     name   = "get-eps";
-    paths  = [ bash coreutils curl glibc.bin fail pythonPackages.csvkit wget
+    paths  = [ bash coreutils curl glibc.bin pythonPackages.csvkit wget
                xmlstarlet ];
     vars   = { SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt; };
     script = ''
@@ -90,7 +91,7 @@ with rec {
     haveExpanse = runCommand "test-expanse"
       {
         inherit go;
-        buildInputs = [ curl fail xidel ];
+        buildInputs = [ curl nix-helpers.fail xidel ];
         KEEP_ALL    = "1";
         URL         = "http://epguides.com/common/exportToCSVmaze.asp?maze=1825";
       }
@@ -112,7 +113,7 @@ with rec {
     haveWalkingDead = runCommand "test-walking-dead"
       {
         inherit go;
-        buildInputs = [ curl fail xidel ];
+        buildInputs = [ curl nix-helpers.fail xidel ];
         KEEP_ALL    = "1";
         URL         = "http://epguides.com/common/exportToCSVmaze.asp?maze=73";
       }

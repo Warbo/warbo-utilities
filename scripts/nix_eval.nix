@@ -1,8 +1,8 @@
-{ bash, hydra, fail, wrap }:
+{ bash, hydra, wrap }:
 
 wrap {
   name   = "nix_eval";
-  paths  = [ bash fail hydra ];
+  paths  = [ bash hydra ];
   script = ''
     #!/usr/bin/env bash
 

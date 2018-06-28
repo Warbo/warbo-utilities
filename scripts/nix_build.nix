@@ -1,8 +1,8 @@
-{ fail, wrap, writeScript }:
+{ bash, wrap, writeScript }:
 
 wrap {
   name   = "nix_build";
-  paths  = [ fail ];
+  paths  = [ bash ];
   vars   = {
     expr = writeScript "nix_build_expr.nix" ''
       with builtins;

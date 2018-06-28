@@ -1,11 +1,11 @@
-{ bash, curl, fail, html2text, python, runCommand, wget, withDeps, wrap, xidel,
+{ bash, curl, html2text, python, raw, runCommand, wget, withDeps, wrap, xidel,
   xmlstarlet }:
 
 with builtins;
 with rec {
   getContent = wrap {
     name   = "getBBCContent.py";
-    file   = ../raw/getBBCContent.py;
+    file   = raw."getBBCContent.py";
     vars   = { SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt; };
     paths  = [
       html2text
@@ -43,8 +43,8 @@ with rec {
     getContent = runCommand "test-get-content"
       {
         inherit getContent;
-        buildInputs  = [ fail xidel ];
-        HTML_EXAMPLE = ../raw/bbcExamplePage.html.gz;
+        buildInputs  = [ nix-helpers.fail xidel ];
+        HTML_EXAMPLE = raw."bbcExamplePage.html.gz";
         RUN_TESTS    = "1";
       }
       ''

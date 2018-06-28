@@ -1,8 +1,8 @@
-{ bash, fail, wrap }:
+{ bash, nix-helpers, wrap }:
 
 wrap {
   name   = "wrap";
-  paths  = [ bash fail ];
+  paths  = [ bash nix-helpers.fail ];
   script = ''
     #!/usr/bin/env bash
     exec fail "$@"

@@ -1,5 +1,5 @@
-{ bash, coreutils, fail, feed2maildirsimple, libxslt, mkBin, mu, openssl,
-  python, sysPing, wget, wrap, writeScript, xidel, xmlstarlet }:
+{ bash, coreutils, feed2maildirsimple, libxslt, mkBin, mu, openssl, python,
+  sysPing, wget, wrap, writeScript, xidel, xmlstarlet }:
 
 with rec {
   cleanUp = wrap {
@@ -196,7 +196,7 @@ with rec {
 
 wrap {
   name   = "get-news-start";
-  paths  = [ bash courier fail mu python feed2maildirsimple ];
+  paths  = [ bash courier mu python feed2maildirsimple ];
   vars   = { inherit cleanUp rss sysPing; };
   script = ''
     #!/usr/bin/env bash
