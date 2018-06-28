@@ -1,3 +1,3 @@
 self: super: {
-  warbo-utilities = self.callPackage ./derivation.nix {};
+  warbo-utilities = (self.callPackage ./derivation.nix {}).pkg;
 }
