@@ -1,17 +1,43 @@
-{ attrsToDirs, fail, haskellPackages, lib, makeWrapper, newScope, runCommand,
-  withDeps }:
+with rec {
+  fetch   = args: import ((import <nixpkgs> { config = {}; }).fetchgit args);
+
+  helpers = fetch {
+    url    = http://chriswarbo.net/git/nix-helpers.git;
+    rev    = "dc68891";
+    sha256 = "0c4zh9cz1db5y5c1kmnwgj0f3s5528xahhs509gprlhvgyqyp1mc";
+  };
+
+  packages = fetch {
+    url    = http://chriswarbo.net/git/warbo-packages.git;
+    rev    = "b2010d7";
+    sha256 = "0c4zh9cz1db5y5c1kmnwgj0f3s5528xahhs509gprlhvgyqyp1mc";
+  };
+};
+
+{
+  haskellPackages,
+  lib,
+  makeWrapper,
+  newScope,
+  nix-helpers ? helpers,
+  runCommand,
+  warbo-packages ? packages
+}:
 
 with builtins;
 with lib;
+with {
+  inherit (nix-helpers) attrsToDirs dirsToAttrs fail nixFilesIn withDeps;
+};
 rec {
   # Let scripts depend on each other by adding 'bin' to the argument set
-  scripts = mapAttrs' (f: _: rec {
-                        name  = removeSuffix ".nix" f;
-                        value = newScope (nixPkgs // bin)
-                                         (./scripts + "/${f}")
-                                         {};
-                      })
-                      (readDir ./scripts);
+  extraArgs = bin // {
+    inherit nix-helpers;
+    raw = dirsToAttrs ./raw;
+  };
+
+  scripts = mapAttrs (_: f: newScope extraArgs f {})
+                     (nixFilesIn ./scripts);
 
   cmds = foldl (rest: dir: rest // mapAttrs (f: _: dir + "/${f}")
                                             (readDir dir))
