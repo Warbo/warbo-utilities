@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Wed, 09 Aug 2017 14:03:46 +0100
-State: new
+State: resolved
 Subject: Flesh out music/find_untagged.sh
 Message-Id: <c8bb0c9090e5b45c-0-artemis@nixos>
+resolution: fixed
 
 It should spit out filenames of untagged files, in whatever format. So
 far, we treat a file as untagged if it has no "title" tag or equivalent,

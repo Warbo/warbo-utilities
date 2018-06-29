@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Sat, 12 Aug 2017 06:57:09 +0100
-State: new
+State: resolved
 Subject: Use kid3 for tag getting/setting
 Message-Id: <a9a177d4bb6ee1bb-0-artemis@nixos>
+resolution: fixed
 
 It seems to support everything, although kid3-cli is a little awkward:
 

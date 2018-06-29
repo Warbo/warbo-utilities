@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Wed, 09 Aug 2017 14:11:25 +0100
-State: new
+State: resolved
 Subject: Suggest tags based on path and filename
 Message-Id: <a61b47e5f67b3950-0-artemis@nixos>
+resolution: fixed
 
 Once we have find_untagged.sh, we can start to guess values. In
 particular:

@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Fri, 29 Jun 2018 18:57:06 +0100
+Subject: Re: Flesh out music/find_untagged.sh
+Message-Id: <c8bb0c9090e5b45c-9290a1b345cada01-artemis@nixos>
+References: <c8bb0c9090e5b45c-0-artemis@nixos>
+In-Reply-To: <c8bb0c9090e5b45c-0-artemis@nixos>
+
+Migrated music scripts to their own repo
