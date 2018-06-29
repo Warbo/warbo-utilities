@@ -31,8 +31,7 @@ with {
 };
 rec {
   # Let scripts depend on each other by adding 'bin' to the argument set
-  extraArgs = bin // {
-    inherit nix-helpers;
+  extraArgs = bin // nix-helpers // warbo-packages // {
     raw = dirsToAttrs ./raw;
   };
 
