@@ -1,10 +1,10 @@
-{ bash, coreutils, feed2maildirsimple, libxslt, mkBin, mu, openssl, python,
-  sysPing, wget, wrap, writeScript, xidel, xmlstarlet }:
+{ bash, coreutils, feed2maildirsimple, libxslt, mkBin, mu-standalone, openssl,
+  python, raw, sysPing, wget, wrap, writeScript, xidel, xmlstarlet }:
 
 with rec {
   cleanUp = wrap {
     name   = "clean-up-news";
-    paths  = [ bash mu ];
+    paths  = [ bash mu-standalone ];
     script = ''
       #!/usr/bin/env bash
 
@@ -196,7 +196,7 @@ with rec {
 
 wrap {
   name   = "get-news-start";
-  paths  = [ bash courier mu python feed2maildirsimple ];
+  paths  = [ bash courier mu-standalone python feed2maildirsimple ];
   vars   = { inherit cleanUp rss sysPing; };
   script = ''
     #!/usr/bin/env bash
