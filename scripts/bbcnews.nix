@@ -1,5 +1,5 @@
-{ bash, curl, html2text, python, raw, runCommand, wget, withDeps, wrap, xidel,
-  xmlstarlet }:
+{ bash, curl, html2text, nix-helpers, python, raw, runCommand, wget, withDeps,
+  wrap, xidel, xmlstarlet }:
 
 with builtins;
 with rec {
