@@ -11,7 +11,7 @@ wrap {
     CONTENT=$(wget -q -O- "$2")
 
     function process {
-      echo "$CONTENT" | grep -io "$1\W0-9[0-9]*"  | tr '[:upper:]' '[:lower:]'
+      echo "$CONTENT" | grep -io "$1\\W0-9[0-9]*"  | tr '[:upper:]' '[:lower:]'
     }
 
      SERIES=$(process "series")

@@ -16,7 +16,7 @@ wrap {
     # shellcheck disable=SC2154
     if OUTPUT=$("$sysPing" -c 1 "$JO_HOST")
     then
-      ADDR=$(echo "$OUTPUT" | grep -o "192\.168\.[0-9]*\.[0-9]*" | head -n1)
+      ADDR=$(echo "$OUTPUT" | grep -o '192\.168\.[0-9]*\.[0-9]*' | head -n1)
       echo "ADDRESS: $ADDR"
       vncviewer "$ADDR"
     fi

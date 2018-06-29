@@ -48,7 +48,7 @@ wrap {
 
       echo "Got lists of '$COUNT1' and '$COUNT2' elements" 1>&2
       [[ "$COUNT1" -eq "$COUNT2" ]] || {
-        echo -e "Found different length lists. First:\n$1\n\nSecond:\n$2" 1>&2
+        echo -e "Found different length lists. First:\\n$1\\nSecond:\\n$2" 1>&2
         exit 2
       }
     }
@@ -90,7 +90,7 @@ wrap {
 
     function findCached {
       MATCHES=$(grep -rlF "$1" "$CACHEDIR")
-      FOUND=$(echo "$MATCHES" | grep -v "\.rss$" | head -n1)
+      FOUND=$(echo "$MATCHES" | grep -v '\.rss$' | head -n1)
       echo "$FOUND"
     }
 

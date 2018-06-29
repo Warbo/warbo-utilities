@@ -7,7 +7,6 @@ set -e
 [[ -d ".git" ]] ||
     fail "git-migrate-file should run from source repo root, but no .git found"
 
-FROM="$PWD"
 TO="$2"
 FILE="$1"
 

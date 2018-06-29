@@ -23,10 +23,10 @@ do
         if [[ -z "$answer" ]] || echo "$answer" | grep -i y > /dev/null
         then
             echo "Queueing" 1>&2
-            pushd "$HOME/Downloads" > /dev/null
+            pushd "$HOME/Downloads" > /dev/null || exit 1
                 # shellcheck disable=SC2154
                 ts "$youtube_then_mark" "$F" "$URL"
-            popd > /dev/null
+            popd > /dev/null || exit 1
         else
             echo "Skipping" 1>&2
         fi
@@ -42,10 +42,10 @@ do
     then
         URL=$(grep '^Link: ' < "$F" | cut -d ' ' -f2-)
         echo "Queueing" 1>&2
-        pushd "$HOME/Downloads" > /dev/null
+        pushd "$HOME/Downloads" > /dev/null || exit 1
           # shellcheck disable=SC2154
           ts "$youtube_then_mark" "$F" "$URL"
-        popd > /dev/null
+        popd > /dev/null || exit 1
     else
         echo "Skipping" 1>&2
     fi

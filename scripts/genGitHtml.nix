@@ -94,7 +94,7 @@ with rec {
       do
         if [[ -e "$2/git/repository/$F" ]]
         then
-          README_MSG=$(echo -e "Contents of $F follows\n\n---\n\n")
+          README_MSG=$(echo -e "Contents of $F follows\\n\\n---\\n\\n")
           pandoc -f markdown -t html < "$2/git/repository/$F" > "$READMEFILE"
         fi
       done

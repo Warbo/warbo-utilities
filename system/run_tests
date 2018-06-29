@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-RUNNING=$(pgrep -cf "\./run")
+RUNNING=$(pgrep -cf "\\./run")
 
 if [[ $RUNNING -eq 0 ]]
 then
