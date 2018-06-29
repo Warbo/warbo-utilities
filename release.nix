@@ -1,23 +1,8 @@
 with rec {
-  stable   = import ./. { packageOnly = false; };
-  unstable = import ./. {
-    packageOnly = false;
-    nixPkgs     = import <nixpkgs> {
-      config =
-        with {
-          config-src = with builtins.tryEval <nix-config>;
-                       if success
-                          then value
-                          else stable.nixPkgs.latestGit {
-                            url    = http://chriswarbo.net/git/nix-config.git;
-                            stable = { unsafeSkip = true; };
-                          };
-        };
-        import "${config-src}/config.nix";
-    };
-  };
+  # Unlike default.nix, we explicitly avoid loading system/user overlays, so
+  # that the fallbacks defined in derivation.nix will be used.
+  pkgs = import <nixpkgs> { config = {}; overlays = []; };
+
+  defs = pkgs.callPackage ./derivation.nix {};
 };
-{
-    stable = builtins.removeAttrs   stable [ "nixPkgs" ];
-  unstable = builtins.removeAttrs unstable [ "nixPkgs" ];
-}
+{ warbo-utilities = defs.pkg; }
