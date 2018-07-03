@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -e
+
+# shellcheck disable=SC2154
+[[ -n "$fold" ]] || fail "No 'fold' command given (should be fold-unbuffered)"
+
+# This script starts up a bash shell, passing along any arguments we've been
+# given. The output of that shell is piped through (our patched version of) the
+# 'fold' program from GNU coreutils, which inserts linebreaks to avoid very long
+# lines. Using a pipe breaks bash's interactive mode, which we fix by launching
+# it with 'expect'.
+
+# This script was created for use with Emacs's shell-mode, since commands can
+# easily produce many MB of output containing very long lines, which cause Emacs
+# to grind to a halt. An earlier attempt to mitigate this using an Emacs Lisp
+# function worked somewhat, but with very large output would *itself* cause
+# Emacs to as it struggled to insert newlines! Since this implementation uses a
+# small, zero-allocation C program it should hopefully be robust enough that I
+# can finally ignore this problem for good!
+
+# Use 'expect' to set up pty, etc. for bash. If we just launched bash straight
+# from this script, it would notice that its stdout is a pipe and not work as an
+# interactive shell properly (no job control, etc.). Some explanation:
+#
+#  - 'log_user 0' stops expect echoing out what it's doing
+#  - '$argv' is tcl's argument list (everything after '--')
+#  - '{*}$argv' passes each element of '$argv' as a separate argument, in a way
+#    that should be safe with quotes, whitespace, etc. Like '$@' in bash.
+#  - 'interact' hooks our stdio with that of the spawned bash shell
+#  - '-nobuffer' stops line buffering (and pattern-matching, which we don't use)
+#  - We can't pipe $CMD into stdin, since we need to keep that free for our bash
+#    interaction. Hence we use a process substitution instead.
+#  - 'fold-unbuffered' is specifically written to avoid buffering, but the pipe
+#    might still buffer. We use 'stdbuf' to prevent that.
+# shellcheck disable=SC2016
+CMD='log_user 0; spawn "bash" {*}$argv; interact -nobuffer'
+expect -f <(echo "$CMD") -- "$@" | stdbuf -i0 -o0 -e0  "$fold"
