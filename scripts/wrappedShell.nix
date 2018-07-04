@@ -1,4 +1,4 @@
-{ bash, expect, fold-unbuffered, nix-helpers, python, raw, runCommand,
+{ bashInteractive, expect, fold-unbuffered, nix-helpers, python, raw, runCommand,
   utillinux, withDeps, wrap }:
 
 with builtins;
@@ -6,13 +6,8 @@ with rec {
   go = wrap {
     name  = "wrappedShell";
     file  = raw.wrappedShell;
-    paths = [ bash expect nix-helpers.fail /*utillinux*/ ];
-    vars  = {
-      fold = fold-unbuffered;
-
-      # For my convenience; I'll remove if it's causing people problems ;)
-      TERM = "xterm-256color";
-    };
+    paths = [ bashInteractive expect nix-helpers.fail ];
+    vars  = { fold = fold-unbuffered; };
   };
 
   check = name: script: runCommand "wrappedShell-${name}"
@@ -27,16 +22,6 @@ with rec {
     '';
 
   checks = {
-/*
-    getPrompt = check "get-prompt" ''
-      X=$(echo -e '\n\n' | "$go" -i 2>&1) || fail "Died\n$X"
-      echo "GOT: <<$X>>" 1>&2
-      echo "$X" | grep 'bash-[0-9.]*\$' > /dev/null ||
-        fail "Didn't spot prompt in output\n$X"
-      mkdir "$out"
-    '';
-*/
-
     immediatePrompt = check "immediate-prompt" ''
       spawn ./go -i
       set timeout 5
