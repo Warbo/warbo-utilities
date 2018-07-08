@@ -24,6 +24,21 @@ do
     done
 done
 
+if command -v laminarc > /dev/null
+then
+    if [[ -e /var/lib/laminar/cfg/jobs ]]
+    then
+        NAME=$(basename "$PWD" .git)
+        if [[ -e /var/lib/laminar/cfg/jobs/"$NAME".run ]]
+        then
+            echo "Queueing build of '$NAME'" 1>&2
+            LAMINAR_REASON="Git hook" laminarc queue "$NAME"
+        fi
+    fi
+else
+    echo "WARNING: No 'laminarc' command, can't queue builds" 1>&2
+fi
+
 echo "Scheduling push to Web and IPFS" 1>&2
 [[ -n "$IPFS_PATH" ]] || export IPFS_PATH=/var/lib/ipfs/.ipfs
 ts pushGitPages "$PWD"
