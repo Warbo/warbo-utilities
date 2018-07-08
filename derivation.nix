@@ -33,6 +33,9 @@ rec {
   # Let scripts depend on each other by adding 'bin' to the argument set
   extraArgs = bin // nix-helpers // warbo-packages // {
     raw = dirsToAttrs ./raw;
+
+    # Force xidel version, to avoid argument incompatibilities
+    inherit (nix-helpers.nixpkgs1709) xidel;
   };
 
   scripts = mapAttrs (_: f: newScope extraArgs f {})
