@@ -1,5 +1,5 @@
 { bash, coreutils, feed2maildirsimple, libxslt, mkBin, mu-standalone, openssl,
-  python, raw, sysPing, wget, wrap, writeScript, xidel, xmlstarlet }:
+  python, raw, sysPing, wget, wrap, writeScript, xmlstarlet }:
 
 with rec {
   cleanUp = wrap {
