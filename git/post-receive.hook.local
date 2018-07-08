@@ -32,6 +32,7 @@ then
     then
         echo "Queueing build of '$NAME'" 1>&2
         sleep 5
+        # shellcheck disable=SC2029
         ssh user@localhost -p 22222 bash -c "export LAMINAR_REASON='Git hook'; laminarc queue '$NAME'"
     fi
 fi
