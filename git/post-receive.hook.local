@@ -32,7 +32,7 @@ then
     then
         echo "Queueing build of '$NAME'" 1>&2
         sleep 5
-        ssh user@localhost -p 22222 LAMINAR_REASON="Git hook" laminarc queue "$NAME"
+        ssh user@localhost -p 22222 bash -c "LAMINAR_REASON='Git hook' laminarc queue '$NAME'"
     fi
 fi
 
