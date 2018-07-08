@@ -1,5 +1,14 @@
-#! /usr/bin/env nix-shell
-#! nix-shell -i bash -p git ts
+#!/usr/bin/env bash
+
+command -v git > /dev/null || {
+    echo "No 'git' command, aborting $0" 1>&2
+    exit 1
+}
+
+command -v ts > /dev/null || {
+    echo "No 'ts' command, aborting $0" 1>&2
+    exit 1
+}
 
 # Fiddle environment to prevent problems
 # shellcheck disable=SC2046
