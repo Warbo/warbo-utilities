@@ -3,14 +3,14 @@ with rec {
 
   helpers = fetch {
     url    = http://chriswarbo.net/git/nix-helpers.git;
-    rev    = "66f9a00";
-    sha256 = "0f84hyqslzb56gwc8yrrn8s95nvdfqn0hf6c9i3cng3bsz3yk53v";
+    rev    = "bb75beb";
+    sha256 = "0cyp3drylrp0dvh4sll5lvi0n511grxfpmka2d5pdy4jxl0803p5";
   };
 
   packages = fetch {
     url    = http://chriswarbo.net/git/warbo-packages.git;
-    rev    = "c2ea27d";
-    sha256 = "04aif1s3cxk27nybsxp571fmvswy5vbw0prq67y108sb49mm3288";
+    rev    = "c9247be";
+    sha256 = "099sk26lgh8zhfkm39zycsmr6vpr2mpx273lic04ckqcpfm4nzgr";
   };
 };
 
