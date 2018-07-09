@@ -23,7 +23,7 @@ while read -r LINE
 do
     # Skip comments
     echo "$LINE" | grep '^\s*#' > /dev/null && continue
-    UID=$(echo "$LINE" | cut -f1)
-    LOC=$(echo "$LINE" | cut -f2)
-    openIfNeeded "$UID" "$LOC"
+    UNIQUEID=$(echo "$LINE" | cut -f1)
+    LOCATION=$(echo "$LINE" | cut -f2)
+    openIfNeeded "$UNIQUEID" "$LOCATION"
 done < ~/.pdfs
