@@ -2,7 +2,11 @@
 set -e
 
 # shellcheck disable=SC2154
-[[ -n "$fold" ]] || fail "No 'fold' command given (should be fold-unbuffered)"
+[[ -n "$fold"          ]] ||
+    fail "No 'fold' command given (should be fold-unbuffered)"
+# shellcheck disable=SC2154
+[[ -n "$wrappedExpect" ]] ||
+    fail "'wrappedExpect' should be path to wrappedShell.expect"
 
 # This script starts up a bash shell, passing along any arguments we've been
 # given. The output of that shell is piped through (our patched version of) the
@@ -20,18 +24,11 @@ set -e
 
 # Use 'expect' to set up pty, etc. for bash. If we just launched bash straight
 # from this script, it would notice that its stdout is a pipe and not work as an
-# interactive shell properly (no job control, etc.). Some explanation:
+# interactive shell properly (no job control, etc.). Note that:
 #
-#  - 'log_user 0' stops expect echoing out what it's doing
-#  - '$argv' is tcl's argument list (everything after '--')
-#  - '{*}$argv' passes each element of '$argv' as a separate argument, in a way
-#    that should be safe with quotes, whitespace, etc. Like '$@' in bash.
-#  - 'interact' hooks our stdio with that of the spawned bash shell
-#  - '-nobuffer' stops line buffering (and pattern-matching, which we don't use)
-#  - We can't pipe $CMD into stdin, since we need to keep that free for our bash
-#    interaction. Hence we use a process substitution instead.
+#  - We can't pipe $wrappedExpect into stdin, since we need to keep that free
+#    for our bash interaction.
 #  - 'fold-unbuffered' is specifically written to avoid buffering, but the pipe
 #    might still buffer. We use 'stdbuf' to prevent that.
 # shellcheck disable=SC2016
-CMD='log_user 0; spawn "bash" {*}$argv; interact -nobuffer'
-expect -f <(echo "$CMD") -- "$@" | stdbuf -i0 -o0 -e0  "$fold"
+expect -f "$wrappedExpect" -- "$@" | stdbuf -i0 -o0 -e0  "$fold"

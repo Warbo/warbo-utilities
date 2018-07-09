@@ -7,7 +7,10 @@ with rec {
     name  = "wrappedShell";
     file  = raw.wrappedShell;
     paths = [ bashInteractive expect nix-helpers.fail ];
-    vars  = { fold = fold-unbuffered; };
+    vars  = {
+      fold          = fold-unbuffered;
+      wrappedExpect = raw."wrappedShell.expect";
+    };
   };
 
   check = name: script: runCommand "wrappedShell-${name}"
