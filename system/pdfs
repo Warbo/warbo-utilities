@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -e
+
+# Open all useful PDFs
+
+function isOpen {
+    ps auxww | grep mupdf-x11 | grep "$1" > /dev/null
+}
+
+function openIfNeeded {
+    # Open $2 if it's not already (i.e. if `mupdf-x11 ... $1` appears in `ps`)
+    if isOpen "$1"
+    then
+        echo "Already have reader for $2, skipping" 1>&2
+    else
+        echo "Opening $2" 1>&2
+        mupdf-x11 "$2" &
+    fi
+}
+
+while read -r LINE
+do
+    # Skip comments
+    echo "$LINE" | grep '^\s*#' > /dev/null && continue
+    UID=$(echo "$LINE" | cut -f1)
+    LOC=$(echo "$LINE" | cut -f2)
+    openIfNeeded "$UID" "$LOC"
+done < ~/.pdfs
