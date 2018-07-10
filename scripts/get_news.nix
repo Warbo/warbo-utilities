@@ -53,7 +53,7 @@ with rec {
       # Limit Reddit feeds to 100 messages. They only include about the latest
       # 25 posts, so we shouldn't get any dupes creeping in.
       for FEED in RedditHaskell RedditStallmanWasRight Intercept \
-                  ScienceBulletin BBCHeadlines TEDTalks HackerNews
+                  ScienceBulletin BBCHeadlines HackerNews
       do
         while read -r F
         do
