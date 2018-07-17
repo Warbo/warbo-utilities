@@ -1,4 +1,4 @@
-with { helpers = import ./helpers.nix; };
+with { helpers = import ./helpers.nix {}; };
 
 {
   haskellPackages,
