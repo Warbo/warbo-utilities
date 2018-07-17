@@ -5,7 +5,7 @@ with { helpers = import ./helpers.nix {}; };
   lib,
   makeWrapper,
   newScope,
-  nix-helpers    ? import helpers.helpers,
+  nix-helpers    ? import helpers.nix-helpers,
   runCommand,
   warbo-packages ? import helpers.warbo-packages
 }:
