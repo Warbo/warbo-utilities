@@ -1,27 +1,13 @@
-with rec {
-  fetch   = args: import ((import <nixpkgs> { config = {}; }).fetchgit args);
-
-  helpers = fetch {
-    url    = http://chriswarbo.net/git/nix-helpers.git;
-    rev    = "bb75beb";
-    sha256 = "0cyp3drylrp0dvh4sll5lvi0n511grxfpmka2d5pdy4jxl0803p5";
-  };
-
-  packages = fetch {
-    url    = http://chriswarbo.net/git/warbo-packages.git;
-    rev    = "c9247be";
-    sha256 = "099sk26lgh8zhfkm39zycsmr6vpr2mpx273lic04ckqcpfm4nzgr";
-  };
-};
+with { helpers = import ./helpers.nix; };
 
 {
   haskellPackages,
   lib,
   makeWrapper,
   newScope,
-  nix-helpers ? helpers,
+  nix-helpers    ? import helpers.helpers,
   runCommand,
-  warbo-packages ? packages
+  warbo-packages ? import helpers.warbo-packages
 }:
 
 with builtins;
