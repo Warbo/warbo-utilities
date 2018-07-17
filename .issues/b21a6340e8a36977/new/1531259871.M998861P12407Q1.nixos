@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Tue, 10 Jul 2018 22:57:39 +0100
+Subject: Re: Make trackGit define declarative Hydra jobset
+Message-Id: <b21a6340e8a36977-ced691ce63fa5794-artemis@nixos>
+References: <b21a6340e8a36977-0-artemis@nixos>
+In-Reply-To: <b21a6340e8a36977-0-artemis@nixos>
+
+We prefer laminar

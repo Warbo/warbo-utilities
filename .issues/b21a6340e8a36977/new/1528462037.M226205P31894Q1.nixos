@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Fri, 08 Jun 2018 13:43:02 +0100
-State: new
+State: resolved
 Subject: Make trackGit define declarative Hydra jobset
 Message-Id: <b21a6340e8a36977-0-artemis@nixos>
+resolution: fixed
 
 I'm still not quite sure how declarative Hydra jobsets work, but it
 seems to involve a JSON file. We should have trackGit ask whether we
