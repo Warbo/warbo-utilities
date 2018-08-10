@@ -55,8 +55,6 @@ with rec {
         SECS=$(date -d "$DATE" '+%s')
         PDAT=$(date -d "$DATE" --iso-8601)
 
-        echo "NUM: $NUM, SNUM: $SNUM, ENUM: $ENUM, DATE: $DATE, NAME: $NAME" 1>&2
-
         # Anything older than a year is not news
         if [[ -z "$KEEP_ALL" ]] && [[ "$SECS" -lt "$LY"  ]]
         then
@@ -70,7 +68,6 @@ with rec {
         if [[ "$SECS" -lt "$NOW" ]]
         then
           DESC="Episode $NUM, ${"s$" + "{SNUM}e$" + "{ENUM}"} - $NAME"
-          echo "Writing episode s""$SNUM""e""$ENUM" 1>&2
           xmlstarlet ed -L \
             -a "//channel" -t elem -n item        -v ""           \
             -s "//item[1]" -t elem -n title       -v "$NUM $NAME" \
