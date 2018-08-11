@@ -196,7 +196,7 @@ with rec {
 
 wrap {
   name   = "get-news-start";
-  paths  = [ bash courier mu-standalone python feed2maildirsimple ];
+  paths  = [ bash courier mu-standalone procps python feed2maildirsimple ];
   vars   = { inherit cleanUp rss sysPing; };
   script = ''
     #!/usr/bin/env bash
