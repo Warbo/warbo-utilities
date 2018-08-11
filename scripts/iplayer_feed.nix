@@ -51,6 +51,8 @@ wrap {
         echo -e "Found different length lists. First:\\n$1\\nSecond:\\n$2" 1>&2
         exit 2
       }
+      [[ "$COUNT1" -gt 3 ]] ||
+        fail "Only found '$COUNT' entries? Seems fishy, aborting."
     }
 
     function listToFeed {
@@ -62,8 +64,10 @@ wrap {
 
       FORMATTED=$(formattedProgrammes "$2") || fail "Couldn't format listing"
 
+      COUNT=0
       while read -r LINE
       do
+        COUNT=$(( COUNT + 1 ))
         THISURL=$(echo "$LINE" | cut -f 1)
         THISTTL=$(echo "$LINE" | cut -f 2-)
         writeItem "$THISURL" "$THISTTL"
