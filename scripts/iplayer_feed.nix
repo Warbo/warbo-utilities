@@ -18,12 +18,13 @@ wrap {
       # Click - 25th May 2016
       # Springwatch 2016 Episode 3
 
-      XPATH="//li[contains(@class,\"programme\")]/div/a"
+      XPATH="//a[contains(@class,\"content-item__link\")]"
 
       echo "Fetching '$1'" 1>&2
       wget -q -O- "$1" |
-        xidel -q -e "$XPATH/resolve-uri(@href, \"$1\")" \
-                 -e "$XPATH/@title" -
+        xidel -q \
+          -e "$XPATH/resolve-uri(@href, \"$1\")" \
+          -e "$XPATH//div[contains(@class,\"content-item__title\")]/text()" -
     }
 
     function formattedProgrammes {
