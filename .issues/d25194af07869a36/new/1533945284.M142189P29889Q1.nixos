@@ -1,0 +1,10 @@
+From: Chris Warburton
+Date: Sat, 11 Aug 2018 00:52:14 +0100
+State: new
+Subject: Speed up get_eps
+Message-Id: <d25194af07869a36-0-artemis@nixos>
+
+Goes very slowly, presumably due to invoking separate processes for each
+field of each entry, and rewriting the XML file in place over and over.
+
+Maybe use Haskell?
