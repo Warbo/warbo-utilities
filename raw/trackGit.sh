@@ -132,6 +132,81 @@ then
     git remote add origin "$localRepo"
 fi
 
+# Check if we have an asv.conf.json
+ASV_CONF=0
+# shellcheck disable=SC2034
+while read -r F
+do
+    ASV_CONF=1
+done < <(find . -name 'asv.conf.json')
+
+# If we have no asv.conf.json, ask to make one
+ASV_TEMPLATE="$HOME/.templates/asv.conf.json.template"
+if [[ "$ASV_CONF" -eq 0 ]] && [[ -e "$ASV_TEMPLATE" ]]
+then
+    read -r -p "No asv.conf.json, create from $ASV_TEMPLATE? (y/N)? " answer
+    case "${answer:0:1}" in
+        y|Y )
+            ASV_CONF=1
+            ;;
+    esac
+    if [[ "$ASV_CONF" -eq 1 ]]
+    then
+        sed -e "s/PROJECT_NAME/$name/g" < "$ASV_TEMPLATE" > asv.conf.json
+    fi
+fi
+unset ASV_TEMPLATE
+
+# If we have an asv.conf.json in the default location, see if its benchmark_dir
+# already exists, and ask to create if not
+ASV_CONF="$PWD/asv.conf.json"
+if [[ -e "$ASV_CONF" ]]
+then
+    BENCHMARK_DIR=$(grep -v '^ *//' < "$ASV_CONF" | jq -r '.benchmark_dir')
+    BENCHMARK_DIR="$PWD/$BENCHMARK_DIR"
+    [[ -e "$BENCHMARK_DIR" ]] || {
+        read -r -p "Dir $BENCHMARK_DIR not found, create (y/N)? " answer
+        case "${answer:0:1}" in
+            y|Y )
+                mkdir -p "$BENCHMARK_DIR"
+                ;;
+        esac
+    }
+
+    # Benchmark dir should contain an __init__.py to avoid problems
+    [[ -e "$BENCHMARK_DIR" ]] && {
+        BENCHMARK_PY="$BENCHMARK_DIR/__init__.py"
+        [[ -e "$BENCHMARK_PY" ]] || {
+            read -r -p "No $BENCHMARK_PY found, create empty one (y/N)? " answer
+            case "${answer:0:1}" in
+                y|Y )
+                    touch "$BENCHMARK_PY"
+                    ;;
+            esac
+        }
+        unset BENCHMARK_PY
+    }
+
+    # Should we ask to create a default.nix in the benchmark_dir?
+    BENCHMARK_TEMPLATE="$HOME/.templates/benchmark_default.template"
+    if [[ -e "$BENCHMARK_DIR" ]] && [[ -e "$BENCHMARK_TEMPLATE" ]]
+    then
+        BENCHMARK_NIX="$BENCHMARK_DIR/default.nix"
+        [[ -e "$BENCHMARK_NIX" ]] || {
+            read -r -p "No $BENCHMARK_NIX, create one? (y/N)? " answer
+            case "${answer:0:1}" in
+                y|Y )
+                    cp -v "$BENCHMARK_TEMPLATE" "$BENCHMARK_NIX"
+                    ;;
+            esac
+        }
+        unset BENCHMARK_NIX
+    fi
+    unset BENCHMARK_TEMPLATE
+    unset BENCHMARK_DIR
+fi
+unset ASV_CONF
+
 echo "Checking $REPOS in case we made changes which need propagating" 1>&2
 cd "$REPOS" || exit 1
 sh check.sh
