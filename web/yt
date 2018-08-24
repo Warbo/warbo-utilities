@@ -3,7 +3,21 @@
 EXTRA=""
 if echo "$*" | grep yout > /dev/null
 then
-    EXTRA="-f 43"
+    echo "Looking up available formats" 1>&2
+
+    # youtube-dl puts progress/debug info on stdout instead of stderr. We
+    # try filtering this out by only keeping lines beginning with a digit.
+    FORMATS=$(youtube-dl -F "$@" | grep '^[0-9]')
+
+    echo "Formats are:" 1>&2
+    echo "$FORMATS"     1>&2
+
+    if [[ "$#" -eq 1 ]]
+    then
+        echo "Only 1 arg given, which seems to be a youtube URL"            1>&2
+        echo "Assuming we want format 43 (WebM), falling back to 18 (AVC1)" 1>&2
+        EXTRA="-f 43/18"
+    fi
 fi
 
 if echo "$*" | grep ted.com > /dev/null
