@@ -64,6 +64,9 @@ with rec {
                  head -n20                                      )
       done
 
+      # Delete old BBC news content (since their RSS only has summaries)
+      find /tmp/bbcnews-cached -type f -mtime +30 -exec rm {} \;
+
       stopMu
       mu index --maildir="$HOME/Mail"
     '';
