@@ -45,12 +45,8 @@ with rec {
         echo "$EP" | grep '^.' > /dev/null || continue
         echo "EP: $EP" 1>&2
 
-        # number,season,episode,airdate,title
-         NUM=$(echo "$EP" | csvcut -c 1)
-        SNUM=$(echo "$EP" | csvcut -c 2)
-        ENUM=$(echo "$EP" | csvcut -c 3)
+        # Format is number,season,episode,airdate,title
         DATE=$(echo "$EP" | csvcut -c 4)
-        NAME=$(echo "$EP" | csvcut -c 5)
 
         SECS=$(date -d "$DATE" '+%s')
         PDAT=$(date -d "$DATE" --iso-8601)
@@ -61,21 +57,28 @@ with rec {
           continue
         fi
 
+        # Anything scheduled for the future is no use
+        [[ "$SECS" -lt "$NOW" ]] || continue
+
+        # Format is number,season,episode,airdate,title
+         NUM=$(echo "$EP" | csvcut -c 1)
+        SNUM=$(echo "$EP" | csvcut -c 2)
+        ENUM=$(echo "$EP" | csvcut -c 3)
+        NAME=$(echo "$EP" | csvcut -c 5)
+
         # shellcheck disable=SC2001
         URL=$(echo "$2" | sed -e 's/&/&amp;/g')
 
-        # Anything scheduled for the future is no use
-        if [[ "$SECS" -lt "$NOW" ]]
-        then
-          DESC="Episode $NUM, ${"s$" + "{SNUM}e$" + "{ENUM}"} - $NAME"
-          xmlstarlet ed -L \
-            -a "//channel" -t elem -n item        -v ""           \
-            -s "//item[1]" -t elem -n title       -v "$NUM $NAME" \
-            -s "//item[1]" -t elem -n link        -v "$URL"       \
-            -s "//item[1]" -t elem -n pubDate     -v "$PDAT"      \
-            -s "//item[1]" -t elem -n description -v "$DESC"      \
-            -s "//item[1]" -t elem -n guid        -v "$1-$NUM" "$FEED"
-        fi
+         DESC="Episode $NUM, ${"s$" + "{SNUM}e$" + "{ENUM}"} - $NAME"
+        TITLE="$NUM (s''${SNUM}e''${ENUM}) $NAME"
+        xmlstarlet ed -L \
+          -a "//channel" -t elem -n item        -v ""       \
+          -s "//item[1]" -t elem -n title       -v "$TITLE" \
+          -s "//item[1]" -t elem -n link        -v "$URL"   \
+          -s "//item[1]" -t elem -n pubDate     -v "$PDAT"  \
+          -s "//item[1]" -t elem -n description -v "$DESC"  \
+          -s "//item[1]" -t elem -n guid        -v "$1-$NUM" "$FEED"
+
       done < <(echo "$PAGE" | grep -v '^\s*<'       |
                iconv -c -f utf-8 -t ascii//translit |
                grep '\S' | grep '^[0-9]')
