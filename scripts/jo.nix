@@ -7,7 +7,8 @@ wrap {
     #!/usr/bin/env bash
     export XAUTHORITY=/home/chris/.Xauthority
 
-    CMD="export XAUTHORITY=/home/jo/.Xauthority; x2x -west -to :0"
+    [[ -n "$DISPLAY" ]] || DISPLAY=:0
+    CMD="export XAUTHORITY=/home/jo/.Xauthority; x2x -west -to $DISPLAY"
 
     MACHINE=$(johost) || exit 1
 
