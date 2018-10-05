@@ -1,0 +1,11 @@
+From: Chris Warburton
+Date: Thu, 04 Oct 2018 17:20:34 +0100
+Subject: Re: Speed up get_eps
+Message-Id: <d25194af07869a36-cc729d80e69e0d5b-artemis@nixos>
+References: <d25194af07869a36-0-artemis@nixos>
+In-Reply-To: <d25194af07869a36-0-artemis@nixos>
+
+csvcut seems to be a big time sink. It seems to be written in Python, so
+I think we're basically paying the startup cost over and over, for
+what's actually a pretty trivial operation. We can probably replace this
+with a short Haskell script, compiled ahead-of-time.

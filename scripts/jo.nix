@@ -13,6 +13,6 @@ wrap {
     MACHINE=$(johost) || exit 1
 
     # shellcheck disable=SC2029
-    ssh -Y jo@"$MACHINE" "$CMD"
+    ssh jo@"$MACHINE" "$CMD"
   '';
 }
