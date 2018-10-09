@@ -21,11 +21,14 @@ done
 POSSIBILITIES=$(echo "$POSSIBILITIES" | grep '^.')
 
 echo "Looking for BBC podcasts in ~/Mail/feeds" 1>&2
-for D in 50Things BornSmart,Equal,Different ComputingBritain CrowdScience \
-         HiddenHistoriesOfTheInformationAge InfiniteMonkeyCage \
-         InOurTimeScience InsideScience LifeScientific MoreOrLess \
-         NaturalHistories PuttingScienceToWork ReithLectures RutherfordAndFry \
-         ScienceHour ScienceInAction ScienceStories
+
+FEEDS=()
+while read -r FEED
+do
+    FEEDS+=("$FEED")
+done < "$HOME/.podcasts"
+
+for D in "${FEEDS[@]}"
 do
     echo "Checking for $D" 1>&2
     DIR="$HOME/Mail/feeds/$D/new"
