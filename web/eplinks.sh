@@ -6,14 +6,22 @@ then
     LINKS=$(cat)
 else
     echo "Fetching links from '$1'" 1>&2
-    LINKS=$(curl -s "$1" |
-      xidel -q -e '//div[@class="site"]/a[@data-hostname="vidzi.tv"]/@href' -)
+    PAGE=$(curl -s "$1")
+
+    LINKS=$(echo "$PAGE" |
+            xidel -q -e '//div[@class="site"]/a/@data-actuallink' -)
+
+    [[ -n "$TITLE" ]] ||
+        TITLE=$(echo "$PAGE" | xidel -q -e '//h1' -          |
+                               sed -e 's/ - Watch Online//g' |
+                               grep '^.'                     |
+                               head -n1)
 fi
 
-while read -r LINK
+[[ -n "$TITLE" ]] || TITLE="UNKNOWN"
+TITLE=$(echo "$TITLE" | tr '/:\t' '_')
+
+echo "$LINKS" | while read -r LINK
 do
-    while read -r VID
-    do
-        echo "youtube-dl '$VID'"
-    done < <(curl -s "$LINK" | xidel -q -e '//a/@href' - | grep 'vidzi.tv')
-done < <(echo "$LINKS")
+    echo "$TITLE	$LINK"
+done
