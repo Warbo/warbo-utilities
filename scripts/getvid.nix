@@ -1,6 +1,34 @@
-{ bash, lynx, raw, wrap, writeScript, xidel }:
+{ bash, lynx, raw, wget, wrap, writeScript, xidel }:
 
 with rec {
+  olc = wrap {
+    name = "getvid-olc";
+    paths = [ bash wget ];
+    script = ''
+      #!/usr/bin/env bash
+      if wget -q -O - "$1" | grep "File not found" > /dev/null
+      then
+        exit 1
+      fi
+      echo "$1"
+      exit 0
+    '';
+  };
+
+  sv = wrap {
+    name   = "getvid-sv";
+    paths  = [ bash wget ];
+    script = ''
+      #!/usr/bin/env bash
+      if wget -q -O - "$1" > /dev/null
+      then
+      echo "$1"
+      exit 0
+      fi
+      exit 1
+    '';
+  };
+
   vse = wrap {
     name  = "getvid-vse";
     paths = [ bash lynx ];
@@ -50,7 +78,7 @@ wrap {
   name  = "getvid";
   paths = [ bash xidel ];
   vars  = {
-    inherit vse;
+    inherit olc sv vse;
     list = raw."listepurls.sh";
   };
   script = ''
@@ -67,20 +95,61 @@ wrap {
 
     echo "LINKS: $LINKS" 1>&2
 
-    echo "$LINKS" | grep '/vs...e\.e' | while read -r PAIR
+    echo "$LINKS" | while read -r PAIR
     do
       LINK=$(echo "$PAIR" | cut -f2)
       [[ -n "$LINK" ]] || continue
 
-      # shellcheck disable=SC2154
-      URL=$("$vse" "$LINK") || true
-      [[ -n "$URL" ]] || continue
-      URL=$(echo "$URL" | esc)
-
       TITLE=$(echo "$PAIR" | cut -f1 | esc)
       [[ -n "$TITLE" ]] || TITLE="UNKNOWN"
 
-      echo "wget -O '$TITLE' '$URL'"
+      URL=""
+
+      [[ -n "$DEBUG" ]] && echo "Checking $LINK" 1>&2
+      if echo "$LINK" | grep '/op.....d\.co' > /dev/null
+      then
+        # shellcheck disable=SC2154
+        [[ -n "$DEBUG" ]] && echo "Running $olc on $LINK" 1>&2
+
+        # shellcheck disable=SC2154
+        URL=$("$olc" "$LINK") || continue
+
+        [[ -n "$URL" ]] || continue
+        URL=$(echo "$URL" | esc)
+
+        echo "wget -O '$TITLE' '$URL'"
+        continue
+      fi
+
+      if echo "$LINK" | grep '/spe....d\.co' > /dev/null
+      then
+        # shellcheck disable=SC2154
+        [[ -n "$DEBUG" ]] && echo "Running $sv on $LINK" 1>&2
+
+        # shellcheck disable=SC2154
+        URL=$("$sv" "$LINK") || continue
+
+        [[ -n "$URL" ]] || continue
+        URL=$(echo "$URL" | esc)
+
+        echo "youtube-dl --output '$TITLE' '$URL'"
+        continue
+      fi
+
+      if echo "$LINK" | grep '/vs...e\.e' > /dev/null
+      then
+        # shellcheck disable=SC2154
+        [[ -n "$DEBUG" ]] && echo "Running $vse on $LINK" 1>&2
+
+        # shellcheck disable=SC2154
+        URL=$("$vse" "$LINK") || true
+
+        [[ -n "$URL" ]] || continue
+        URL=$(echo "$URL" | esc)
+
+        echo "wget -O '$TITLE' '$URL'"
+        continue
+      fi
     done
   '';
 }
