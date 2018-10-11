@@ -80,10 +80,32 @@ wrap {
   vars  = {
     inherit olc sv vse;
     list = raw."listepurls.sh";
+    msg  = ''
+      Usage: getvid <listing url>
+
+      Looks through a listing of providers, printing 'TITLE\tURL' to stderr for
+      each. Loops through each to see if (a) it has a handler and (b) whether
+      the handler returns a working URL. If so, a command for fetching from that
+      provider is written to stdout. Set DEBUG=1 to see each handler running.
+
+      Known handlers (e.g. for running standalone) are:
+        ${olc}
+        ${sv}
+        ${vse}
+    '';
   };
   script = ''
     #!/usr/bin/env bash
     set -e
+
+    if [[ "x$1" = "x--help" ]]
+    then
+      # shellcheck disable=SC2154
+      echo "$msg" 1>&2
+      exit 0
+    fi
+
+    echo "Run with --help as the only arg to see usage and handler scripts" 1>&2
 
     function esc {
       # shellcheck disable=SC1003
