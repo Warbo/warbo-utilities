@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-URL=$(wget -q -O- "$1" | grep -o '<a [^>]*> Higher quality' |
-                         grep -o 'href="[^"]*"'             |
-                         grep -o '".*"'                     |
-                         tr -d '"')
+URL=$(wget -q -O- "$1" | xidel -q -e '//a/@href' - |
+                         grep '\.mp3'              |
+                         grep -v -- '-low'         |
+                         head -n1)
 
 # Sanity check
 echo "$URL" | grep '^http' > /dev/null || {
