@@ -22,9 +22,20 @@ with rec {
       #!/usr/bin/env bash
       if wget -q -O - "$1" > /dev/null
       then
-      echo "$1"
-      exit 0
+        echo "$1"
+        exit 0
       fi
+      exit 1
+    '';
+  };
+
+  voza = wrap {
+    name   = "getvid-voza";
+    paths  = [ bash wget xidel ];
+    script = ''
+      #!/usr/bin/env bash
+      URL=$(wget -q -O - "$1" | xidel -q -e '//video/source/@src' -)
+      echo "$URL" | grep 'http' && exit 0
       exit 1
     '';
   };
@@ -69,8 +80,10 @@ with rec {
     };
     script = ''
       #!/usr/bin/env bash
-      lynx -term=linux -accept_all_cookies -cmd_script="$cmd" "$1" |
-        grep 'video/mp4' | grep -o 'http[^"]*'
+      URL=$(lynx -term=linux -accept_all_cookies -cmd_script="$cmd" "$1" |
+            grep 'video/mp4' | grep -o 'http[^"]*')
+      echo "$URL" | grep 'http' && exit 0
+      exit 1
     '';
   };
 };
@@ -78,7 +91,7 @@ wrap {
   name  = "getvid";
   paths = [ bash xidel ];
   vars  = {
-    inherit olc sv vse;
+    inherit olc sv voza vse;
     list = raw."listepurls.sh";
     msg  = ''
       Usage: getvid <listing url>
@@ -91,6 +104,7 @@ wrap {
       Known handlers (e.g. for running standalone) are:
         ${olc}
         ${sv}
+        ${voza}
         ${vse}
     '';
   };
@@ -155,6 +169,21 @@ wrap {
         URL=$(echo "$URL" | esc)
 
         echo "youtube-dl --output '$TITLE' '$URL'"
+        continue
+      fi
+
+      if echo "$LINK" | grep '/vi..z.\.net/' > /dev/null
+      then
+        # shellcheck disable=SC2154
+        [[ -n "$DEBUG" ]] && echo "Running $voza on $LINK" 1>&2
+
+        # shellcheck disable=SC2154
+        URL=$("$voza" "$LINK") || continue
+
+        [[ -n "$URL" ]] || continue
+        URL=$(echo "$URL" | esc)
+
+        echo "wget -O '$TITLE' '$URL'"
         continue
       fi
 
