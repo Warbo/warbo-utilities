@@ -136,3 +136,6 @@ getFromSrc "FunctionalGeekery"  "Functional Geekery" 'http[s]*://[^" ]*\.mp3'
 
 getFromSrc "FlyingColoursMaths" "Wrong But Useful"   'href="http[^"]*\.mp3"' \
                                                      'http.*mp3'
+
+getFromSrc "CoRecursivePodcast" "Corecursive"        '"http[^"]*\.mp3"'
+                                                     'http.*\.mp3'
