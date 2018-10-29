@@ -153,7 +153,7 @@ wrap {
         [[ -n "$URL" ]] || continue
         URL=$(echo "$URL" | esc)
 
-        echo "wget -O '$TITLE' '$URL'"
+        echo "wget -c -O '$TITLE' '$URL'"
         continue
       fi
 
@@ -183,7 +183,7 @@ wrap {
         [[ -n "$URL" ]] || continue
         URL=$(echo "$URL" | esc)
 
-        echo "wget -O '$TITLE' '$URL'"
+        echo "wget -c -O '$TITLE' '$URL'"
         continue
       fi
 
@@ -198,7 +198,7 @@ wrap {
         [[ -n "$URL" ]] || continue
         URL=$(echo "$URL" | esc)
 
-        echo "wget -O '$TITLE' '$URL'"
+        echo "wget -c -O '$TITLE' '$URL'"
         continue
       fi
     done
