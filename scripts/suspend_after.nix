@@ -6,13 +6,8 @@ with {
     paths  = [ bash pmutils ];
     script = ''
       #!/usr/bin/env bash
-      T="$1"
-      while [[ "$T" -gt 1 ]]
-      do
-        T=$(( T - 1 ))
-        echo "Suspend in $T..."
-        sleep 1
-      done
+      echo "Suspending after..." 1>&2
+      countdown "$@" 1>&2
       pm-suspend
     '';
   };
@@ -22,11 +17,13 @@ wrap {
   paths  = [ bash ];
   script = ''
     #!/usr/bin/env bash
-    if [[ -z "$T" ]]
+    SECS="$1"
+    shift > /dev/null
+    if [[ -z "$SECS" ]]
     then
-      T=3600
-      echo "No T env var given, defaulting to $T seconds" 1>&2
+      SECS=3600
+      echo "No arguments given, defaulting to $SECS seconds" 1>&2
     fi
-    sudo "${go}" "$T"
+    sudo "${go}" "$SECS" "$@"
   '';
 }
