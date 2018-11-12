@@ -28,7 +28,7 @@ SECS=$(( SECS + (MINS  * 60) ))
 echo "Sleeping for $SECS seconds (total)" 1>&2
 for (( i="$SECS"; i>=0; i-- ))
 do
-    echo -ne "\r$(date -d"0+$i sec" +%H:%M:%S)"
+    echo -ne "\\r$(date -d"0+$i sec" +%H:%M:%S)"
     sleep 1
 done
 echo
