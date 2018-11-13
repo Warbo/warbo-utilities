@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+# Taken from https://www.commandlinefu.com/commands/view/7938/countdown-clock
+
+function usage() {
+  echo "Usage: countdown seconds <minutes> <hours>"
+  echo "Counts down the given seconds + minutes + hours then exits"
+  echo "For example, 3 hours 100 minutes would be 'countdown 0 100 3'"
+}
+
+function numeric() {
+    tr -dc '0123456789.'
+}
+
+ SECS=$(echo "$1" | numeric)
+ MINS=$(echo "$2" | numeric)
+HOURS=$(echo "$3" | numeric)
+
+[[ -n "$HOURS" ]] || HOURS=0
+[[ -n  "$MINS" ]] ||  MINS=0
+[[ -n  "$SECS" ]] || {
+    usage 1>&2
+    exit 1
+}
+
+MINS=$(( MINS + (HOURS * 60) ))
+SECS=$(( SECS + (MINS  * 60) ))
+echo "Sleeping for $SECS seconds (total)" 1>&2
+for (( i="$SECS"; i>=0; i-- ))
+do
+    echo -ne "\\r$(date -d"0+$i sec" +%H:%M:%S)"
+    sleep 1
+done
+echo

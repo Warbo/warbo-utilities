@@ -6,7 +6,7 @@ wrap {
   script = ''
     #!/usr/bin/env bash
 
-    # Run when plugging laptop back in, eg. after a meeting
+    # Run when plugging laptop into monitor
 
     # Set up multiple screens
     if xrandr | grep "VGA1 connected" > /dev/null
@@ -15,7 +15,7 @@ wrap {
       if ! xrandr | grep "VGA1 connected [0-9][0-9]*" > /dev/null
       then
         # Nope. We need to switch on.
-        bash ~/.screenlayout/uni.sh
+        bash ~/.screenlayout/office.sh
         setBg
       fi
     else

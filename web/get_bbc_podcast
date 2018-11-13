@@ -6,6 +6,11 @@ URL=$(wget -q -O- "$1" | xidel -q -e '//a/@href' - |
                          head -n1)
 
 # Sanity check
+echo "$URL" | grep '^//' > /dev/null && {
+    echo "Prepending 'http:' to '$URL'" 1>&2
+    URL="http:$URL"
+}
+
 echo "$URL" | grep '^http' > /dev/null || {
     echo "While fetching '$1', programme URL '$URL' not http, aborting" 1>&2
     exit 1
