@@ -97,28 +97,6 @@ with rec {
     '';
   };
 
-  courier = mkBin {
-    name   = "courier";
-    paths  = [ bash getRss ];
-    script = ''
-      #!/usr/bin/env bash
-
-      # Scrape the Dundee Courier
-      # Edit URL http://feed43.com/feed.html?name=dundee_courier
-      COURIER="DundeeCourier.rss"
-      if [[ -e "$COURIER" ]]
-      then
-        # Feed43 don't like polling more than every 6 hours
-        if test "$(find "$COURIER" -mmin +360)"
-        then
-          getRss "DundeeCourier" "http://feed43.com/dundee_courier.xml"
-        fi
-      else
-        getRss "DundeeCourier" "http://feed43.com/dundee_courier.xml"
-      fi
-    '';
-  };
-
   stripNonAscii = "tr -cd '[:print:]\n'";
 
   get = "timeout 20 wget -O- -q --no-check-certificate";
@@ -199,7 +177,7 @@ with rec {
 
 wrap {
   name   = "get-news-start";
-  paths  = [ bash courier mu-standalone procps python feed2maildirsimple ];
+  paths  = [ bash mu-standalone procps python feed2maildirsimple ];
   vars   = { inherit cleanUp rss sysPing; };
   script = ''
     #!/usr/bin/env bash
@@ -216,9 +194,6 @@ wrap {
 
       bbcnews > BBCHeadlines.rss ||
         echo "Error getting BBC news, skipping" 1>&2
-
-      courier ||
-        echo "Error scraping Dundee Courier, skipping" 1>&2
 
       # shellcheck disable=SC2154
       "$rss" ~/.cache/rss < ~/.feeds
