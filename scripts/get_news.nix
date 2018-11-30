@@ -1,10 +1,10 @@
 { bash, coreutils, feed2maildirsimple, libxslt, mkBin, mu-standalone, openssl,
-  procps, python, raw, sysPing, wget, wrap, writeScript, xmlstarlet }:
+  procps, python, raw, sysPing, wget, wrap, writeScript, xidel, xmlstarlet }:
 
 with rec {
   cleanUp = wrap {
     name   = "clean-up-news";
-    paths  = [ bash mu-standalone ];
+    paths  = [ bash mu-standalone xidel ];
     script = ''
       #!/usr/bin/env bash
 
@@ -66,6 +66,19 @@ with rec {
 
       # Delete old BBC news content (since their RSS only has summaries)
       find /tmp/bbcnews-cached -type f -mtime +30 -exec rm {} \;
+
+      # Delete MeetUp events from the past. These may be posted well in advance,
+      # so we can't use the file's modification time.
+      for F in "$HOME/.cache/meetup"/*
+      do
+        MILLIS=$(xidel - -q -e '//time/@dateTime' < "$F" | head -n1)
+          SECS=$(( MILLIS / 1000 ))
+          PAST=$(date -d 'now - 7 days' '+%s')
+        (( PAST < SECS )) || rm -f "$F"
+        unset MILLIS
+        unset SECS
+        unset PAST
+      done
 
       stopMu
       mu index --maildir="$HOME/Mail"
@@ -194,6 +207,22 @@ wrap {
 
       bbcnews > BBCHeadlines.rss ||
         echo "Error getting BBC news, skipping" 1>&2
+
+      # Our MeetUp scraper performs a query each time, so limit how often it
+      # runs (it does cache event details)
+      ACCEPTABLE_MEETUP=$(date -d 'now - 4 hours' '+%s')
+      if [[ -e meetup.rss ]]
+      then
+        LAST_MEETUP=$(date -r meetup.rss '+%s')
+      else
+        LAST_MEETUP=0
+      fi
+
+      if (( LAST_MEETUP <= ACCEPTABLE_MEETUP ))
+      then
+        getmeetup > meetup.rss ||
+          echo "Error getting meetup events" 1>&2
+      fi
 
       # shellcheck disable=SC2154
       "$rss" ~/.cache/rss < ~/.feeds
