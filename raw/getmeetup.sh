@@ -51,8 +51,7 @@ function getDate() {
         echo "Couldn't get date in milliseconds since epoch" 1>&2
         exit 1
     }
-    SECS=$(( MILLIS / 1000 ))
-    date -R -d "@$SECS"
+    echo $(( MILLIS / 1000 ))
 }
 
 function getDetails() {
@@ -86,13 +85,13 @@ function rssItem() {
     #  $1 Event URL
     #  $2 Event name
     #  $3 Event group
-    #  $4 Event time
+    #  $4 Event time (seconds since epoch)
     #  $5 Event details
-      XURL=$(echo "$1" | xmlEscape)
-    XTITLE=$(echo "$2" | xmlEscape)
-    XGROUP=$(echo "$3" | xmlEscape)
-     XTIME=$(echo "$4" | xmlEscape)
-     XDESC=$(echo "$5" | xmlEscape)
+      XURL=$(echo "$1"        | xmlEscape)
+    XTITLE=$(echo "$2"        | xmlEscape)
+    XGROUP=$(echo "$3"        | xmlEscape)
+     XTIME=$(date -R -d "@$4" | xmlEscape)
+     XDESC=$(echo "$5"        | xmlEscape)
 
     echo '<item>'
       echo "<title>$XTITLE</title>"
