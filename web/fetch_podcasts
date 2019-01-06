@@ -124,6 +124,20 @@ function getFromSrc {
 
           # Fetch the extracted file; use -c to resume previous attempts
           wget -c "$URL"
+
+          # Remove any extra suffices from the file name (might as well do all)
+          for GOT in *.mp3*
+          do
+              NAME=$(basename "$GOT")
+
+              # Skip those which are already .mp3
+              echo "$NAME" | grep -i '\.mp3$' > /dev/null && continue
+
+              TRIMMED=$(echo "$NAME" | grep -o '^.*\.mp3')
+
+              echo "Renaming dodgy-looking '$NAME' to '$TRIMMED'" 1>&2
+              mv -v "$NAME" "$TRIMMED"
+          done
         popd
 
         # Try to mark as read; this seems to work, but needs mu4e open
