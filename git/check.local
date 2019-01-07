@@ -27,7 +27,7 @@ fi
 
 for repo in *.git
 do
-    pushd "$repo" > /dev/null
+    pushd "$repo" > /dev/null || exit 1
     git config --get remote.origin.fetch && {
         echo "Removing fetch refs from '$repo'" >> /dev/stderr
         git config --unset remote.origin.fetch
@@ -37,7 +37,7 @@ do
         echo "Removing mirror status of '$repo'" >> /dev/stderr
         git config --unset remote.origin.mirror
     }
-    popd > /dev/null
+    popd > /dev/null || exit 1
 done
 
 # Since these hooks will try pushing changes to remote repos, even if there are

@@ -8,7 +8,7 @@ function msg {
 }
 
 msg "Reading input..."
-INPUT=$(cat | grep -e "^\(\[\|[0-9]\)")
+INPUT=$(cat | grep -e "^\\(\\[\\|[0-9]\\)")
 msg "Finished reading input"
 
 # PID to use for the top-level process
@@ -24,7 +24,7 @@ function get_top_pid {
             TOP="$PIDGTP"
             return
         fi
-    done < <(echo "$INPUT" | grep -o "^\[pid *[0-9]*\]" | grep -o "[0-9]*")
+    done < <(echo "$INPUT" | grep -o "^\\[pid *[0-9]*\\]" | grep -o "[0-9]*")
 }
 
 msg "Finding top-level process ID"
@@ -38,7 +38,7 @@ function strip_prefix {
 function pid_of {
     # Try to infer which process a line comes from. This is either a [pid 1234]
     # prefix, or no prefix if the line comes from the top process
-    if PRE=$(echo "$1" | grep -o "^\[pid *[0-9]*\]")
+    if PRE=$(echo "$1" | grep -o "^\\[pid *[0-9]*\\]")
     then
         echo "$PRE" | grep -o "[0-9]*"
     else
@@ -50,9 +50,9 @@ function lines_of {
     # Returns lines associated with the given PID
     if [[ "$1" -eq "$TOP" ]]
     then
-        echo "$INPUT" | grep -v "^\[pid *[0-9]*\]"
+        echo "$INPUT" | grep -v "^\\[pid *[0-9]*\\]"
     else
-        echo "$INPUT" | grep "^\[pid *$1\]"
+        echo "$INPUT" | grep "^\\[pid *$1\\]"
     fi
 }
 

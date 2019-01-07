@@ -3,8 +3,8 @@
 {
   nix-helpers = fetchgit {
     url    = http://chriswarbo.net/git/nix-helpers.git;
-    rev    = "4fb7c87";
-    sha256 = "1wwagwxjj8v5q5wi75fcqz6xl17b1jf4l5p051vx371xj373v3dk";
+    rev    = "148bd5e";
+    sha256 = "0wywgdmv4gllarayhwf9p41pzrkvgs32shqrycv2yjkwz321w8wl";
   };
 
   warbo-packages = fetchgit {
