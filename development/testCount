@@ -9,7 +9,7 @@ SUCCESS=0
 
 if [[ -e "$DIR" ]]
 then
-      COUNT=$(ls -1 "$DIR"        | wc -l)
+      COUNT=$(find "$DIR" -type f | wc -l)
     SUCCESS=$(grep -R PASS "$DIR" | wc -l)
        FAIL=$(grep -R FAIL "$DIR" | wc -l)
 fi
