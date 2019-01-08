@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -e
+
+DIR="/tmp/test_results.individual"
+
+COUNT=0
+SUCCESS=0
+FAIL=0
+
+if [[ -e "$DIR" ]]
+then
+    for T in "$DIR"/*
+    do
+        COUNT=$(( COUNT + 1 ))
+        NAME=$(basename "$T")
+        if grep 'PASS' < "$T" > /dev/null
+        then
+          SUCCESS=$(( SUCCESS + 1 ))
+        else
+          FAIL=$(( FAIL + 1 ))
+        fi
+    done
+fi
+
+if [[ "$FAIL" -eq 0 ]]
+then
+    echo "<fc=#00FF00>$SUCCESS/$COUNT</fc>"
+else
+    echo "<fc=#FF0000>$SUCCESS/$COUNT</fc>"
+fi
