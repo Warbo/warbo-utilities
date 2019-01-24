@@ -11,21 +11,39 @@ with rec {
       D=$(find ~/Mail/dundee/INBOX/new -type f | shuf | head -n1)
 
       # Pick one or the other
+      SOURCE=""
       M=""
-      [[ -n "$G" ]] || M="$D"
-      [[ -n "$D" ]] || M="$G"
+      [[ -n "$G" ]] || {
+        M="$D"
+        SOURCE="DD"
+      }
+      [[ -n "$D" ]] || {
+        M="$G"
+        SOURCE="GM"
+      }
       [[ -n "$M" ]] || {
         if [[ "$(( RANDOM % 3 ))" -eq 0 ]]
         then
           M="$D"
+          SOURCE="DD"
         else
           M="$G"
+          SOURCE="GM"
         fi
       }
 
+      # Extract and format content
+      function getOne {
+        grep "$1" | "$2" | grep '^.' | head -n1 | sed -e "$3" | cut -c1-"$4"
+      }
+
+
       if [[ -n "$M" ]]
       then
-        grep '^Subject:' < "$M" | sed -e 's/^Subject: //g'
+        FROM=$(getOne '^From:'    "cat"  's/^From: //g'    15 < "$M")
+        SUBJ=$(getOne '^Subject:' "cat"  's/^Subject: //g' 28 < "$M")
+        LINE=$(getOne '^[^:<>]*$' "shuf" 's/  */ /g'       28 < "$M")
+        echo "$SOURCE:$FROM|$SUBJ|$LINE"
       else
         echo "No mail?"
       fi
@@ -37,7 +55,7 @@ with rec {
     script = ''
       #!/usr/bin/env bash
       MAIL=$(random_mail)
-      NEXT=$(head -n1 < ~/.next)
+      NEXT=$(grep -v '^#' < ~/.next | grep '^.' | shuf | head -n1) || true
 
       [[ -n "$MAIL" ]] || {
         echo "$NEXT"
