@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -e
+
+# Mark the given filename as read, in mu's database and mu4e's Emacs buffers
+
+function fail {
+    echo "$*" 1>&2
+    exit 1
+}
+
+[[ -e "$1" ]] || fail "Maildir file '$1' not found"
+
+# We need the msgid from mu's database. Getting this is convoluted, since mu
+# doesn't seem to allow querying by filename, so we use the sender instead
+FROM=$(grep '^From:' < "$1" | head -n1 | sed -e 's/^From: //')
+[[ -n "$FROM" ]] || fail "No From line in '$1'"
+
+# Look for messages with this subject line and print their filename and msgid
+FOUND=0
+MSGID=""
+while read -r PAIR
+do
+    LOCATION=$(echo "$PAIR" | cut -f2)
+    [[ "x$LOCATION" = "x$1" ]] || continue
+
+    FOUND=1
+    MSGID=$(echo "$PAIR" | cut -f1)
+    break
+done < <(mu find "from:$FROM" --fields 'i	l')
+
+[[ "$FOUND" -eq 1 ]] || fail "Couldn't find '$1' in mu DB (from '$FROM')"
+[[ -n "$MSGID"    ]] || fail "No msgid for '$1'"
+
+# We set the flags via mu4e, rather than calling 'mu server' ourselves, since
+# it will automatically update any mu4e displays to show it as read
+OUT=$(emacsclient -e "(mu4e~proc-move \"$MSGID\" nil \"+S-u-N\")") ||
+    fail "Emacs gave an error, aborting (stdout: $OUT)"
+
+# We expect the output 'nil', otherwise alert the user
+[[ "x$OUT" = "xnil" ]] || fail "Unexpected response from Emacs: $OUT"
