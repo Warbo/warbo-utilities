@@ -7,12 +7,6 @@ function norm {
     tr '[:upper:]' '[:lower:]' | tr -dc '[:alnum:]'
 }
 
-function markAsRead {
-    FULL=$(readlink -f "$1")
-    emacsclient --eval "(mu4e~proc-view-path \"$FULL\")"
-    sleep 1
-}
-
 POSSIBILITIES=""
 for POSSIBLE in ~/Audio/Non-fiction/*
 do
@@ -75,8 +69,8 @@ do
 
         mkdir -p "$HOME/Audio/TODO/$GUESSTINATION"
         inDir "$HOME/Audio/TODO/$GUESSTINATION" get_bbc_podcast "$URL"
-        #mv "$F" "$(dirname "$DIR")/cur/"
-        markAsRead "$F"
+
+        markRead "$F"
     done
 done
 echo "Done with BBC podcasts" 1>&2
@@ -140,9 +134,7 @@ function getFromSrc {
           done
         popd
 
-        # Try to mark as read; this seems to work, but needs mu4e open
-        #mv -v "$F" "$HOME/Mail/feeds/$IN/cur/"
-        markAsRead "$F"
+        markRead "$F"
     done
 }
 

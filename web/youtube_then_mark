@@ -1,16 +1,10 @@
 #!/usr/bin/env bash
+set -e
+
 F="$1"
 [[ -e "$F" ]] || {
     echo "Given file '$1' not found, aborting" 1>&2
     exit 1
-}
-
-function markAsRead {
-    FULL=$(readlink -f "$1")
-    emacsclient --eval "(mu4e~proc-view-path \"$FULL\")"
-    sleep 1
-    OUTER=$(dirname "$FULL")
-    (cd "$OUTER" || exit 1; mv "$FULL" ../cur/;)
 }
 
 function get {
@@ -31,4 +25,4 @@ function get {
 }
 
 shift
-get "$@" && markAsRead "$F"
+get "$@" && markRead "$F"
