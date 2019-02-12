@@ -244,6 +244,6 @@ wrap {
     # Re-index (after stopping any existing instance, e.g. the server for mu4e)
     pkill -2 -u "$UID" mu
     sleep 2
-    mu index --maildir="$HOME/Mail"
+    mu index --maildir="$HOME/Mail" --lazy-check
   '';
 }
