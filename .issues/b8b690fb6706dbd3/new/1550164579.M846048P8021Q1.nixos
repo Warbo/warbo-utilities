@@ -1,0 +1,11 @@
+From: Chris Warburton
+Date: Thu, 14 Feb 2019 17:12:59 +0000
+Subject: Re: Make artemis command more robust
+Message-Id: <b8b690fb6706dbd3-b71226108b09bb2c-artemis@nixos>
+References: <b8b690fb6706dbd3-0-artemis@nixos>
+In-Reply-To: <b8b690fb6706dbd3-0-artemis@nixos>
+
+Fixed by commit 70c344c in .emacs.d
+
+Rather than invoking emacsclient twice, causing a race condition, we now
+use an emacs hook which is triggered when emacsclient opens a file.
