@@ -46,13 +46,21 @@ with rec {
       set -e
       shopt -s nullglob
 
-      [[ "$#" -eq 2 ]] || {
-        echo "Usage: genGitHtml <repo-path> <destination>" 1>&2
-        echo "Optionally, set REPO_LINK to your base URL"  1>&2
-        exit 1
-      }
+      # If we've not been given env vars, take values from commandline args
+      if [[ -z "$repoPath" ]] || [[ -z "$htmlPath" ]]
+      then
+        # Bail out if args weren't given
+        [[ "$#" -eq 2 ]] || {
+          echo "Usage: genGitHtml <repo-path> <destination>"               1>&2
+          echo "Alternatively, set the 'repoPath' and 'htmlPath' env vars" 1>&2
+          echo "Optionally, set REPO_LINK to your base URL"                1>&2
+          exit 1
+        }
 
-      repoPath="$1"
+        repoPath="$1"
+        htmlPath="$2"
+      fi
+
       if echo "$repoPath" | grep '^/' > /dev/null
       then
         repoPath="file://$repoPath"
@@ -60,53 +68,58 @@ with rec {
 
       repoName=$(basename "$repoPath" .git)
 
-      [[ -n "$REPO_LINK" ]] || REPO_LINK="http://chriswarbo.net/git/$repoName.git"
+      # Assume we're using chriswarbo.net, unless told otherwise
+      [[ -n "$REPO_LINK" ]] ||
+        REPO_LINK="http://chriswarbo.net/git/$repoName.git"
 
       echo "Generating pages from git history" 1>&2
-      mkdir -p "$2/git"
+      mkdir -p "$htmlPath/git"
 
       #        Name           Source repo    Base URL        Destination
-      git2html -p "$repoName" -r "$repoPath" -l "$REPO_LINK" "$2/git"
+      git2html -p "$repoName" -r "$repoPath" -l "$REPO_LINK" "$htmlPath/git"
 
       echo "Generating pages from issue tracker" 1>&2
-      mkdir "$2/issues"
+      mkdir "$htmlPath/issues"
 
-      if [[ -e "$2/git/repository/.issues" ]]
+      if [[ -e "$htmlPath/git/repository/.issues" ]]
       then
-        mhonarc -mhpattern '^[^\.]' -outdir "$2/issues" \
-                "$2"/git/repository/.issues/*/new \
-                "$2"/git/repository/.issues/*/cur
+        mhonarc -mhpattern '^[^\.]' -outdir "$htmlPath/issues" \
+                "$htmlPath"/git/repository/.issues/*/new \
+                "$htmlPath"/git/repository/.issues/*/cur
       else
         # No issues, write a placeholder instead
-        echo '<html><body>No .issues</body></html>' > "$2/issues/threads.html"
+        HTML='<html><body>No .issues</body></html>'
+        echo "$HTML" > "$htmlPath/issues/threads.html"
+        unset HTML
       fi
 
       echo "Generating index page" 1>&2
 
       # Defaults
       README_MSG="No README found"
-      READMEFILE="$2/readme.html"
+      READMEFILE="$htmlPath/readme.html"
       echo '<span />' > "$READMEFILE"
       export READMEFILE
 
       echo "Looking for a README file" 1>&2
       for F in README.md README README.txt
       do
-        if [[ -e "$2/git/repository/$F" ]]
+        if [[ -e "$htmlPath/git/repository/$F" ]]
         then
           README_MSG=$(echo -e "Contents of $F follows\\n\\n---\\n\\n")
-          pandoc -f markdown -t html < "$2/git/repository/$F" > "$READMEFILE"
+          pandoc -f markdown -t html < "$htmlPath/git/repository/$F" \
+                                     > "$READMEFILE"
         fi
       done
 
       echo "Sanitising README HTML (if any), to prevent XSS" 1>&2
-      SANITISED="$2/readme.sanitised"
+      SANITISED="$htmlPath/readme.sanitised"
       # shellcheck disable=SC2154
       "$cleaner" < "$READMEFILE" > "$SANITISED"
       rm "$READMEFILE"
       mv "$SANITISED" "$READMEFILE"
 
-      pushd "$2/git/repository"
+      pushd "$htmlPath/git/repository"
         DATE=$(git log -n 1 --format=%ci)
       popd
 
@@ -133,20 +146,20 @@ with rec {
       EOF
       }
 
-      render | pandoc --standalone -f markdown -o "$2/index.html.pre"
+      render | pandoc --standalone -f markdown -o "$htmlPath/index.html.pre"
 
       # shellcheck disable=SC2154
-      "$splicer" < "$2/index.html.pre" > "$2/index.html"
+      "$splicer" < "$htmlPath/index.html.pre" > "$htmlPath/index.html"
 
-      rm "$2/index.html.pre"
+      rm "$htmlPath/index.html.pre"
       rm "$READMEFILE"
 
       # Kill the working tree used by git2html
-      rm -rf "$2/git/repository"
+      rm -rf "$htmlPath/git/repository"
 
       # Clone a bare repo snapshot
-      git clone --bare "$repoPath" "$2/repo.git"
-      pushd "$2/repo.git"
+      git clone --bare "$repoPath" "$htmlPath/repo.git"
+      pushd "$htmlPath/repo.git"
         git repack -A -d
         git update-server-info
         MATCHES=$(find objects/pack -maxdepth 1 -name '*.pack' -print -quit)
@@ -159,7 +172,7 @@ with rec {
       popd
 
       # Kill mhonarc's database
-      rm -f "$2/issues/.mhonarc.db"
+      rm -f "$htmlPath/issues/.mhonarc.db"
     '';
   };
 
