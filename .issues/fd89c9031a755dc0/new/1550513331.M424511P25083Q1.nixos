@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Mon, 18 Feb 2019 18:08:34 +0000
+Subject: Re: Make trackGit generate git pages
+Message-Id: <fd89c9031a755dc0-aaee1eebd0e3aabb-artemis@nixos>
+References: <fd89c9031a755dc0-0-artemis@nixos>
+In-Reply-To: <fd89c9031a755dc0-0-artemis@nixos>
+
+Updated genGitHtml, trackGit, git2ipfs and inNixedDir

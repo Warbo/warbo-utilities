@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Mon, 18 Feb 2019 15:11:14 +0000
-State: new
+State: resolved
 Subject: Make trackGit generate git pages
 Message-Id: <fd89c9031a755dc0-0-artemis@nixos>
+resolution: fixed
 
 Each repo gets a 'foo.git' directory on chriswarbo.net, but it should
 also get a 'foo' directory.

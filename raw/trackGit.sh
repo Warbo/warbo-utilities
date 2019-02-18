@@ -132,6 +132,27 @@ then
     git remote add origin "$localRepo"
 fi
 
+# Check if we need to generate HTML pages for this repo
+HTML="/opt/html/$name"
+if ssh chriswarbo.net true
+then
+    # shellcheck disable=SC2029
+    if ssh chriswarbo.net "test -e '$HTML'"
+    then
+        echo "Found existing HTML directory '$HTML' on chriswarbo.net" 1>&2
+    else
+        echo "No HTML directory '$HTML' found on chriswarbo.net" 1>&2
+        read -r -p "Should we create 'chriswarbo.net:$HTML'? (Y/n)? " answer
+        case "${answer:0:1}" in
+            y|Y )
+                pushGitPages "$localRepo"
+                ;;
+        esac
+    fi
+else
+    echo "Couldn't ssh to chriswarbo.net, not checking for HTML pages" 1>&2
+fi
+
 # Check if we have an asv.conf.json
 ASV_CONF=0
 # shellcheck disable=SC2034
