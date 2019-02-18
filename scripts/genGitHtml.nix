@@ -1,4 +1,4 @@
-{ git, nix-helpers, python, runCommand, warbo-packages, writeScript }:
+{ fail, git, nix-helpers, python, runCommand, warbo-packages, writeScript }:
 with {
   inherit (nix-helpers) fail withDeps wrap;
   inherit (warbo-packages) artemis git2html mhonarc pandocPkgs;
@@ -6,7 +6,7 @@ with {
 with rec {
   script = wrap {
     name   = "genGitHtml";
-    paths  = [ git git2html mhonarc pandocPkgs ];
+    paths  = [ fail git git2html mhonarc pandocPkgs ];
     vars   = {
       splicer = wrap {
         name   = "splicer";
@@ -43,11 +43,24 @@ with rec {
     };
     script = ''
       #!/usr/bin/env bash
-      set -e
+      set -eu
       shopt -s nullglob
 
+      # Use Nix output directory, if requested
+
+      if [[ -n "''${htmlInOut:-}" ]]
+      then
+        [[ -z "''${htmlPath:-}" ]] ||
+          fail "'htmlInOut' and 'htmlPath' env vars are mutually exclusive"
+
+        [[ -n "''${out:-}" ]] ||
+          fail "'htmlInOut' given, but found no 'out' in env"
+
+        htmlPath="''${out:-}"
+      fi
+
       # If we've not been given env vars, take values from commandline args
-      if [[ -z "$repoPath" ]] || [[ -z "$htmlPath" ]]
+      if [[ -z "''${repoPath:-}" ]] || [[ -z "''${htmlPath:-}" ]]
       then
         # Bail out if args weren't given
         [[ "$#" -eq 2 ]] || {
@@ -56,6 +69,12 @@ with rec {
           echo "Optionally, set REPO_LINK to your base URL"                1>&2
           exit 1
         }
+
+        [[ -z "''${repoPath:-}" ]] ||
+          fail "env vars (like 'repoPath') and args are mutually exclusive"
+
+        [[ -z "''${htmlPath:-}" ]] ||
+          fail "env vars (like 'htmlPath') and args are mutually exclusive"
 
         repoPath="$1"
         htmlPath="$2"
@@ -69,8 +88,7 @@ with rec {
       repoName=$(basename "$repoPath" .git)
 
       # Assume we're using chriswarbo.net, unless told otherwise
-      [[ -n "$REPO_LINK" ]] ||
-        REPO_LINK="http://chriswarbo.net/git/$repoName.git"
+      REPO_LINK="''${REPO_LINK:-http://chriswarbo.net/git/$repoName.git}"
 
       echo "Generating pages from git history" 1>&2
       mkdir -p "$htmlPath/git"
@@ -119,6 +137,7 @@ with rec {
       rm "$READMEFILE"
       mv "$SANITISED" "$READMEFILE"
 
+      echo "Getting latest commit date" 1>&2
       pushd "$htmlPath/git/repository"
         DATE=$(git log -n 1 --format=%ci)
       popd
@@ -146,8 +165,10 @@ with rec {
       EOF
       }
 
+      echo "Rendering..." 1>&2
       render | pandoc --standalone -f markdown -o "$htmlPath/index.html.pre"
 
+      echo "Splicing in README" 1>&2
       # shellcheck disable=SC2154
       "$splicer" < "$htmlPath/index.html.pre" > "$htmlPath/index.html"
 
@@ -157,9 +178,10 @@ with rec {
       # Kill the working tree used by git2html
       rm -rf "$htmlPath/git/repository"
 
-      # Clone a bare repo snapshot
+      echo "Cloning a snapshot of the repo" 1>&2
       git clone --bare "$repoPath" "$htmlPath/repo.git"
       pushd "$htmlPath/repo.git"
+        # Unpack git data, so it dedupes better on IPFS
         git repack -A -d
         git update-server-info
         MATCHES=$(find objects/pack -maxdepth 1 -name '*.pack' -print -quit)
@@ -171,7 +193,7 @@ with rec {
         fi
       popd
 
-      # Kill mhonarc's database
+      echo "Removing mhonarc database" 1>&2
       rm -f "$htmlPath/issues/.mhonarc.db"
     '';
   };
