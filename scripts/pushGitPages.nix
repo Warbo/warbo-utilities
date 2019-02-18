@@ -10,18 +10,17 @@ wrap {
 
     NAME=$(basename "$PWD" .git)
 
-    # Duplicate stderr so we can a) display it and b) pick out the Nix store dir
-    exec 5>&1
-    SAVED=$(git2ipfs "$PWD" 2>&1 | tee >(cat - >&5)       |
-                                   grep "Saved in "       |
-                                   sed -e 's/Saved in //g')
+    PAGES=$(repoPath="$PWD" htmlInOut=1 inNixedDir genGitHtml)
+    export PAGES
+
+    git2ipfs "$PWD" || echo "Failed to push to IPFS, carrying on anyway..." 1>&2
 
     D="/opt/html/$NAME"
     L="/opt/git/$NAME"
 
-    if [[ -n "$SAVED" ]]
+    if [[ -n "$PAGES" ]]
     then
-        echo "Pushing '$SAVED' to Web" 1>&2
+        echo "Pushing '$PAGES' to Web" 1>&2
 
         # shellcheck disable=SC2029
         ssh chriswarbo.net "test -e '$D'" || {
@@ -36,7 +35,7 @@ wrap {
         }
 
         # Don't include repo.git, since we can use the real, canonical one
-        copyToWeb --exclude /repo.git "$SAVED/" "chriswarbo.net:$D"
+        copyToWeb --exclude /repo.git "$PAGES/" "chriswarbo.net:$D"
 
         # Edit repo link to point at canonical /git repo
         # shellcheck disable=SC2029
