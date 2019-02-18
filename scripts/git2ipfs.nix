@@ -11,18 +11,6 @@ with rec {
       "${ipfs}/bin/ipfs" "$@"
     fi
   '';
-
-  # Builds repo pages using Nix, which handles temp dirs, caching, etc. for us
-  nixExpr = writeScript "gen.nix" ''
-    with import <nixpkgs> {};
-    with builtins;
-    { cmd, repo }:
-      runCommand "gen" { inherit cmd currentTime repo; }
-        '''
-          mkdir "$out"
-          "$cmd" "$repo" "$out"
-        '''
-  '';
 };
 wrap {
   paths  = [ (attrsToDirs { bin = { inherit ipfsBin; }; }) ];
@@ -41,13 +29,14 @@ wrap {
       exit 1
     }
 
-    echo "Generating pages" 1>&2
-     CMD=$(command -v genGitHtml)
-    PAGES=$(nix-build --show-trace --no-out-link \
-                      --argstr repo "$1" --argstr cmd "$CMD" \
-                      -E 'import "${nixExpr}"')
-
-    echo "Saved in $PAGES" 1>&2
+    if [[ -n "$PAGES" ]]
+    then
+      echo "Using pages from '$PAGES'" 1>&2
+    else
+      echo "Generating pages" 1>&2
+      PAGES=$(repoPath="$1" htmlInOut=1 inNixedDir genGitHtml)
+      echo "Saved in $PAGES" 1>&2
+    fi
 
     echo "Pushing to IPFS" 1>&2
     IPFSHASH=$(ipfsBin add -rHq "$PAGES" | tail -n1)
