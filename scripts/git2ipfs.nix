@@ -1,4 +1,4 @@
-{ attrsToDirs, ipfs, runCommand, wrap, writeScript }:
+{ attrsToDirs, inNixedDir, ipfs, runCommand, wrap, writeScript }:
 
 with rec {
   ipfsBin = writeScript "ipfsBin" ''
@@ -13,7 +13,7 @@ with rec {
   '';
 };
 wrap {
-  paths  = [ (attrsToDirs { bin = { inherit ipfsBin; }; }) ];
+  paths  = [ (attrsToDirs { bin = { inherit ipfsBin; }; }) inNixedDir ];
   script = ''
     #!/usr/bin/env bash
     set -e

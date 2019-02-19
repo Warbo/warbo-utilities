@@ -1,7 +1,7 @@
-{ wrap, xmlstarlet }:
+{ inNixedDir, wrap, xmlstarlet }:
 
 wrap {
-  paths  = [ xmlstarlet ];
+  paths  = [ inNixedDir xmlstarlet ];
   script = ''
     #!/usr/bin/env bash
     set -e
