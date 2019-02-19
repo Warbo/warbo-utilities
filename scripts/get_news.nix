@@ -12,7 +12,7 @@ with rec {
         while ps auxww | grep 'mu server' | grep -v grep | grep 'server'
         do
           pkill -2 -u "$UID" -f 'mu server'
-          sleep 2
+          sleep 1
         done
       }
 
@@ -81,7 +81,7 @@ with rec {
       done
 
       stopMu
-      mu index --maildir="$HOME/Mail"
+      mu index --maildir="$HOME/Mail" --lazy-check
     '';
   };
 
@@ -243,7 +243,7 @@ wrap {
 
     # Re-index (after stopping any existing instance, e.g. the server for mu4e)
     pkill -2 -u "$UID" mu
-    sleep 2
+    sleep 1
     mu index --maildir="$HOME/Mail" --lazy-check
   '';
 }
