@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 (cd /opt/repos || exit 1
- echo "Make sure each repo in /opt/repos is linked in /opt/git/"
+ echo "Make sure each repo in /opt/repos is linked in /opt/git/" 1>&2
  for repo in *.git
  do
      name=$(basename "$repo")
@@ -12,7 +12,7 @@
      fi
  done
 
- echo "Make sure each repo has been initialised"
+ echo "Make sure each repo has been initialised" 1>&2
  for repo in *.git
  do
      (cd "$repo" &&
@@ -25,13 +25,13 @@
      pushd "$repo" > /dev/null || exit 1
      git remote | while read -r REMOTE
      do
-         echo "Removing '$repo' remote '$REMOTE'" >> /dev/stderr
+         echo "Removing '$repo' remote '$REMOTE'" 1>&2
          git remote rm "$REMOTE"
      done
      popd > /dev/null || exit 1
  done
 
- echo "Make sure each repo has its hooks in place"
+ echo "Make sure each repo has its hooks in place" 1>&2
  for repo in *.git
  do
      name=$(basename "$repo")
@@ -46,10 +46,10 @@
                   H=$(readlink -f "$hook")
                   F=$(readlink -f "$DEST")
                   [[ "x$H" = "x$F" ]] || {
-                      echo "File '$H' should be symlink to '$DEST'"
+                      echo "File '$H' should be symlink to '$DEST'" 1>&2
                   }
               else
-                  echo "File '$PWD/$hook' should be symlink but isn't"
+                  echo "File '$PWD/$hook' should be symlink but isn't" 1>&2
               fi
           else
               # Use post-receive.hook for both
@@ -58,10 +58,25 @@
       done)
  done
 
- echo "Run the post-receive hook to ensure changes are served"
+ echo "Run the post-receive hook to ensure changes are served" 1>&2
  for repo in *.git
  do
      (cd "$repo" || exit 1
       echo "$PWD"
       sh hooks/post-receive)
+ done
+
+ echo "Make sure HTML pages exist" 1>&2
+ for repo in *.git
+ do
+     NAME=$(basename "$repo" .git)
+     HTML="/opt/html/$NAME"
+     [[ -e "$HTML/index.html" ]] || echo "No HTML pages '$HTML'" 1>&2
+ done
+
+ for html in /opt/html/*
+ do
+     NAME=$(basename "$html")
+     REPO="/opt/repos/$NAME.git"
+     [[ -e "$REPO" ]] || echo "Found '$html' but not '$REPO'" 1>&2
  done)
