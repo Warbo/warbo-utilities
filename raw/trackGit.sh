@@ -137,17 +137,20 @@ HTML="/opt/html/$name"
 if ssh chriswarbo.net true
 then
     # shellcheck disable=SC2029
-    if ssh chriswarbo.net "test -e '$HTML'"
+    if ssh chriswarbo.net "test -e '$HTML/index.html'"
     then
         echo "Found existing HTML directory '$HTML' on chriswarbo.net" 1>&2
     else
-        echo "No HTML directory '$HTML' found on chriswarbo.net" 1>&2
+        MAKEHTML=1
+        echo "No HTML '$HTML/index.html' found on chriswarbo.net" 1>&2
         read -r -p "Should we create 'chriswarbo.net:$HTML'? (Y/n)? " answer
         case "${answer:0:1}" in
-            y|Y )
-                pushGitPages "$localRepo"
+            n|N )
+                MAKEHTML=0
                 ;;
         esac
+        [[ "$MAKEHTML" -eq 0 ]] || pushGitPages "$localRepo"
+        unset MAKEHTML
     fi
 else
     echo "Couldn't ssh to chriswarbo.net, not checking for HTML pages" 1>&2
