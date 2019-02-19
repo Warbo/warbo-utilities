@@ -94,7 +94,7 @@ with rec {
       mkdir -p "$htmlPath/git"
 
       #        Name           Source repo    Base URL        Destination
-      git2html -p "$repoName" -r "$repoPath" -l "$REPO_LINK" "$htmlPath/git"
+      git2html -p "$repoName" -r "$repoPath" -l "$REPO_LINK" "$htmlPath/git" 1>&2
 
       echo "Generating pages from issue tracker" 1>&2
       mkdir "$htmlPath/issues"
@@ -103,7 +103,7 @@ with rec {
       then
         mhonarc -mhpattern '^[^\.]' -outdir "$htmlPath/issues" \
                 "$htmlPath"/git/repository/.issues/*/new \
-                "$htmlPath"/git/repository/.issues/*/cur
+                "$htmlPath"/git/repository/.issues/*/cur 1>&2
       else
         # No issues, write a placeholder instead
         HTML='<html><body>No .issues</body></html>'
@@ -138,9 +138,9 @@ with rec {
       mv "$SANITISED" "$READMEFILE"
 
       echo "Getting latest commit date" 1>&2
-      pushd "$htmlPath/git/repository"
+      pushd "$htmlPath/git/repository" 1>&2
         DATE=$(git log -n 1 --format=%ci)
-      popd
+      popd 1>&2
 
       function render() {
       TICK='`'
@@ -180,7 +180,7 @@ with rec {
 
       echo "Cloning a snapshot of the repo" 1>&2
       git clone --bare "$repoPath" "$htmlPath/repo.git"
-      pushd "$htmlPath/repo.git"
+      pushd "$htmlPath/repo.git" 1>&2
         # Unpack git data, so it dedupes better on IPFS
         git repack -A -d
         git update-server-info
@@ -191,7 +191,7 @@ with rec {
           git unpack-objects < ./*.pack
           rm -f ./*.pack
         fi
-      popd
+      popd 1>&2
 
       echo "Removing mhonarc database" 1>&2
       rm -f "$htmlPath/issues/.mhonarc.db"
