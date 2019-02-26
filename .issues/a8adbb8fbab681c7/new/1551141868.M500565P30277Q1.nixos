@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Tue, 26 Feb 2019 00:44:18 +0000
+Subject: Re: 'podcasts' abort if run as root
+Message-Id: <a8adbb8fbab681c7-833bef1791b2e2f6-artemis@nixos>
+References: <a8adbb8fbab681c7-0-artemis@nixos>
+In-Reply-To: <a8adbb8fbab681c7-0-artemis@nixos>
+
+Added error message

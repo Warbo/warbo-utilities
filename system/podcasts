@@ -3,6 +3,12 @@
 set -e
 shopt -s nullglob
 
+if [[ "$UID" -eq 0 ]]
+then
+    echo "Error: 'podcasts' won't work as root. Try running without sudo?" 1>&2
+    exit 1
+fi
+
 # Mount the iPod, if it's plugged in
 ipod || {
     echo "Failed to mount, exiting" 1>&2

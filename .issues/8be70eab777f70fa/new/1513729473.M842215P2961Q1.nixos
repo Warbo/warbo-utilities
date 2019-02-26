@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Wed, 20 Dec 2017 00:17:53 +0000
-State: new
+State: resolved
 Subject: Mark podcasts as read
 Message-Id: <8be70eab777f70fa-0-artemis@nixos>
+resolution: fixed
 
 We were moving files, but they weren't being marked as read. Now we try
 to use emacsclient to open the stories in mu4e to ensure they're marked

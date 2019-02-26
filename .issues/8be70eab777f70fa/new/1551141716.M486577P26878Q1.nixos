@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Tue, 26 Feb 2019 00:41:39 +0000
+Subject: Re: Mark podcasts as read
+Message-Id: <8be70eab777f70fa-97062e5b5fb4b8bb-artemis@nixos>
+References: <8be70eab777f70fa-0-artemis@nixos>
+In-Reply-To: <8be70eab777f70fa-0-artemis@nixos>
+
+This now works by calling some of mu4e's ELisp
