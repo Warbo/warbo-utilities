@@ -1,20 +1,6 @@
 { bash, lynx, raw, wget, wrap, writeScript, xidel }:
 
 with rec {
-  olc = wrap {
-    name = "getvid-olc";
-    paths = [ bash wget ];
-    script = ''
-      #!/usr/bin/env bash
-      if wget -q -O - "$1" | grep "File not found" > /dev/null
-      then
-        exit 1
-      fi
-      echo "$1"
-      exit 0
-    '';
-  };
-
   sv = wrap {
     name   = "getvid-sv";
     paths  = [ bash wget ];
@@ -91,7 +77,7 @@ wrap {
   name  = "getvid";
   paths = [ bash xidel ];
   vars  = {
-    inherit olc sv voza vse;
+    inherit sv voza vse;
     list = raw."listepurls.sh";
     msg  = ''
       Usage: getvid <listing url>
@@ -102,7 +88,6 @@ wrap {
       provider is written to stdout. Set DEBUG=1 to see each handler running.
 
       Known handlers (e.g. for running standalone) are:
-        ${olc}
         ${sv}
         ${voza}
         ${vse}
@@ -142,20 +127,6 @@ wrap {
       URL=""
 
       [[ -n "$DEBUG" ]] && echo "Checking $LINK" 1>&2
-      if echo "$LINK" | grep '/op.....d\.co' > /dev/null
-      then
-        # shellcheck disable=SC2154
-        [[ -n "$DEBUG" ]] && echo "Running $olc on $LINK" 1>&2
-
-        # shellcheck disable=SC2154
-        URL=$("$olc" "$LINK") || continue
-
-        [[ -n "$URL" ]] || continue
-        URL=$(echo "$URL" | esc)
-
-        echo "wget -c -O '$TITLE' '$URL'"
-        continue
-      fi
 
       if echo "$LINK" | grep '/spe....d\.co' > /dev/null
       then
