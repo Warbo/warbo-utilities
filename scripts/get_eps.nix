@@ -1,13 +1,11 @@
-{ bash, coreutils, curl, fail, glibc, html2text, makeWrapper, mkBin,
-  pythonPackages, nix-helpers, runCommand, wget, withDeps, wrap, xidel,
-  xmlstarlet }:
+{ bash, coreutils, curl, fail, glibc, html2text, nix-helpers, runCommand, wget,
+  withDeps, wrap, xidel, xmlstarlet }:
 
 with builtins;
 with rec {
   go = wrap {
     name   = "get-eps";
-    paths  = [ bash coreutils curl glibc.bin pythonPackages.csvkit wget
-               xmlstarlet ];
+    paths  = [ bash coreutils curl glibc.bin wget xmlstarlet ];
     vars   = { SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt; };
     script = ''
       #!/usr/bin/env bash
@@ -40,13 +38,14 @@ with rec {
 
       NOW=$(date -d 'yesterday' '+%s')
        LY=$(date -d 'last year' '+%s')
+
       while read -r EP
       do
         echo "$EP" | grep '^.' > /dev/null || continue
         echo "EP: $EP" 1>&2
 
         # Format is number,season,episode,airdate,title
-        DATE=$(echo "$EP" | csvcut -c 4)
+        DATE=$(echo "$EP" | cut -d , -f 4)
 
         SECS=$(date -d "$DATE" '+%s')
         PDAT=$(date -d "$DATE" --iso-8601)
@@ -61,10 +60,10 @@ with rec {
         [[ "$SECS" -lt "$NOW" ]] || continue
 
         # Format is number,season,episode,airdate,title
-         NUM=$(echo "$EP" | csvcut -c 1)
-        SNUM=$(echo "$EP" | csvcut -c 2)
-        ENUM=$(echo "$EP" | csvcut -c 3)
-        NAME=$(echo "$EP" | csvcut -c 5)
+         NUM=$(echo "$EP" | cut -d , -f 1)
+        SNUM=$(echo "$EP" | cut -d , -f 2)
+        ENUM=$(echo "$EP" | cut -d , -f 3)
+        NAME=$(echo "$EP" | cut -d , -f 5)
 
         # shellcheck disable=SC2001
         URL=$(echo "$2" | sed -e 's/&/&amp;/g')
@@ -126,8 +125,8 @@ with rec {
         CONTENT=$("$go" "WalkingDead" "$URL") || fail "Failed to get eps"
 
         echo "$CONTENT" | xidel -q - -e '//item//title' |
-          grep 'The King, the Widow, and Rick' > /dev/null ||
-          fail "Walking Dead s08e06 not found?\n$CONTENT"
+          grep 'What Comes After' > /dev/null ||
+          fail "Walking Dead s09e05 not found?\n$CONTENT"
 
         mkdir "$out"
       '';

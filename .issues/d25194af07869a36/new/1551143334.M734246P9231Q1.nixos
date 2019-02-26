@@ -1,0 +1,11 @@
+From: Chris Warburton
+Date: Tue, 26 Feb 2019 01:07:25 +0000
+Subject: Re: Speed up get_eps
+Message-Id: <d25194af07869a36-ce6ed392464c31e1-artemis@nixos>
+References: <d25194af07869a36-0-artemis@nixos>
+In-Reply-To: <d25194af07869a36-0-artemis@nixos>
+
+Sped up a bit, by using 'cut -d ,' instead of csvcut. This mangles
+quoted cells containing commas :(
+
+A compiled binary would still be preferable.
