@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Tue, 30 Jan 2018 22:33:12 +0000
-State: new
+State: resolved
 Subject: Make bbcpodcast news type
 Message-Id: <f40c2fa64a8969cc-0-artemis@nixos>
+resolution: fixed
 
 At the moment, we have a hard-coded list of podcast names in
 fetch_podcasts for BBC podcasts.

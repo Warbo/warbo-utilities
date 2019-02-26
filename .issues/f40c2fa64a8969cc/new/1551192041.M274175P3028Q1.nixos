@@ -1,0 +1,10 @@
+From: Chris Warburton
+Date: Tue, 26 Feb 2019 14:40:15 +0000
+Subject: Re: Make bbcpodcast news type
+Message-Id: <f40c2fa64a8969cc-e1e96c27d89445e8-artemis@nixos>
+References: <f40c2fa64a8969cc-0-artemis@nixos>
+In-Reply-To: <f40c2fa64a8969cc-0-artemis@nixos>
+
+We now use a ~/.podcasts file to specify these.
+
+Non-BBC podcasts are still hard-coded though.

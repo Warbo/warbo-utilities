@@ -1,0 +1,9 @@
+From: Chris Warburton
+Date: Tue, 26 Feb 2019 14:38:45 +0000
+Subject: Re: Support code-folding of debug output
+Message-Id: <a12e8f41fb9e993f-86b0d135c6c49cae-artemis@nixos>
+References: <a12e8f41fb9e993f-0-artemis@nixos>
+In-Reply-To: <a12e8f41fb9e993f-0-artemis@nixos>
+
+Probably unneeded. A better idea would be to make messages
+machine-readable (e.g. always outputting JSON)

@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Mon, 05 Mar 2018 01:52:53 +0000
-State: new
+State: resolved
 Subject: Support code-folding of debug output
 Message-Id: <a12e8f41fb9e993f-0-artemis@nixos>
+resolution: fixed
 
 It's a good idea to dump out ephemeral information as we go, in case
 it's useful for diagnosing an error which occurs later. For example, we
