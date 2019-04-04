@@ -24,17 +24,12 @@ do
     done
 done
 
-export SSH_AUTH_SOCK="/run/user/1000/ssh-agent"
-if ssh user@localhost -p 22222 true
+NAME=$(basename "$PWD" .git)
+if command -v laminarc > /dev/null &&
+   [[ -e /var/lib/laminar/cfg/jobs/"$NAME".run ]]
 then
-    NAME=$(basename "$PWD" .git)
-    if ssh user@localhost -p 22222 [[ -e /var/lib/laminar/cfg/jobs/"$NAME".run ]]
-    then
-        echo "Queueing build of '$NAME'" 1>&2
-        sleep 5
-        # shellcheck disable=SC2029
-        ssh user@localhost -p 22222 bash -c "export LAMINAR_REASON='Git hook'; laminarc queue '$NAME'"
-    fi
+    echo "Queueing build of '$NAME'" 1>&2
+    LAMINAR_REASON='Git hook' laminarc queue "$NAME"
 fi
 
 echo "Scheduling push to Web and IPFS" 1>&2
