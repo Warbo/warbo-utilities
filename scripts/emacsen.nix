@@ -51,7 +51,7 @@ wrap {
       if [[ -z "$WID" ]]
       then
         # Assume we can move one from super+2
-        WID=$(emacsOn 0 | head -n1)
+        WID=$(emacsOn 1 | head -n1)
         echo "Fall back to '$WID' on '$DESKTOP'" 1>&2
         [[ -n "$WID" ]] || fail "No emacsclient windows left to move"
       fi
