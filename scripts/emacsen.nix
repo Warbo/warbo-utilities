@@ -38,6 +38,20 @@ wrap {
       COUNTDOWN=$(( COUNTDOWN - 1 ))
     done
 
+    COUNTDOWN=10
+    while true
+    do
+      COUNT=$(xdotool search --classname Emacs || echo "")
+      COUNT=$(echo "$COUNT" | wc -l)
+      [[ "$COUNT" -gt 2 ]] && break
+
+      sleep 3
+
+      [[ "$COUNTDOWN" -gt 1 ]] || break
+      COUNTDOWN=$(( COUNTDOWN - 1 ))
+    done
+    unset COUNT
+
     function emacsOn {
       # Whether or not there's an emacs window on the given desktop
       xdotool search --desktop "$1" --classname Emacs || echo ""
