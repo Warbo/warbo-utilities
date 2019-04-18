@@ -1,3 +1,8 @@
-self: super: {
-  warbo-utilities = (self.callPackage ./derivation.nix {}).pkg;
+self: super:
+with {
+  drvs = self.callPackage ./derivation.nix {};
+};
+{
+  warbo-utilities         = drvs.pkg;
+  warbo-utilities-scripts = drvs.bin;
 }
