@@ -117,8 +117,7 @@ with rec {
 
       # Look for a free DISPLAY number, starting from min and going to max
       ERRPID=""
-      i="$xvfb_display_min"
-      while (( i < xvfb_display_max ))
+      for i in $(seq "$xvfb_display_min" "$xvfb_display_max" | shuf)
       do
         if [[ -e "/tmp/.X$i-lock" ]]
         then
