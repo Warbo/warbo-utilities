@@ -15,6 +15,13 @@ function fail {
 FROM=$(grep '^From:' < "$1" | head -n1 | sed -e 's/^From: //')
 [[ -n "$FROM" ]] || fail "No From line in '$1'"
 
+# If the From address has the form '"Foo Bar" <foo@bar>' then get just the
+# address (foo@bar)
+if echo "$FROM" | grep '<[^>]*>' > /dev/null
+then
+    FROM=$(echo "$FROM" | grep -o '<[^>]*>' | grep -o '[^<>]*')
+fi
+
 # Look for messages with this subject line and print their filename and msgid
 FOUND=0
 MSGID=""
