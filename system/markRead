@@ -9,11 +9,13 @@ function fail {
 }
 
 [[ -e "$1" ]] || fail "Maildir file '$1' not found"
+F=$(readlink -f "$1")
+[[ -f "$F" ]] || fail "File '$F' not found"
 
 # We need the msgid from mu's database. Getting this is convoluted, since mu
 # doesn't seem to allow querying by filename, so we use the sender instead
-FROM=$(grep '^From:' < "$1" | head -n1 | sed -e 's/^From: //')
-[[ -n "$FROM" ]] || fail "No From line in '$1'"
+FROM=$(grep '^From:' < "$F" | head -n1 | sed -e 's/^From: //')
+[[ -n "$FROM" ]] || fail "No From line in '$F'"
 
 # If the From address has the form '"Foo Bar" <foo@bar>' then get just the
 # address (foo@bar)
@@ -28,15 +30,15 @@ MSGID=""
 while read -r PAIR
 do
     LOCATION=$(echo "$PAIR" | cut -f2)
-    [[ "x$LOCATION" = "x$1" ]] || continue
+    [[ "x$LOCATION" = "x$F" ]] || continue
 
     FOUND=1
     MSGID=$(echo "$PAIR" | cut -f1)
     break
 done < <(mu find "from:$FROM" --fields 'i	l')
 
-[[ "$FOUND" -eq 1 ]] || fail "Couldn't find '$1' in mu DB (from '$FROM')"
-[[ -n "$MSGID"    ]] || fail "No msgid for '$1'"
+[[ "$FOUND" -eq 1 ]] || fail "Couldn't find '$F' in mu DB (from '$FROM')"
+[[ -n "$MSGID"    ]] || fail "No msgid for '$F'"
 
 # We set the flags via mu4e, rather than calling 'mu server' ourselves, since
 # it will automatically update any mu4e displays to show it as read
