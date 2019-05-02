@@ -16,7 +16,7 @@ then
     then
         echo "Only 1 arg given, which seems to be a youtube URL"            1>&2
         echo "Assuming we want format 43 (WebM), falling back to 18 (AVC1)" 1>&2
-        EXTRA="-f 43/18"
+        EXTRA="-f 43/18/93/medium"
     fi
 fi
 
