@@ -15,6 +15,7 @@ wrap {
   };
   script = ''
     #!/usr/bin/env bash
+    # shellcheck disable=SC2154
     exec dtach -A ~/.sesh -r winch "$sesh"
   '';
 }
