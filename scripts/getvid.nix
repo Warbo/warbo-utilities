@@ -72,67 +72,12 @@ with rec {
       exit 1
     '';
   };
-
-  vcld = wrap {
-    name   = "vcld";
-    paths  = [ bash fail jq wget ];
-    script = ''
-      #!/usr/bin/env bash
-      set -e
-
-      function fetch {
-        wget -q --no-check-certificate -O- "$1" || fail "Failed to fetch '$1'"
-      }
-
-      # For resolving relative URLs
-      BASE_URL="$1"
-      while echo "$BASE_URL" | grep '.co/' > /dev/null
-      do
-        BASE_URL=$(dirname "$BASE_URL")
-      done
-
-      # Look for the player data
-      PAGE=$(fetch "$1")
-      if echo "$PAGE" | grep 'src="/images/file-not-found.jpg"' > /dev/null
-      then
-        exit 2  # 404
-      fi
-      if echo "$PAGE" | grep 'Video is being processed' > /dev/null
-      then
-        exit 3
-      fi
-      URL=$(echo "$PAGE" | grep '/player?fid' | grep -o '/player.*=video') ||
-        fail "Couldn't extract player: $PAGE"
-
-      # Playlist comes from a JSON request
-      JSON=$(fetch "$BASE_URL/$URL")
-       URL=$(echo "$JSON" | jq -r '.html'                   |
-                            grep -o 'sources *= *\[[^]]*\]' |
-                            grep -o '\[.*\]'                |
-                            jq -r '.[0] .file')
-
-      # The initial playlist loads another playlist
-      M3U=$(fetch "$URL")
-      URL=$(echo "$M3U" | grep '^http')
-      M3U=$(fetch "$URL")
-      BASE_URL=$(dirname "$URL")
-      printf '{ true;\n  '
-      while read -r SEG
-      do
-        printf "wget --no-check-certificate -O- '$BASE_URL/$SEG';\n  "
-      done < <(echo "$M3U" | grep '^seg')
-
-      # shellcheck disable=SC1003
-      TITLE=$(echo "$2" | sed -e "s/'/'"'\\'"'''/g")
-      printf "} > '$TITLE'\n"
-    '';
-  };
 };
 wrap {
   name  = "getvid";
   paths = [ bash xidel ];
   vars  = {
-    inherit sv vcld voza vse;
+    inherit sv voza vse;
     list = raw."listepurls.sh";
     msg  = ''
       Usage: getvid <listing url>
@@ -144,7 +89,6 @@ wrap {
 
       Known handlers (e.g. for running standalone) are:
         ${sv}
-        ${vcld}
         ${voza}
         ${vse}
     '';
@@ -227,14 +171,6 @@ wrap {
 
         echo "wget -c -O '$TITLE' '$URL'"
         continue
-      fi
-
-      if echo "$LINK" | grep '/vidclo' > /dev/null
-      then
-        "$vcld" "$LINK" "$TITLE" || ERR="$?"
-        [[ "$ERR" -eq 0 ]] && continue
-        [[ "$ERR" -eq 2 ]] && continue
-        [[ "$ERR" -eq 3 ]] && continue
       fi
     done
   '';
