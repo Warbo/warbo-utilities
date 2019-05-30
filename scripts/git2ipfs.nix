@@ -13,6 +13,7 @@ with rec {
   '';
 };
 wrap {
+  name   = "git2ipfs";
   paths  = [ (attrsToDirs { bin = { inherit ipfsBin; }; }) inNixedDir ];
   script = ''
     #!/usr/bin/env bash

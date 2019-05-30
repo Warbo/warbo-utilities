@@ -1,6 +1,7 @@
 { inNixedDir, wrap, xmlstarlet }:
 
 wrap {
+  name   = "pushgitpages";
   paths  = [ inNixedDir xmlstarlet ];
   script = ''
     #!/usr/bin/env bash
