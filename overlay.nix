@@ -1,10 +1,6 @@
-with { helpers = import ./helpers.nix {}; };
 self: super:
 
 with builtins;
-with {
-  inherit (nix-helpers) attrsToDirs dirsToAttrs fail nixFilesIn withDeps;
-};
 with self.lib;
 with rec {
   # Let scripts depend on each other by adding 'bin' to the argument set
@@ -12,21 +8,22 @@ with rec {
     raw = self.dirsToAttrs ./raw;
 
     # Force xidel version, to avoid argument incompatibilities
-    inherit (nix-helpers.nixpkgs1709) xidel;
+    inherit (self.nixpkgs1709) xidel;
   };
 
-  scripts = mapAttrs (_: f: newScope extraArgs f {})
-                     (nixFilesIn ./scripts);
+  scripts = mapAttrs (_: f: self.newScope extraArgs f {})
+                     (self.nixFilesIn ./scripts);
 
   cmds = foldl (rest: dir: rest // mapAttrs (f: _: dir + "/${f}")
                                             (readDir dir))
                {}
                [ ./system ./web ./git ./development ./docs ];
 
-  check = mapAttrs (name: script: runCommand "check-${name}"
+  check = mapAttrs (name: script: self.runCommand "check-${name}"
                      {
                        inherit script;
-                       buildInputs = [ fail haskellPackages.ShellCheck ];
+                       buildInputs = [ self.fail
+                                       self.haskellPackages.ShellCheck ];
                        LANG        = "en_US.UTF-8";
                      }
                      ''
