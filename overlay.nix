@@ -63,16 +63,13 @@ with rec {
   warbo-utilities = self.withDeps (attrValues check)
     (self.runCommand "warbo-utilities"
       {
-        bin         = self.attrsToDirs (self.warbo-utilities-scripts // {
-                        # Things we've not defined, but want to provide anyway
-                        fail = "${self.fail}/bin/fail";
-                      });
+        bin         = self.attrsToDirs self.warbo-utilities-scripts;
         buildInputs = [ self.makeWrapper ];
       }
       ''
         echo "Tying the knot between scripts" 1>&2
         mkdir -p "$out/bin"
-        for P in "$bin"/*
+        for P in ${escapeShellArg self.fail}'/bin/fail' "$bin"/*
         do
           F=$(readlink -f "$P")
           N=$(basename    "$P")
