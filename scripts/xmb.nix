@@ -1,4 +1,4 @@
-{ bash, haskellPackages, mkBin, python, pythonPackages, tesseract, wrap }:
+{ bash, haskellPackages, mkBin, python, pythonPackages, wrap }:
 
 with rec {
   random_mail = mkBin {
@@ -79,6 +79,6 @@ with rec {
 };
 wrap {
   name   = "xmb";
-  paths  = [ bash next python pythonPackages.lxml tesseract ];
+  paths  = [ bash next python pythonPackages.lxml ];
   file   = "${haskellPackages.xmobar}/bin/xmobar";
 }
