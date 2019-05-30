@@ -61,22 +61,24 @@ with rec {
   warbo-utilities-scripts = cmds // scripts;
 
   warbo-utilities = self.withDeps (attrValues check)
-                 (self.runCommand "warbo-utilities"
-                   {
-                     bin         = self.attrsToDirs
-                                     self.warbo-utilities-scripts;
-                     buildInputs = [ self.makeWrapper ];
-                   }
-                   ''
-                     echo "Tying the knot between scripts" 1>&2
-                     mkdir -p "$out/bin"
-                     for P in "$bin"/*
-                     do
-                       F=$(readlink -f "$P")
-                       N=$(basename    "$P")
-                       cp "$F"  "$out/bin/$N"
-                       chmod +x "$out/bin/$N"
-                       wrapProgram "$out/bin/$N" --prefix PATH : "$out/bin"
-                     done
-                   '');
+    (self.runCommand "warbo-utilities"
+      {
+        bin         = self.attrsToDirs (self.warbo-utilities-scripts // {
+                        # Things we've not defined, but want to provide anyway
+                        inherit (self) fail;
+                      });
+        buildInputs = [ self.makeWrapper ];
+      }
+      ''
+        echo "Tying the knot between scripts" 1>&2
+        mkdir -p "$out/bin"
+        for P in "$bin"/*
+        do
+          F=$(readlink -f "$P")
+          N=$(basename    "$P")
+          cp "$F"  "$out/bin/$N"
+          chmod +x "$out/bin/$N"
+          wrapProgram "$out/bin/$N" --prefix PATH : "$out/bin"
+        done
+      '');
 }
