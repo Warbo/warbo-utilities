@@ -65,7 +65,7 @@ with rec {
       {
         bin         = self.attrsToDirs (self.warbo-utilities-scripts // {
                         # Things we've not defined, but want to provide anyway
-                        inherit (self) fail;
+                        fail = "${self.fail}/bin/fail";
                       });
         buildInputs = [ self.makeWrapper ];
       }
