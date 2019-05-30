@@ -200,7 +200,7 @@ with rec {
     {
       inherit script;
       buildInputs = [ artemis fail git git2html mhonarc pandocPkgs ];
-      EDITOR = writeScript "test-editor" ''
+      EDITOR      = writeScript "test-editor" ''
         #!/usr/bin/env bash
         sed -i -e "s@^Subject: .*@Subject: $SUBJECT@g" "$1"
         sed -i -e "s@Detailed description.@$BODY@g"    "$1"
