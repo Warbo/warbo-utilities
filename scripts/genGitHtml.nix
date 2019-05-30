@@ -1,8 +1,6 @@
-{ fail, git, nix-helpers, python, runCommand, warbo-packages, writeScript }:
-with {
-  inherit (nix-helpers) fail withDeps wrap;
-  inherit (warbo-packages) artemis git2html mhonarc pandocPkgs;
-};
+{ artemis, fail, git, git2html, mhonarc, pandocPkgs, python, runCommand,
+  withDeps, wrap, writeScript }:
+
 with rec {
   script = wrap {
     name   = "genGitHtml";
