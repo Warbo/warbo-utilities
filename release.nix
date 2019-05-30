@@ -1,9 +1,13 @@
-with {
-  # Unlike default.nix, we explicitly avoid loading system/user overlays, so
-  # that the fallbacks defined in derivation.nix will be used.
+with rec {
+  inherit (import ./helpers.nix {}) nix-helpers warbo-packages;
+
   pkgs = import <nixpkgs> {
     config   = {};
-    overlays = [ (import ./overlay.nix) ];
+    overlays = [
+      (import "${nix-helpers   }/overlay.nix")
+      (import "${warbo-packages}/overlay.nix")
+      (import ./overlay.nix)
+    ];
   };
 };
 { inherit (pkgs) warbo-utilities warbo-utilities-scripts; }
