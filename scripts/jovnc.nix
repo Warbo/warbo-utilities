@@ -1,8 +1,8 @@
-{ bash, gnugrep, openssh, sysPing, tightvnc, wrap }:
+{ bash, gnugrep, openssh, scripts, tightvnc, wrap }:
 
 wrap {
   name   = "jovnc";
-  vars   = { inherit sysPing; };
+  vars   = { inherit (scripts) sysPing; };
   paths  = [ bash gnugrep openssh tightvnc ];
   script = ''
     #!/usr/bin/env bash

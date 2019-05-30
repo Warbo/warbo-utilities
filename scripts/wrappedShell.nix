@@ -1,5 +1,5 @@
-{ bashInteractive, expect, fail, fold-unbuffered, python, raw, runCommand,
-  utillinux, withDeps, wrap }:
+{ bashInteractive, expect, fail, python, raw, runCommand, scripts, utillinux,
+  withDeps, wrap }:
 
 with builtins;
 with rec {
@@ -8,7 +8,7 @@ with rec {
     file  = raw.wrappedShell;
     paths = [ bashInteractive expect fail ];
     vars  = {
-      fold          = fold-unbuffered;
+      fold          = scripts.fold-unbuffered;
       wrappedExpect = raw."wrappedShell.expect";
     };
   };

@@ -1,5 +1,5 @@
 { bash, coreutils, feed2maildirsimple, libxslt, mkBin, mu-standalone, openssl,
-  procps, python, raw, sysPing, wget, wrap, writeScript, xidel, xmlstarlet }:
+  procps, python, raw, scripts, wget, wrap, writeScript, xidel, xmlstarlet }:
 
 with rec {
   cleanUp = wrap {
@@ -191,7 +191,7 @@ with rec {
 wrap {
   name   = "get-news-start";
   paths  = [ bash mu-standalone procps python feed2maildirsimple ];
-  vars   = { inherit cleanUp rss sysPing; };
+  vars   = { inherit cleanUp rss; inherit (scripts) sysPing; };
   script = ''
     #!/usr/bin/env bash
     set -e
