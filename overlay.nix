@@ -1,24 +1,15 @@
 with { helpers = import ./helpers.nix {}; };
-
-{
-  haskellPackages,
-  lib,
-  makeWrapper,
-  newScope,
-  nix-helpers    ? import helpers.nix-helpers,
-  runCommand,
-  warbo-packages ? import helpers.warbo-packages
-}:
+self: super:
 
 with builtins;
-with lib;
 with {
   inherit (nix-helpers) attrsToDirs dirsToAttrs fail nixFilesIn withDeps;
 };
-rec {
+with self.lib;
+with rec {
   # Let scripts depend on each other by adding 'bin' to the argument set
-  extraArgs = bin // nix-helpers // warbo-packages // {
-    raw = dirsToAttrs ./raw;
+  extraArgs = self.warbo-utilities-scripts // {
+    raw = self.dirsToAttrs ./raw;
 
     # Force xidel version, to avoid argument incompatibilities
     inherit (nix-helpers.nixpkgs1709) xidel;
@@ -31,8 +22,6 @@ rec {
                                             (readDir dir))
                {}
                [ ./system ./web ./git ./development ./docs ];
-
-  bin = cmds // scripts;
 
   check = mapAttrs (name: script: runCommand "check-${name}"
                      {
@@ -68,13 +57,17 @@ rec {
                        fi
                        mkdir "$out"
                      '')
-                   bin;
+                   self.warbo-utilities-scripts;
+};
+{
+  warbo-utilities-scripts = cmds // scripts;
 
-  pkg = withDeps (attrValues check)
-                 (runCommand "warbo-utilities"
+  warbo-utilities = self.withDeps (attrValues check)
+                 (self.runCommand "warbo-utilities"
                    {
-                     bin         = attrsToDirs bin;
-                     buildInputs = [ makeWrapper ];
+                     bin         = self.attrsToDirs
+                                     self.warbo-utilities-scripts;
+                     buildInputs = [ self.makeWrapper ];
                    }
                    ''
                      echo "Tying the knot between scripts" 1>&2
