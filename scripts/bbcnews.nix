@@ -1,5 +1,5 @@
-{ bash, curl, html2text, nix-helpers, python, raw, runCommand, wget, withDeps,
-  wrap, xidel, xmlstarlet }:
+{ bash, curl, fail, html2text, python, raw, runCommand, wget, withDeps, wrap,
+  xidel, xmlstarlet }:
 
 with builtins;
 with rec {
@@ -43,7 +43,7 @@ with rec {
     getContent = runCommand "test-get-content"
       {
         inherit getContent;
-        buildInputs  = [ nix-helpers.fail xidel ];
+        buildInputs  = [ fail xidel ];
         HTML_EXAMPLE = raw."bbcExamplePage.html.gz";
         RUN_TESTS    = "1";
       }

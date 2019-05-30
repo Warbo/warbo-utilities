@@ -1,5 +1,5 @@
-{ bash, coreutils, curl, fail, glibc, html2text, nix-helpers, runCommand, wget,
-  withDeps, wrap, xidel, xmlstarlet }:
+{ bash, coreutils, curl, fail, glibc, html2text, runCommand, wget, withDeps,
+  wrap, xidel, xmlstarlet }:
 
 with builtins;
 with rec {
@@ -90,7 +90,7 @@ with rec {
     haveExpanse = runCommand "test-expanse"
       {
         inherit go;
-        buildInputs = [ curl nix-helpers.fail xidel ];
+        buildInputs = [ curl fail xidel ];
         KEEP_ALL    = "1";
         URL         = "http://epguides.com/common/exportToCSVmaze.asp?maze=1825";
       }
@@ -112,7 +112,7 @@ with rec {
     haveWalkingDead = runCommand "test-walking-dead"
       {
         inherit go;
-        buildInputs = [ curl nix-helpers.fail xidel ];
+        buildInputs = [ curl fail xidel ];
         KEEP_ALL    = "1";
         URL         = "http://epguides.com/common/exportToCSVmaze.asp?maze=73";
       }
