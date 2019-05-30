@@ -4,8 +4,9 @@ with builtins;
 with self.lib;
 with rec {
   # Let scripts depend on each other by adding 'bin' to the argument set
-  extraArgs = self.warbo-utilities-scripts // {
-    raw = self.dirsToAttrs ./raw;
+  extraArgs = {
+    raw     = self.dirsToAttrs ./raw;
+    scripts = self.warbo-utilities-scripts;
 
     # Force xidel version, to avoid argument incompatibilities
     inherit (self.nixpkgs1709) xidel;
