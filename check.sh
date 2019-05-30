@@ -8,6 +8,12 @@ do
     nix-instantiate --parse "$F" > /dev/null
 done
 
+if grep -R '\.\./raw' .
+then
+    echo "Don't use 'raw' as a path, use the 'raw' variable"   1>&2
+    echo "since that preserves relative paths between files."  1>&2
+    exit 1
+fi
 
 REPO="warbo-packages"
 echo "Checking $REPO version" 1>&2
