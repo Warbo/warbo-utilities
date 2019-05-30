@@ -138,13 +138,8 @@ function getFromSrc {
     done
 }
 
-getFromSrc "CoRecursivePodcast" "Corecursive"        '"http[^"]*\.mp3"' \
-                                                     'http.*\.mp3'
-
-getFromSrc "FlyingColoursMaths" "Wrong But Useful"   'href="http[^"]*\.mp3"' \
-                                                     'http.*mp3'
-
-getFromSrc "FunctionalGeekery"  "Functional Geekery" 'http[s]*://[^" ]*\.mp3'
-
-getFromSrc "NumberphilePodcast" "NumberphilePodcast" 'data-url="http[^"]*\.mp3"' \
-                                                     'http[^"]*\.mp3'
+# Read each line into the array ENTRY, with tab-separated elements
+while IFS=$'\t' read -r -a ENTRY
+do
+    getFromSrc "${ENTRY[@]}"
+done < <(grep -v '^ *#' < ~/.podcast_extractors)
