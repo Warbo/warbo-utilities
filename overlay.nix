@@ -5,7 +5,15 @@ with self.lib;
 with rec {
   # Let scripts depend on each other by adding 'bin' to the argument set
   extraArgs = {
-    raw     = self.dirsToAttrs ./raw;
+    raw     = mapAttrs (name: file: if elem name [
+                                         "alert.wav"
+                                         "bbcExamplePage.html.gz"
+                                       ]
+                                       then file
+                                       else self.patchShebang {
+                                              inherit file name;
+                                            })
+                       (self.dirsToAttrs ./raw);
     scripts = self.warbo-utilities-scripts;
 
     # Force xidel version, to avoid argument incompatibilities
