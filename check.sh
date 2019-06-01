@@ -8,6 +8,7 @@ do
     nix-instantiate --parse "$F" > /dev/null
 done
 
+echo "Looking for dodgy path references" 1>&2
 if grep -R '\.\./raw' .
 then
     echo "Don't use 'raw' as a path, use the 'raw' variable"   1>&2
