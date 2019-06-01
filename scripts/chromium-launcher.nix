@@ -5,10 +5,13 @@ wrap {
   paths  = [ bash proot ];
   vars   = {
     ce       = scripts.in-chromium-env;
-    launcher = writeScript "chrome-launcher.sh" ''
-      #!/usr/bin/env bash
-      chromium --disable-namespace-sandbox --no-sandbox "$@"
-    '';
+    launcher = wrap {
+      name   = "chrome-launcher.sh";
+      script = ''
+        #!/usr/bin/env bash
+        chromium --disable-namespace-sandbox --no-sandbox "$@"
+      '';
+    };
   };
   script = ''
     #!/usr/bin/env bash

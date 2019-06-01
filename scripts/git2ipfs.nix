@@ -1,16 +1,19 @@
 { attrsToDirs, inNixedDir, ipfs, runCommand, wrap, writeScript }:
 
 with rec {
-  ipfsBin = writeScript "ipfsBin" ''
-    #!/usr/bin/env bash
-    if command -v ipfs > /dev/null
-    then
-      ipfs "$@"
-    else
-      echo "Can't find 'ipfs', using potentially incompatible fallback" 1>&2
-      "${ipfs}/bin/ipfs" "$@"
-    fi
-  '';
+  ipfsBin = wrap {
+    name   = "ipfsBin";
+    script = ''
+      #!/usr/bin/env bash
+      if command -v ipfs > /dev/null
+      then
+        ipfs "$@"
+      else
+        echo "Can't find 'ipfs', using potentially incompatible fallback" 1>&2
+        "${ipfs}/bin/ipfs" "$@"
+      fi
+    '';
+  };
 };
 wrap {
   name   = "git2ipfs";
