@@ -17,9 +17,10 @@ with rec {
   env = runCommand "debian-with-chromium"
     {
       inherit rootfs PROOT_NO_SECCOMP;
-      buildInputs      = [ proot ];
-      SSL_CERT_FILE    = /etc/ssl/certs/ca-bundle.crt;
-      script           = writeScript "setup.sh" ''
+      buildInputs   = [ proot ];
+      __noChroot    = true;
+      SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt;
+      script        = writeScript "setup.sh" ''
         #!/usr/bin/env bash
         set -e
         apt-get update
