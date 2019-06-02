@@ -20,17 +20,14 @@ with rec {
       buildInputs   = [ proot ];
       __noChroot    = true;
       SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt;
-      script        = wrap {
-        name   = "setup.sh";
-        script = ''
-          #!/usr/bin/env bash
-          set -e
-          apt-get update
-          apt-get install -y chromium
-          apt-get install -y chromium-driver
-          chmod 4755 /usr/lib/chromium/chrome-sandbox
-        '';
-      };
+      script        = writeScript "setup.sh" ''
+        #!/usr/bin/env bash
+        set -e
+        apt-get update
+        apt-get install -y chromium
+        apt-get install -y chromium-driver
+        chmod 4755 /usr/lib/chromium/chrome-sandbox
+      '';
     }
     ''
       echo "Unpacking Debian" 1>&2
