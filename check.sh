@@ -9,12 +9,15 @@ do
 done
 
 echo "Looking for dodgy path references" 1>&2
-if grep -R '\.\./raw' .
-then
-    echo "Don't use 'raw' as a path, use the 'raw' variable"   1>&2
-    echo "since that preserves relative paths between files."  1>&2
-    exit 1
-fi
+find . -not -path '*/\.*' -name '*.nix' | while read -r F  # grep -R is slow
+do
+    if grep '\.\./raw' < "$F"
+    then
+        echo "Don't use 'raw' as a path in '$F', use the 'raw' variable" 1>&2
+        echo "since that preserves relative paths between files."        1>&2
+        exit 1
+    fi
+done
 
 REPO="warbo-packages"
 echo "Checking $REPO version" 1>&2
