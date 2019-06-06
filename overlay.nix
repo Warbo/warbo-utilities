@@ -77,7 +77,9 @@ with rec {
       ''
         echo "Tying the knot between scripts" 1>&2
         mkdir -p "$out/bin"
-        for P in ${escapeShellArg self.fail}'/bin/fail' "$bin"/*
+        for P in ${escapeShellArg self.fail         }'/bin/fail'          \
+                 ${escapeShellArg self.xvfb-run-safe}'/bin/xvfb-run-safe' \
+                 "$bin"/*
         do
           F=$(readlink -f "$P")
           N=$(basename    "$P")
