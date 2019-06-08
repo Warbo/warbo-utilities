@@ -72,20 +72,22 @@ with rec {
     (self.runCommand "warbo-utilities"
       {
         bin         = self.attrsToDirs self.warbo-utilities-scripts;
-        buildInputs = [ self.makeWrapper ];
+        buildInputs = [ self.fail self.makeWrapper ];
       }
       ''
         echo "Tying the knot between scripts" 1>&2
-        mkdir -p "$out/bin"
+        mkdir -p "$out/bin" || fail "Couldn't make '$out/bin'"
         for P in ${escapeShellArg self.fail         }'/bin/fail'          \
                  ${escapeShellArg self.xvfb-run-safe}'/bin/xvfb-run-safe' \
                  "$bin"/*
         do
-          F=$(readlink -f "$P")
-          N=$(basename    "$P")
-          cp "$F"  "$out/bin/$N"
-          chmod +x "$out/bin/$N"
-          wrapProgram "$out/bin/$N" --prefix PATH : "$out/bin"
+          F=$(readlink -f "$P") || fail "Couldn't readlink '$P'"
+          N=$(basename    "$P") || fail "No basename for '$P'"
+          cp -v "$F" "$out/bin/$N" || fail "Copy failed for '$F'"
+          chmod +x   "$out/bin/$N" || fail "Couldn't chmod for '$F'"
+          wrapProgram "$out/bin/$N" --prefix PATH : "$out/bin" ||
+            fail "Couldn't wrap '$P'"
         done
+        echo "Finished wrapping scripts" 1>&2
       '');
 }
