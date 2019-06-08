@@ -71,6 +71,7 @@ with rec {
   warbo-utilities = self.withDeps (attrValues check)
     (self.runCommand "warbo-utilities"
       {
+        __noChroot  = true;  # To access files linked to by our deps
         bin         = self.attrsToDirs self.warbo-utilities-scripts;
         buildInputs = [ self.fail self.makeWrapper ];
         forContext  = self.foldAttrs' (_: val: str: substring 0 0 ''
