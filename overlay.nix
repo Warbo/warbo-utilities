@@ -73,6 +73,11 @@ with rec {
       {
         bin         = self.attrsToDirs self.warbo-utilities-scripts;
         buildInputs = [ self.fail self.makeWrapper ];
+        forContext  = self.foldAttrs' (_: val: str: substring 0 0 ''
+                                        ${val} ${str}
+                                      '')
+                                      ""
+                                      self.warbo-utilities-scripts;
       }
       ''
         echo "Tying the knot between scripts" 1>&2
