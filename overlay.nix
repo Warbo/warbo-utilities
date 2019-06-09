@@ -89,7 +89,7 @@ with rec {
         do
           F=$(readlink -f "$P") || fail "Couldn't readlink '$P'"
           N=$(basename    "$P") || fail "No basename for '$P'"
-          cp -v "$F" "$out/bin/$N" || fail "Copy failed for '$F'"
+          cp    "$F" "$out/bin/$N" || fail "Copy failed for '$F'"
           chmod +x   "$out/bin/$N" || fail "Couldn't chmod for '$F'"
           wrapProgram "$out/bin/$N" --prefix PATH : "$out/bin" ||
             fail "Couldn't wrap '$P'"
