@@ -24,7 +24,7 @@ with rec {
 
       # Some feeds are high-volume and only interesting for a short time. We
       # clean up their articles 1 month after posting
-      for FEED in BBCHeadlines HackerNews XKCD SMBC ScottishTech kurzweilai
+      for FEED in BBCHeadlines HackerNews XKCD SMBC
       do
         CUTOFF=$(date -d "last month" "+%s")
         while read -r F
@@ -52,7 +52,7 @@ with rec {
 
       # Limit Reddit feeds to 100 messages. They only include about the latest
       # 25 posts, so we shouldn't get any dupes creeping in.
-      for FEED in RedditHaskell RedditStallmanWasRight Intercept \
+      for FEED in RedditHaskell RedditStallmanWasRight \
                   ScienceBulletin BBCHeadlines HackerNews
       do
         while read -r F
