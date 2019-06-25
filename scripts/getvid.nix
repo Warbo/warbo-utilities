@@ -1,6 +1,23 @@
-{ bash, fail, jq, lynx, raw, wget, wrap, writeScript, xidel }:
+{ bash, fail, jq, jsbeautifier, lynx, raw, wget, wrap, writeScript, xidel }:
 
 with rec {
+  f5 = wrap {
+    name  = "getvid-f5";
+    paths = [ bash jsbeautifier xidel ];
+    script = ''
+      #!/usr/bin/env bash
+      set -e
+      wget -q -O- "$1"                                                  |
+        xidel -q - -e '//script[contains(text(),"p,a,c,k,e,d")]/text()' |
+        js-beautify -                                                   |
+        grep -v '\.srt"'                                                |
+        grep -o 'file: *"[^"]*'                                         |
+        grep -o '".*'                                                   |
+        tr -d '"'                                                       |
+        head -n1
+    '';
+  };
+
   sv = wrap {
     name   = "getvid-sv";
     paths  = [ bash wget ];
@@ -77,7 +94,7 @@ wrap {
   name  = "getvid";
   paths = [ bash xidel ];
   vars  = {
-    inherit sv voza vse;
+    inherit f5 sv voza vse;
     list = raw."listepurls.sh";
     msg  = ''
       Usage: getvid <listing url>
@@ -88,6 +105,7 @@ wrap {
       provider is written to stdout. Set DEBUG=1 to see each handler running.
 
       Known handlers (e.g. for running standalone) are:
+        ${f5}
         ${sv}
         ${voza}
         ${vse}
@@ -127,6 +145,21 @@ wrap {
       URL=""
 
       [[ -n "$DEBUG" ]] && echo "Checking $LINK" 1>&2
+
+      if echo "$LINK" | grep 'x5[4-6][4-6]\.c' > /dev/null
+      then
+        # shellcheck disable=SC2154
+        [[ -n "$DEBUG" ]] && echo "Running $f5 on $LINK" 1>&2
+
+        # shellcheck disable=SC2154
+        URL=$("$f5" "$LINK") || continue
+
+        [[ -n "$URL" ]] || continue
+        URL=$(echo "$URL" | esc)
+
+        echo "wget -c -O '$TITLE' '$URL'"
+        continue
+      fi
 
       if echo "$LINK" | grep '/spe....d\.co' > /dev/null
       then
