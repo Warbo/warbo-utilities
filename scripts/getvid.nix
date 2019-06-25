@@ -135,29 +135,23 @@ wrap {
     echo "LINKS: $LINKS" 1>&2
 
     function tryScrape {
-      if echo "$1" | grep "$2" > /dev/null
-      then
-        # shellcheck disable=SC2154
-        [[ -n "$DEBUG" ]] && echo "Running $3 on $1" 1>&2
+         LINK="$1"
+          TIT="$2"
+        REGEX="$3"
+      SCRAPER="$4"
+          CMD="$5"
 
-        # shellcheck disable=SC2154
-        URL=$("$3" "$1") || return 0
+      echo "$LINK" | grep "$REGEX" > /dev/null || return 1
 
-        [[ -n "$URL" ]] || return 0
-        URL=$(echo "$URL" | esc)
+      [[ -n "$DEBUG" ]] && echo "Running $SCRAPER on $LINK" 1>&2
+      URL=$("$SCRAPER" "$LINK") || return 0
 
-        if [[ "x$4" = "xwget" ]]
-        then
-          echo "wget -c -O '$5' '$URL'"
-        fi
-        if [[ "x$4" = "xyoutube" ]]
-        then
-          echo "youtube-dl --output '$5' '$URL'"
-        fi
-        return 0
-      else
-        return 1
-      fi
+      [[ -n "$URL" ]] || return 0
+      URL=$(echo "$URL" | esc)
+
+      [[ "x$CMD" = "xwget"    ]] && echo "wget -c -O '$TIT' '$URL'"
+      [[ "x$CMD" = "xyoutube" ]] && echo "youtube-dl --output '$TIT' '$URL'"
+      return 0
     }
 
     echo "$LINKS" | while read -r PAIR
@@ -173,16 +167,16 @@ wrap {
       [[ -n "$DEBUG" ]] && echo "Checking $LINK" 1>&2
 
       # shellcheck disable=SC2154
-      tryScrape "$LINK" 'x5[4-6][4-6]\.c' "$f5"   'wget'    "$TITLE" && continue
+      tryScrape "$LINK" "$TITLE" 'x5[4-6][4-6]\.c' "$f5"   'wget'    && continue
 
       # shellcheck disable=SC2154
-      tryScrape "$LINK" '/spe....d\.co'   "$sv"   'youtube' "$TITLE" && continue
+      tryScrape "$LINK" "$TITLE" '/spe....d\.co'   "$sv"   'youtube' && continue
 
       # shellcheck disable=SC2154
-      tryScrape "$LINK" '/vi..z.\.net/'   "$voza" 'wget'    "$TITLE" && continue
+      tryScrape "$LINK" "$TITLE" '/vi..z.\.net/'   "$voza" 'wget'    && continue
 
       # shellcheck disable=SC2154
-      tryScrape "$LINK" '/vs...e\.e'      "$vse"  'wget'    "$TITLE" && continue
+      tryScrape "$LINK" "$TITLE" '/vs...e\.e'      "$vse"  'wget'    && continue
     done
   '';
 }
