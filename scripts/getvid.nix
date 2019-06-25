@@ -134,6 +134,32 @@ wrap {
 
     echo "LINKS: $LINKS" 1>&2
 
+    function tryScrape {
+      if echo "$1" | grep "$2" > /dev/null
+      then
+        # shellcheck disable=SC2154
+        [[ -n "$DEBUG" ]] && echo "Running $3 on $1" 1>&2
+
+        # shellcheck disable=SC2154
+        URL=$("$3" "$1") || return 0
+
+        [[ -n "$URL" ]] || return 0
+        URL=$(echo "$URL" | esc)
+
+        if [[ "x$4" = "xwget" ]]
+        then
+          echo "wget -c -O '$5' '$URL'"
+        fi
+        if [[ "x$4" = "xyoutube" ]]
+        then
+          echo "youtube-dl --output '$5' '$URL'"
+        fi
+        return 0
+      else
+        return 1
+      fi
+    }
+
     echo "$LINKS" | while read -r PAIR
     do
       LINK=$(echo "$PAIR" | cut -f2)
@@ -146,65 +172,17 @@ wrap {
 
       [[ -n "$DEBUG" ]] && echo "Checking $LINK" 1>&2
 
-      if echo "$LINK" | grep 'x5[4-6][4-6]\.c' > /dev/null
-      then
-        # shellcheck disable=SC2154
-        [[ -n "$DEBUG" ]] && echo "Running $f5 on $LINK" 1>&2
+      # shellcheck disable=SC2154
+      tryScrape "$LINK" 'x5[4-6][4-6]\.c' "$f5"   'wget'    "$TITLE" && continue
 
-        # shellcheck disable=SC2154
-        URL=$("$f5" "$LINK") || continue
+      # shellcheck disable=SC2154
+      tryScrape "$LINK" '/spe....d\.co'   "$sv"   'youtube' "$TITLE" && continue
 
-        [[ -n "$URL" ]] || continue
-        URL=$(echo "$URL" | esc)
+      # shellcheck disable=SC2154
+      tryScrape "$LINK" '/vi..z.\.net/'   "$voza" 'wget'    "$TITLE" && continue
 
-        echo "wget -c -O '$TITLE' '$URL'"
-        continue
-      fi
-
-      if echo "$LINK" | grep '/spe....d\.co' > /dev/null
-      then
-        # shellcheck disable=SC2154
-        [[ -n "$DEBUG" ]] && echo "Running $sv on $LINK" 1>&2
-
-        # shellcheck disable=SC2154
-        URL=$("$sv" "$LINK") || continue
-
-        [[ -n "$URL" ]] || continue
-        URL=$(echo "$URL" | esc)
-
-        echo "youtube-dl --output '$TITLE' '$URL'"
-        continue
-      fi
-
-      if echo "$LINK" | grep '/vi..z.\.net/' > /dev/null
-      then
-        # shellcheck disable=SC2154
-        [[ -n "$DEBUG" ]] && echo "Running $voza on $LINK" 1>&2
-
-        # shellcheck disable=SC2154
-        URL=$("$voza" "$LINK") || continue
-
-        [[ -n "$URL" ]] || continue
-        URL=$(echo "$URL" | esc)
-
-        echo "wget -c -O '$TITLE' '$URL'"
-        continue
-      fi
-
-      if echo "$LINK" | grep '/vs...e\.e' > /dev/null
-      then
-        # shellcheck disable=SC2154
-        [[ -n "$DEBUG" ]] && echo "Running $vse on $LINK" 1>&2
-
-        # shellcheck disable=SC2154
-        URL=$("$vse" "$LINK") || true
-
-        [[ -n "$URL" ]] || continue
-        URL=$(echo "$URL" | esc)
-
-        echo "wget -c -O '$TITLE' '$URL'"
-        continue
-      fi
+      # shellcheck disable=SC2154
+      tryScrape "$LINK" '/vs...e\.e'      "$vse"  'wget'    "$TITLE" && continue
     done
   '';
 }
