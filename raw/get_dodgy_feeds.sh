@@ -28,7 +28,7 @@ function get_bastards {
     XPATH='//*[contains(@data-track-gtm, "Archive")]'
 
     # Count how many dates we have
-    COUNT=$(echo "$ARCHIVE" | xid -e "$XPATH/div/p" | grep '^.' | wc -l)
+    COUNT=$(echo "$ARCHIVE" | xid -e "$XPATH/div/p" | grep -c '^.')
 
     [[ "$COUNT" -gt 0 ]] || {
         echo "Got no BehindTheBastards episodes, skipping" 1>&2
@@ -57,7 +57,7 @@ function get_bastards {
         CONTENT=$(wget -O- -q "$PAGE") || continue
         URL=$(echo "$CONTENT" | xid -e '//iframe/@src' | grep 'iheart')
 
-        PUBDATE=$(date -d "$D" --iso-8601)
+        PUBDATE=$(date -d "$DATE" --iso-8601)
 
         echo "<item>
           <title>$TITLE</title>
