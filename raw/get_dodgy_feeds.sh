@@ -27,6 +27,10 @@ function esc {
 }
 
 function get_bastards {
+    # There is an RSS feed for this, from iHeartRadio, but it doesn't have
+    # 'link' elements that we rely on for grabbing the mp3. Hence we generate
+    # our own, based on the homepage.
+    echo "Generating BehindTheBastards feed" 1>&2
     U="https://www.behindthebastards.com/podcasts/behind-the-bastards-archive.htm"
     ARCHIVE=$(wget -q -O- "$U") || {
         echo "Couldn't fetch BehindTheBastards archive, skipping" 1>&2
