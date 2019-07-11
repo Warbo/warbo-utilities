@@ -17,6 +17,15 @@ function xid {
     xidel -q - "$@"
 }
 
+function esc {
+    # XML escape
+    sed -e 's/&/&amp;/g'  \
+        -e 's/"/&quot;/g' \
+        -e "s/'/&apos;/g" \
+        -e 's/>/&gt;/g'   \
+        -e 's/</&lt;/g'
+}
+
 function get_bastards {
     U="https://www.behindthebastards.com/podcasts/behind-the-bastards-archive.htm"
     ARCHIVE=$(wget -q -O- "$U") || {
@@ -50,14 +59,14 @@ function get_bastards {
     for I in $(seq 1 "$COUNT")
     do
          DATE=$(echo "$ARCHIVE" | xid -e "($XPATH/div/p)[$I]"   )
-        TITLE=$(echo "$ARCHIVE" | xid -e "($XPATH//a/p)[$I]"    )
+        TITLE=$(echo "$ARCHIVE" | xid -e "($XPATH//a/p)[$I]"    | esc)
          PAGE=$(echo "$ARCHIVE" | xid -e "($XPATH//a/@href)[$I]")
 
         # The page contains a player embedded in an iframe
         CONTENT=$(wget -O- -q "$PAGE") || continue
-        URL=$(echo "$CONTENT" | xid -e '//iframe/@src' | grep 'iheart')
+        URL=$(echo "$CONTENT" | xid -e '//iframe/@src' | grep 'iheart' | esc)
 
-        PUBDATE=$(date -d "$DATE" --iso-8601)
+        PUBDATE=$(date -d "$DATE" --rfc-822 | esc)
 
         echo "<item>
           <title>$TITLE</title>
