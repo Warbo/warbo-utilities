@@ -48,7 +48,9 @@ function get_bastards {
     echo '<?xml version="1.0" encoding="UTF-8"?>
       <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
         <channel>
-          <atom:link href="https://feeds.megaphone.fm/behindthebastards" rel="self" type="application/rss+xml"/>
+          <atom:link href="https://feeds.megaphone.fm/behindthebastards"
+                     rel="self"
+                     type="application/rss+xml"/>
           <title>Behind the Bastards</title>
           <link>https://www.behindthebastards.com/</link>
           <language>en</language>
@@ -72,6 +74,7 @@ function get_bastards {
           <title>$TITLE</title>
           <pubDate>$PUBDATE</pubDate>
           <link>$URL</link>
+          <description>$TITLE</description>
           <guid isPermaLink='true'>$URL</guid>
           <author>BehindTheBastards</author>
         </item>"
