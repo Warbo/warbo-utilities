@@ -226,6 +226,8 @@ wrap {
 
       # shellcheck disable=SC2154
       "$rss" ~/.cache/rss < ~/.feeds
+
+      get_dodgy_feeds ~/.cache/rss
     fi
 
     echo "Converting RSS to maildir" 1>&2
