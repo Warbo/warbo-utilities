@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -e
+
+# Copies with a progress bar and resumes from where it left off
+rsync --inplace --progress --append-verify "$@"
