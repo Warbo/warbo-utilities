@@ -8,7 +8,8 @@ set -e
 FROM="$1"
 DEST="$2"
 
-[[ -n "$FROM" ]] && [[ -e "$FROM" ]] || fail "First argument '$FROM' doesn't exist"
-[[ -n "$DEST" ]]                     || fail "No destination given"
+[[ -n "$FROM" ]] || fail "Need first argument to be source path"
+[[ -e "$FROM" ]] || fail "First argument '$FROM' doesn't exist"
+[[ -n "$DEST" ]] || fail "No destination given"
 
 copy "$FROM" "$DEST" && rm -rfv "$FROM"
