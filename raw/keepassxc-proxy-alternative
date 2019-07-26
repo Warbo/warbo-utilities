@@ -1,0 +1,78 @@
+#!/usr/bin/env python
+import json
+import socket
+import sys
+import time
+
+# Enable this for debugging
+logFile = open('/home/chris/DELETEME/keepassxc-proxy-alternative.log', 'a')
+log = lambda s: None #(logFile.write(s), logFile.flush(), None)[-1]
+
+# Talk to KeePassXC via a socket
+sock           = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+server_address = '/run/user/1000/kpxc_server'
+log('connecting to %s\n' % server_address)
+try:
+    sock.connect(server_address)
+except socket.error, msg:
+    log(msg)
+    sys.exit(1)
+
+def tryParse(get, so_far=""):
+    """Incrementally read characters using the given 'get' function, appending
+    them to the 'so_far' string. Ignore anything before the first '{', then
+    parse and return one complete JSON object."""
+    try:
+        # Try parsing JSON from the string we've read so far
+        val = json.loads(so_far)
+        return val
+    except:
+        # If it fails, read another character
+        c = ''
+        while c == '':
+            c = get()
+
+        # Ignore crap at the start that's not JSON
+        if so_far == "" and c != "{":
+            log("Skipping char '%s'\n" % c)
+            return tryParse(get, so_far)
+        return tryParse(get, so_far + c)
+
+# Communication with the KeePassXC-Browser plugin happens via stdio. Each
+# message is prefixed with its length (which we handle via the 'struct' module).
+import struct
+def send_to_browser(message):
+    sys.stdout.write(struct.pack('I', len(message)))
+    sys.stdout.write(message)
+    sys.stdout.flush()
+
+def read_from_browser():
+    text_length_bytes = sys.stdin.read(4)
+
+    if len(text_length_bytes) == 0:
+        sys.exit(0)
+
+    text_length = struct.unpack('i', text_length_bytes)[0]
+    text        = sys.stdin.read(text_length).decode('utf-8')
+    return text
+
+# Main loop: read from the browser, send to the socket, read a response, send to
+# the browser.
+# TODO: We're probably better off with two threads, in case some messages aren't
+# in lock-step.
+try:
+    while True:
+        # Read data from stdin
+        message = read_from_browser()
+        log('sending "%s"\n' % message)
+        sock.sendall(message)
+
+        response = tryParse(lambda: sock.recv(1))
+        dumped   = json.dumps(response)
+        log('Received: %s\n' % dumped)
+        send_to_browser(dumped)
+except Exception as e:
+    log('Got exception: ' + repr(e))
+finally:
+    log('closing socket')
+    sock.close()
