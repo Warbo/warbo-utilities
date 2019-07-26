@@ -2,6 +2,7 @@
 import json
 import socket
 import sys
+import threading
 import time
 
 # Enable this for debugging
@@ -56,17 +57,28 @@ def read_from_browser():
     text        = sys.stdin.read(text_length).decode('utf-8')
     return text
 
-# Main loop: read from the browser, send to the socket, read a response, send to
-# the browser.
-# TODO: We're probably better off with two threads, in case some messages aren't
-# in lock-step.
+# We have two main loops: one reads from the browser and sends to the socket
+def browserToSocketMain():
+    try:
+        while True:
+            message = read_from_browser()
+            log('sending "%s"\n' % message)
+            sock.sendall(message)
+    except Exception as e:
+        log('Got exception: ' + repr(e))
+    finally:
+        log('closing socket')
+        sock.close()
+        sys.exit(0)
+
+browserToSocketThread = threading.Thread(target=browserToSocketMain,
+                                         args=())
+browserToSocketThread.daemon = True
+browserToSocketThread.start()
+
+# The second main loop reads from the socket and sends to the browser
 try:
     while True:
-        # Read data from stdin
-        message = read_from_browser()
-        log('sending "%s"\n' % message)
-        sock.sendall(message)
-
         response = tryParse(lambda: sock.recv(1))
         dumped   = json.dumps(response)
         log('Received: %s\n' % dumped)
@@ -76,3 +88,4 @@ except Exception as e:
 finally:
     log('closing socket')
     sock.close()
+    sys.exit(0)
