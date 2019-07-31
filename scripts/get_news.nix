@@ -106,7 +106,19 @@ with rec {
         xmlstarlet ed                              \
           -s //item -t elem -n pubDate             \
           -v "$(date -d "today 00:00" --rfc-2822)" \
-          -d '//item/pubDate[position() != 1]'
+          -d '//item/pubDate[position() != 1]'     |
+
+        # Append an empty description, then remove all but the first description
+        xmlstarlet ed                              \
+          -s //item -t elem -n description         \
+          -v "No description given"                \
+          -d '//item/description[position() != 1]' |
+
+        # Append an empty link, then remove all but the first link
+        xmlstarlet ed                       \
+          -s //item -t elem -n link         \
+          -v "http://example.com"           \
+          -d '//item/link[position() != 1]'
     '';
   };
 
