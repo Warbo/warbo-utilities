@@ -1,5 +1,5 @@
 { bash, coreutils, feed2maildirsimple, libxslt, mkBin, mu-standalone, openssl,
-  procps, python, raw, scripts, wget, wrap, writeScript, xidel, xmlstarlet }:
+  procps, python2, raw, scripts, wget, wrap, writeScript, xidel, xmlstarlet }:
 
 with rec {
   cleanUp = wrap {
@@ -82,6 +82,80 @@ with rec {
 
       stopMu
       mu index --maildir="$HOME/Mail" --lazy-check
+    '';
+  };
+
+  convert = wrap {
+    name   = "feeds2maildirs";
+    paths  = [ (python2.withPackages (p: [ feed2maildirsimple ])) ];
+    script = ''
+      #!/usr/bin/env python
+      # coding: utf-8
+
+      import hashlib
+      import os
+      import random
+      import sys
+
+      from feed2maildir.converter import Converter
+      from feed2maildir.reader    import Reader
+
+      msg = lambda x: (sys.stderr.write(x if type(x) == type("") \
+                                          else repr(x) + '\n'),
+                       sys.stderr.flush(),
+                       None)[-1]
+
+      home     = os.environ['HOME']
+      rssDir   = home + '/.cache/rss'
+      rssFiles = [f for f in os.listdir(rssDir) if f.lower().endswith('.rss')]
+
+      for rssFile in rssFiles:
+        name    = rssFile[:-4]
+        maildir = home + '/Mail/feeds/' + name
+
+        try:
+          with open(rssDir + '/' + rssFile, 'r') as f:
+            data = f.read()
+        except Exception as e:
+          msg({
+            'exception' : e,
+            'message'   : 'Failed to read file, skipping',
+            'rssFile'   : rssFile,
+          })
+          continue
+
+        # Hash the .rss file to a .hash file and see if it's changed
+        hashFile = rssDir + '/' + name + '.hash'
+        lastHash = None
+        try:
+          with open(hashFile, 'r') as f:
+            lastHash = f.read().strip()
+        except:
+          pass
+
+        hasher = hashlib.md5()
+        hasher.update(data)
+        newHash = hasher.hexdigest()
+
+        # Skip most unchanged files; do a few at random to escape erroneous data
+        if lastHash == newHash and random.randint(0, len(rssFiles)) > 5:
+          msg('Skipping ' + rssFile + ' since its hash has not changed')
+          continue
+
+        msg('Converting ' + rssFile + ' to Maildir\n')
+        try:
+          reader    = Reader(data)
+          converter = Converter(maildir, name, strip=True)
+          converter.load(reader.feed)
+          converter.run()
+          with open(hashFile, 'w') as f:
+            f.write(newHash)
+        except Exception as e:
+          msg({
+            'exception' : e,
+            'message'   : 'Skipping file due to exception in conversion',
+            'rssFile'   : rssFile,
+          })
     '';
   };
 
@@ -202,8 +276,8 @@ with rec {
 
 wrap {
   name   = "get-news-start";
-  paths  = [ bash mu-standalone procps python feed2maildirsimple ];
-  vars   = { inherit cleanUp rss; inherit (scripts) sysPing; };
+  paths  = [ bash mu-standalone procps ];
+  vars   = { inherit cleanUp convert rss; inherit (scripts) sysPing; };
   script = ''
     #!/usr/bin/env bash
     set -e
@@ -242,14 +316,9 @@ wrap {
       get_dodgy_feeds ~/.cache/rss
     fi
 
-    echo "Converting RSS to maildir" 1>&2
-    for F in ~/.cache/rss/*.rss
-    do
-      NAME=$(basename "$F" .rss)
-      echo "$NAME" 1>&2
-      feed2maildir -s -m ~/Mail/feeds/"$NAME" -n "$NAME" < "$F" ||
-        echo "Failed to convert $NAME, skipping" 1>&2
-    done
+    # Now convert out RSS to MailDir
+    # shellcheck disable=SC2154
+    "$convert"
 
     echo "Cleaning up old news" 1>&2
     # shellcheck disable=SC2154
