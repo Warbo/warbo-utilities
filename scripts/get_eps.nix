@@ -47,6 +47,17 @@ with rec {
         # Format is number,season,episode,airdate,title
         DATE=$(echo "$EP" | cut -d , -f 4)
 
+        # Stick '19' before the year if it's before the Unix epoch (epguides has
+        # a Y2K problem...). Without this, GNU date will assume dates like '64'
+        # should be '2064' (and, on 32bit, will get an overflow error!)
+        YEAR=$(echo "$DATE" | cut -d ' ' -f 3)
+        if [[ "$YEAR" -lt 70 ]] && [[ "$YEAR" -gt 38 ]]
+        then
+          YEAR="19$YEAR"
+        fi
+        DATE=$(paste -d ' ' <(echo "$DATE" | cut -d ' ' -f1-2) <(echo "$YEAR"))
+        unset YEAR
+
         SECS=$(date -d "$DATE" '+%s')
         PDAT=$(date -d "$DATE" --iso-8601)
 
