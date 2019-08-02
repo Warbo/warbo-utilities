@@ -2,4 +2,4 @@
 set -e
 
 # Copies with a progress bar and resumes from where it left off
-rsync --inplace --progress --append-verify "$@"
+rsync -r --inplace --progress --append-verify "$@"
