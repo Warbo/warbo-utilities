@@ -71,9 +71,23 @@ with rec {
       # so we can't use the file's modification time.
       for F in "$HOME/.cache/meetup"/*
       do
+        if ! [[ -s "$F" ]]
+        then
+          # Delete empty files
+          rm -f "$F"
+          continue
+        fi
+
         MILLIS=$(xidel - -q -e '//time/@dateTime' < "$F" | head -n1)
-          SECS=$(( MILLIS / 1000 ))
-          PAST=$(date -d 'now - 7 days' '+%s')
+        if [[ -z "$MILLIS" ]]
+        then
+          # Delete undated events
+          rm -f "$F"
+          continue
+        fi
+
+        SECS=$(( MILLIS / 1000 ))
+        PAST=$(date -d 'now - 7 days' '+%s')
         (( PAST < SECS )) || rm -f "$F"
         unset MILLIS
         unset SECS
