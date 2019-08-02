@@ -93,17 +93,23 @@ function getFromSrc {
         PAGE=$(grep -o 'http[s]*://[^ "]*' < "$F" | head -n1) || continue
         echo "Found link $PAGE" 1>&2
 
-        URL=$(wget -q -O- "$PAGE")
+        if echo "$PAGE" | grep -i '\.mp3$' > /dev/null
+        then
+            echo "Assuming URL '$PAGE' is the file rather than a Web page" 1>&2
+            URL="$PAGE"
+        else
+            URL=$(wget -q -O- "$PAGE")
 
-        # Narrow down the page source to a URL using the remaining arguments as
-        # patterns for 'grep -o', applied one after the other (then apply head)
-        FOUND=1
-        for PAT in "$@"
-        do
-            URL=$(echo "$URL" | grep -o "$PAT") || FOUND=0
-        done
-        [[ "$FOUND" -eq 1 ]] || continue
-        URL=$(echo "$URL" | head -n1)
+            # Narrow down the page source to a URL using the remaining arguments as
+            # patterns for 'grep -o', applied one after the other (then apply head)
+            FOUND=1
+            for PAT in "$@"
+            do
+                URL=$(echo "$URL" | grep -o "$PAT") || FOUND=0
+            done
+            [[ "$FOUND" -eq 1 ]] || continue
+            URL=$(echo "$URL" | head -n1)
+        fi
 
         # Skip if we didn't get anything (e.g. not a podcast)
         [[ -n "$URL" ]] || continue
