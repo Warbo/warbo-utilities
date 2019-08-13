@@ -4,8 +4,16 @@
 echo "Putting hooks in place"
 for repo in *.git
 do
-    if [ ! -h "$repo/hooks/post-receive" ]
+    HOOK="$repo/hooks/post-receive"
+    # This should be a symlink to post-receive.hook, or otherwise run it
+    if [ -h "$HOOK" ]
     then
+        true  # OK
+    elif [ -f "$HOOK" ]
+    then
+        grep 'post-receive.hook' < "$HOOK" > /dev/null ||
+            echo "$HOOK should run ../post-receive.hook (or symlink to it)" 1>&2
+    else
         (cd "$repo/hooks" && ln -s ../../post-receive.hook post-receive)
     fi
 done
