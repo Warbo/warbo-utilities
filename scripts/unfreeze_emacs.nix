@@ -1,8 +1,8 @@
-{ racket, wrap, xclip }:
+{ checkedRacket, wrap, xclip }:
 
 wrap {
   name   = "unfreeze_emacs";
-  paths  = [ racket xclip ];
+  paths  = [ checkedRacket xclip ];
   script = ''
     #!/usr/bin/env racket
     #lang racket
