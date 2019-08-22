@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-exec vlc 'http://media-ice.musicradio.com/LBCUKMP3Low.m3u'
+exec vlc 'http://media-ice.musicradio.com/LBCUK.m3u'
