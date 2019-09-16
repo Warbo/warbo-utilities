@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
-# Copies with a progress bar and resumes from where it left off
-rsync -r --inplace --progress --append-verify "$@"
+# -s prevents having to double-quote paths for SSH
+# -r copies recursively
+# --progress gives a progress bar
+# --append-verify resumes from where it left off
+# --inplace copies straight to the destination filename rather than a temp file
+rsync -s -r --inplace --progress --append-verify "$@"
