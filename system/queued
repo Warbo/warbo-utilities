@@ -1,23 +1,29 @@
 #!/usr/bin/env bash
+shopt -s nullglob
 
 # Show output of running tasks
 
 # Tasks scheduled in a nix-shell end up in a different queue, so we need to
-# check both, without spawning nix-shell's over and over. To do this we fire off
+# check both, without spawning nix-shells over and over. To do this we fire off
 # two loops, which keep going until this temp dir is deleted.
 DIR=$(mktemp --tmpdir -d 'check-queue-XXXXX')
 
 function cleanUp {
-    [[ -e "$DIR" ]] && rmdir -f "$DIR"
+    [[ -e "$DIR" ]] && rmdir "$DIR"
     pkill -P $$
+
+    # Avoid old directories cluttering up /tmp
+    for D in /tmp/check-queue-*
+    do
+        rmdir "$D"
+    done
 }
 trap cleanUp EXIT
 
 # Normal tasks
-(while [[ -e "$DIR" ]]; do ts -t; echo "DONE NORMAL"; sleep 4; done) &
+(follow_queued "$DIR") &
 
 # nix-shell tasks
-nix-shell -p ts --run \
-    "while [[ -e '$DIR' ]]; do ts -t; echo 'DONE SHELL'; sleep 4; done" &
+nix-shell -p ts --run "follow_queued '$DIR' NIX-SHELL" &
 
 wait
