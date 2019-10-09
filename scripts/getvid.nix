@@ -76,28 +76,12 @@ with rec {
       exit 1
     '';
   };
-
-  ytdl = wrap {
-    name   = "getvid-ytdl";
-    paths  = [ bash youtube-dl ];
-    script = ''
-      #!/usr/bin/env bash
-      set -e
-      URL="$1"
-      if youtube-dl -s "$1" 2>&1 > /dev/null
-      then
-        echo "$1"
-        exit 0
-      fi
-      exit 1
-    '';
-  };
 };
 wrap {
   name  = "getvid";
   paths = [ bash xidel ];
   vars  = {
-    inherit f5 voza vse ytdl;
+    inherit f5 voza vse;
     list = raw."listepurls.sh";
     msg  = ''
       Usage: getvid <listing url>
@@ -112,7 +96,6 @@ wrap {
         ${f5}
         ${voza}
         ${vse}
-        ${ytdl}
     '';
   };
   script = ''
