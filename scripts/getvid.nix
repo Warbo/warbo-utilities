@@ -19,20 +19,6 @@ with rec {
     '';
   };
 
-  sv = wrap {
-    name   = "getvid-sv";
-    paths  = [ bash wget ];
-    script = ''
-      #!/usr/bin/env bash
-      if wget -q -O - "$1" > /dev/null
-      then
-        echo "$1"
-        exit 0
-      fi
-      exit 1
-    '';
-  };
-
   voza = wrap {
     name   = "getvid-voza";
     paths  = [ bash wget xidel ];
@@ -111,7 +97,7 @@ wrap {
   name  = "getvid";
   paths = [ bash xidel ];
   vars  = {
-    inherit f5 sv voza vse ytdl;
+    inherit f5 voza vse ytdl;
     list = raw."listepurls.sh";
     msg  = ''
       Usage: getvid <listing url>
@@ -124,7 +110,6 @@ wrap {
 
       Known handlers (e.g. for running standalone) are:
         ${f5}
-        ${sv}
         ${voza}
         ${vse}
         ${ytdl}
@@ -191,9 +176,6 @@ wrap {
 
       # shellcheck disable=SC2154
       tryScrape "$LINK" "$TITLE" 'x5[4-6][4-6]\.c' "$f5"   'wget'    && continue
-
-      # shellcheck disable=SC2154
-      tryScrape "$LINK" "$TITLE" '/spe....d\.co'   "$sv"   'youtube' && continue
 
       # shellcheck disable=SC2154
       tryScrape "$LINK" "$TITLE" '/vi..z.\.net/'   "$voza" 'wget'    && continue
