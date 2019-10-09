@@ -1,4 +1,5 @@
-{ bash, fail, jq, jsbeautifier, lynx, raw, wget, wrap, writeScript, xidel }:
+{ bash, fail, jq, jsbeautifier, lynx, raw, wget, wrap, writeScript, xidel,
+  youtube-dl }:
 
 with rec {
   f5 = wrap {
@@ -89,26 +90,44 @@ with rec {
       exit 1
     '';
   };
+
+  ytdl = wrap {
+    name   = "getvid-ytdl";
+    paths  = [ bash youtube-dl ];
+    script = ''
+      #!/usr/bin/env bash
+      set -e
+      URL="$1"
+      if youtube-dl -s "$1" 2>&1 > /dev/null
+      then
+        echo "$1"
+        exit 0
+      fi
+      exit 1
+    '';
+  };
 };
 wrap {
   name  = "getvid";
   paths = [ bash xidel ];
   vars  = {
-    inherit f5 sv voza vse;
+    inherit f5 sv voza vse ytdl;
     list = raw."listepurls.sh";
     msg  = ''
       Usage: getvid <listing url>
 
       Looks through a listing of providers, printing 'TITLE\tURL' to stderr for
-      each. Loops through each to see if (a) it has a handler and (b) whether
-      the handler returns a working URL. If so, a command for fetching from that
-      provider is written to stdout. Set DEBUG=1 to see each handler running.
+      each. Loops through each to see if (a) it has a handler (youtube-dl or
+      custom) and (b) whether the handler returns a working URL. If so, a
+      command for fetching from that provider is written to stdout.
+      Set DEBUG=1 to see each handler running.
 
       Known handlers (e.g. for running standalone) are:
         ${f5}
         ${sv}
         ${voza}
         ${vse}
+        ${ytdl}
     '';
   };
   script = ''
@@ -149,8 +168,9 @@ wrap {
       [[ -n "$URL" ]] || return 0
       URL=$(echo "$URL" | esc)
 
-      [[ "x$CMD" = "xwget"    ]] && echo "wget -c -O '$TIT' '$URL'"
-      [[ "x$CMD" = "xyoutube" ]] && echo "youtube-dl --output '$TIT' '$URL'"
+      [[ "x$CMD" = "xwget"    ]] && P="wget -c -O"
+      [[ "x$CMD" = "xyoutube" ]] && P="youtube-dl --output"
+      echo "$P '$TIT' --no-check-certificate '$URL'"
       return 0
     }
 
@@ -165,6 +185,9 @@ wrap {
       URL=""
 
       [[ -n "$DEBUG" ]] && echo "Checking $LINK" 1>&2
+
+      # shellcheck disable=SC2154
+      tryScrape "$LINK" "$TITLE" '.' "$ytdl" 'youtube' && continue
 
       # shellcheck disable=SC2154
       tryScrape "$LINK" "$TITLE" 'x5[4-6][4-6]\.c' "$f5"   'wget'    && continue
