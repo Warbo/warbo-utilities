@@ -126,7 +126,6 @@ wrap {
           TIT="$2"
         REGEX="$3"
       SCRAPER="$4"
-          CMD="$5"
 
       echo "$LINK" | grep "$REGEX" > /dev/null || return 1
 
@@ -136,9 +135,7 @@ wrap {
       [[ -n "$URL" ]] || return 0
       URL=$(echo "$URL" | esc)
 
-      [[ "x$CMD" = "xwget"    ]] && P="wget -c -O"
-      [[ "x$CMD" = "xyoutube" ]] && P="youtube-dl --output"
-      echo "$P '$TIT' --no-check-certificate '$URL'"
+      echo "wget --no-check-certificate -c -O '$TIT' '$URL'"
       return 0
     }
 
@@ -153,7 +150,7 @@ wrap {
       [[ -n "$DEBUG" ]] && echo "Checking $LINK" 1>&2
 
       # Try "simulating" a youtube-dl run; if it works, present it as an option
-      if youtube-dl -s "$LINK" 2>&1 > /dev/null
+      if youtube-dl --no-check-certificate -s "$LINK" > /dev/null 2>&1
       then
         URL=$(echo "$LINK" | esc)
         echo "youtube-dl --no-check-certificate --output '$TITLE' '$URL'"
@@ -161,13 +158,13 @@ wrap {
       URL=""
 
       # shellcheck disable=SC2154
-      tryScrape "$LINK" "$TITLE" 'x5[4-6][4-6]\.c' "$f5"   'wget'    && continue
+      tryScrape "$LINK" "$TITLE" 'x5[4-6][4-6]\.c' "$f5"   && continue
 
       # shellcheck disable=SC2154
-      tryScrape "$LINK" "$TITLE" '/vi..z.\.net/'   "$voza" 'wget'    && continue
+      tryScrape "$LINK" "$TITLE" '/vi..z.\.net/'   "$voza" && continue
 
       # shellcheck disable=SC2154
-      tryScrape "$LINK" "$TITLE" '/vs...e\.e'      "$vse"  'wget'    && continue
+      tryScrape "$LINK" "$TITLE" '/vs...e\.e'      "$vse"  && continue
     done
   '';
 }
