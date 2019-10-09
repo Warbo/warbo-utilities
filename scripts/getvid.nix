@@ -167,12 +167,15 @@ wrap {
       TITLE=$(echo "$PAIR" | cut -f1 | esc)
       [[ -n "$TITLE" ]] || TITLE="UNKNOWN"
 
-      URL=""
-
       [[ -n "$DEBUG" ]] && echo "Checking $LINK" 1>&2
 
-      # shellcheck disable=SC2154
-      tryScrape "$LINK" "$TITLE" '.' "$ytdl" 'youtube' && continue
+      # Try "simulating" a youtube-dl run; if it works, present it as an option
+      if youtube-dl -s "$LINK" 2>&1 > /dev/null
+      then
+        URL=$(echo "$LINK" | esc)
+        echo "youtube-dl --no-check-certificate --output '$TITLE' '$URL'"
+      fi
+      URL=""
 
       # shellcheck disable=SC2154
       tryScrape "$LINK" "$TITLE" 'x5[4-6][4-6]\.c' "$f5"   'wget'    && continue
