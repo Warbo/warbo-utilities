@@ -5,7 +5,7 @@ wrap {
   vars   = { SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt; };
   paths  = [ bash openssl (openssl.dev or openssl) wget ];
   script = ''
-    #!/usr/bin/env bash
+    #!${bash}/bin/bash
     set -e
 
     CONTENT=$(wget -q -O- "$2")

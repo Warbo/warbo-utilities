@@ -17,7 +17,7 @@ wrap {
     '';
   };
   script = ''
-    #!/usr/bin/env bash
+    #!${bash}/bin/bash
     JOB="$PWD/release.nix"
     [[ -z "$1" ]] || JOB=$(readlink -f "$1")
     export JOB

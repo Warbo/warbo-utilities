@@ -1,10 +1,10 @@
-{ most, wrap }:
+{ bash, most, wrap }:
 
 wrap {
   name   = "pager";
   paths  = [ most ];
   script = ''
-    #!/usr/bin/env bash
+    #!${bash}/bin/bash
     if [[ "x$TERM" = "xdumb" ]]
     then
       # We're probably in Emacs; let it handle the paging itself

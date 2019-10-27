@@ -6,7 +6,7 @@ with rec {
     name   = "clean-up-news";
     paths  = [ bash mu-standalone xidel ];
     script = ''
-      #!/usr/bin/env bash
+      #!${bash}/bin/bash
 
       function stopMu {
         while ps auxww | grep 'mu server' | grep -v grep | grep 'server'
@@ -177,7 +177,7 @@ with rec {
     name   = "fixRss";
     paths  = [ xmlstarlet ];
     script = ''
-      #!/usr/bin/env bash
+      #!${bash}/bin/bash
 
       # Append an author to each item, using the feed name
       xmlstarlet ed                         \
@@ -218,7 +218,7 @@ with rec {
     name   = "getRss";
     paths  = [ coreutils fixRss wget ];
     script = ''
-      #!/usr/bin/env bash
+      #!${bash}/bin/bash
       ${get} "$2" | ${stripNonAscii} | fixRss "$1" > "$1.rss"
     '';
   };
@@ -228,7 +228,7 @@ with rec {
     paths  = [ coreutils fixRss (libxslt.bin or libxslt) wget ];
     vars   = { xsl = raw."atom2rss-exslt.xsl"; };
     script = ''
-      #!/usr/bin/env bash
+      #!${bash}/bin/bash
       ${get} "$2" | ${stripNonAscii} > "$1.atom"
       xsltproc "$xsl" "$1.atom" |
         fixRss "$1" > "$1.rss"
@@ -239,7 +239,7 @@ with rec {
     name   = "getYouTube";
     paths  = [ getAtom ];
     script = ''
-      #!/usr/bin/env bash
+      #!${bash}/bin/bash
       getAtom "$1" "http://www.youtube.com/feeds/videos.xml?channel_id=$2"
     '';
   };
@@ -248,7 +248,7 @@ with rec {
     name   = "pull_down_rss";
     paths  = [ bash getAtom getRss getYouTube ];
     script = ''
-      #!/usr/bin/env bash
+      #!${bash}/bin/bash
       set -e
       [[ -n "$1" ]] || fail "pull_down_rss need an output directory"
       [[ -e "$1" ]] || fail "Output dir '$1' not found"
@@ -293,7 +293,7 @@ wrap {
   paths  = [ bash mu-standalone procps ];
   vars   = { inherit cleanUp convert rss; inherit (scripts) sysPing; };
   script = ''
-    #!/usr/bin/env bash
+    #!${bash}/bin/bash
     set -e
 
     # Grabs RSS feeds and dumps them in ~/.cache, so all of our news is in one

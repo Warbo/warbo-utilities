@@ -4,7 +4,7 @@ wrap {
   name   = "on";
   paths  = [ bash feh xorg.xrandr ];
   script = ''
-    #!/usr/bin/env bash
+    #!${bash}/bin/bash
 
     # Run when plugging laptop into monitor
 

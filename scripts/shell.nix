@@ -8,13 +8,13 @@ wrap {
       name   = "sesh";
       paths  = [ bash dvtm ];
       script = ''
-        #!/usr/bin/env bash
+        #!${bash}/bin/bash
         exec dvtm -M -m ^b
       '';
     };
   };
   script = ''
-    #!/usr/bin/env bash
+    #!${bash}/bin/bash
     # shellcheck disable=SC2154
     exec dtach -A ~/.sesh -r winch "$sesh"
   '';

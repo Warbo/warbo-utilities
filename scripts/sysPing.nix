@@ -4,7 +4,7 @@ wrap {
   name   = "sysPing";
   paths  = [ bash iputils ];
   script = ''
-    #!/usr/bin/env bash
+    #!${bash}/bin/bash
     set -e
     [[ -e /run/wrappers/bin/ping ]] &&
     exec /run/wrappers/bin/ping "$@"

@@ -5,7 +5,7 @@ wrap {
   paths  = [ alsaUtils bash ];
   vars   = { alert = raw."alert.wav"; };
   script = ''
-    #!/usr/bin/env bash
+    #!${bash}/bin/bash
     amixer sset Master unmute > /dev/null
 
     # shellcheck disable=SC2154

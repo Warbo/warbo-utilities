@@ -21,7 +21,7 @@ with rec {
       __noChroot    = true;
       SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt;
       script        = writeScript "setup.sh" ''
-        #!/usr/bin/env bash
+        #!${bash}/bin/bash
         set -e
         apt-get update
         apt-get install -y chromium
@@ -57,7 +57,7 @@ wrap {
   paths  = [ bash proot ];
   vars   = { inherit env PROOT_NO_SECCOMP; };
   script = ''
-    #!/usr/bin/env bash
+    #!${bash}/bin/bash
     export PATH="/bin:/usr/bin:/sbin:/usr/sbin:$PATH"
     export TMPDIR=/tmp
     export TEMPDIR=/tmp

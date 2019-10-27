@@ -1,10 +1,10 @@
-{ pkgs, wrap }:
+{ bash, pkgs, wrap }:
 
 wrap {
   name   = "man";
   paths  = [ pkgs.man ];
   script = ''
-    #!/usr/bin/env bash
+    #!${bash}/bin/bash
     if [[ "x$TERM" = "xdumb" ]]
     then
       # We're in Emacs, open this man page in Emacs's viewer

@@ -4,7 +4,7 @@ wrap {
   name   = "iplayer";
   paths  = [ bash wget xidel ];
   script = ''
-    #!/usr/bin/env bash
+    #!${bash}/bin/bash
     set -e
     set -o pipefail
 

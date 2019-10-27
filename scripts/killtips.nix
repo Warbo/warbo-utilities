@@ -5,11 +5,12 @@
 # From http://shallowsky.com/blog/programming/killing-tooltips.html
 { python, wrap }:
 
+with { py = python.withPackages (p: [ p.xlib ]); };
 wrap {
   name   = "killtips";
-  paths  = [ (python.withPackages (p: [ p.xlib ])) ];
+  paths  = [ py ];
   script = ''
-    #!/usr/bin/env python
+    #!${py}/bin/python
 
     # Kill tooltips and similar override-redirect windows.
     # Copyright 2011 by Akkana Peck -- share and enjoy under the GPLv2 or later.

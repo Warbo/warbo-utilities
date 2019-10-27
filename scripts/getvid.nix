@@ -6,7 +6,7 @@ with rec {
     name  = "getvid-f5";
     paths = [ bash jsbeautifier xidel ];
     script = ''
-      #!/usr/bin/env bash
+      #!${bash}/bin/bash
       set -e
       wget -q -O- "$1"                                                  |
         xidel -q - -e '//script[contains(text(),"p,a,c,k,e,d")]/text()' |
@@ -23,7 +23,7 @@ with rec {
     name   = "getvid-voza";
     paths  = [ bash wget xidel ];
     script = ''
-      #!/usr/bin/env bash
+      #!${bash}/bin/bash
       URL=$(wget -q -O - "$1" | xidel -q -e '//video/source/@src' -)
       echo "$URL" | grep 'http' && exit 0
       exit 1
@@ -69,7 +69,7 @@ with rec {
       '';
     };
     script = ''
-      #!/usr/bin/env bash
+      #!${bash}/bin/bash
       URL=$(lynx -term=linux -accept_all_cookies -cmd_script="$cmd" "$1" |
             grep 'video/mp4' | grep -o 'http[^"]*')
       echo "$URL" | grep 'http' && exit 0
@@ -99,7 +99,7 @@ wrap {
     '';
   };
   script = ''
-    #!/usr/bin/env bash
+    #!${bash}/bin/bash
     set -e
 
     if [[ "x$1" = "x--help" ]]

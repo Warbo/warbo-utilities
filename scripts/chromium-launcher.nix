@@ -8,13 +8,13 @@ wrap {
     launcher = wrap {
       name   = "chrome-launcher.sh";
       script = ''
-        #!/usr/bin/env bash
+        #!${bash}/bin/bash
         chromium --disable-namespace-sandbox --no-sandbox "$@"
       '';
     };
   };
   script = ''
-    #!/usr/bin/env bash
+    #!${bash}/bin/bash
     export PATH="/bin:/usr/bin:/sbin:/usr/sbin:$PATH"
     export TMPDIR=/tmp
     export TEMPDIR=/tmp

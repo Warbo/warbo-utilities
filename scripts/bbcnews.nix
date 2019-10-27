@@ -18,7 +18,7 @@ with rec {
     paths  = [ bash xmlstarlet wget ];
     vars   = { inherit getContent;  };
     script = ''
-      #!/usr/bin/env bash
+      #!${bash}/bin/bash
       set -e
 
       echo "Fetching BBC News" 1>&2

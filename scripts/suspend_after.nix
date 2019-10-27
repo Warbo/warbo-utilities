@@ -5,7 +5,7 @@ with {
     name   = "suspend_after.real";
     paths  = [ bash pmutils ];
     script = ''
-      #!/usr/bin/env bash
+      #!${bash}/bin/bash
       echo "Suspending after..." 1>&2
       countdown "$@" 1>&2
       pm-suspend
@@ -16,7 +16,7 @@ wrap {
   name   = "suspend_after";
   paths  = [ bash ];
   script = ''
-    #!/usr/bin/env bash
+    #!${bash}/bin/bash
     SECS="$1"
     shift > /dev/null
     if [[ -z "$SECS" ]]

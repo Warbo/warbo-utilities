@@ -4,7 +4,7 @@ wrap {
   name   = "iget";
   paths  = [ bash get_iplayer ];
   script = ''
-    #!/usr/bin/env bash
+    #!${bash}/bin/bash
     get_iplayer --no-purge --modes=good --raw "$@"
   '';
 }

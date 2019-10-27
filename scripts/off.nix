@@ -4,7 +4,7 @@ wrap {
   name   = "off";
   paths  = [ bash feh xorg.xrandr ];
   script = ''
-    #!/usr/bin/env bash
+    #!${bash}/bin/bash
 
     # Run when unplugging laptop, eg. to go to a meeting
 

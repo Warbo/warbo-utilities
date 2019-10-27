@@ -4,7 +4,7 @@ wrap {
   name   = "unfreeze_emacs";
   paths  = [ checkedRacket xclip ];
   script = ''
-    #!/usr/bin/env racket
+    #!${checkedRacket}/bin/racket
     #lang racket
 
     (require shell/pipeline)

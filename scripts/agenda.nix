@@ -5,7 +5,7 @@ wrap {
   paths  = [ bash coreutils gcalcli gnugrep gnused ];
   vars   = { LC_ALL = "C"; LOCALE = "C"; };
   script = ''
-    #!/usr/bin/env bash
+    #!${bash}/bin/bash
 
     # Start agenda from half an hour ago
        NOW=$(date "+%s")

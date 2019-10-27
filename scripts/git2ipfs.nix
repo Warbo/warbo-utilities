@@ -1,10 +1,10 @@
-{ attrsToDirs, inNixedDir, ipfs, runCommand, wrap, writeScript }:
+{ attrsToDirs, bash, inNixedDir, ipfs, runCommand, wrap, writeScript }:
 
 with rec {
   ipfsBin = wrap {
     name   = "ipfsBin";
     script = ''
-      #!/usr/bin/env bash
+      #!${bash}/bin/bash
       if command -v ipfs > /dev/null
       then
         ipfs "$@"
@@ -19,7 +19,7 @@ wrap {
   name   = "git2ipfs";
   paths  = [ (attrsToDirs { bin = { inherit ipfsBin; }; }) inNixedDir ];
   script = ''
-    #!/usr/bin/env bash
+    #!${bash}/bin/bash
     set -e
     [[ -n "$1" ]] || {
       echo "No repo given, aborting" 1>&2

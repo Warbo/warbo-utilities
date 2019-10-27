@@ -4,7 +4,7 @@ with rec {
   random_mail = mkBin {
     name   = "random_mail";
     script = ''
-      #!/usr/bin/env bash
+      #!${bash}/bin/bash
 
       # Look up one email from each inbox
       G=$(find ~/Mail/gmail/INBOX/new  -type f | shuf | head -n1)
@@ -53,7 +53,7 @@ with rec {
     name   = "next";
     paths  = [ random_mail ];
     script = ''
-      #!/usr/bin/env bash
+      #!${bash}/bin/bash
       MAIL=$(random_mail)
       NEXT=$(grep -v '^#' < ~/.next | grep '^.' | shuf | head -n1) || true
 

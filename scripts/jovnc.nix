@@ -5,7 +5,7 @@ wrap {
   vars   = { inherit (scripts) sysPing; };
   paths  = [ bash gnugrep openssh tightvnc ];
   script = ''
-    #!/usr/bin/env bash
+    #!${bash}/bin/bash
 
     MACHINE=$(johost) || exit 1
 

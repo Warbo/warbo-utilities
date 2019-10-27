@@ -4,7 +4,7 @@ wrap {
   name   = "failed_tests";
   paths  = [ bash ];
   script = ''
-    #!/usr/bin/env bash
+    #!${bash}/bin/bash
     set -e
     shopt -s nullglob
 

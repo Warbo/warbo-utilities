@@ -1,4 +1,4 @@
-{ artemis, fail, git, git2html, mhonarc, pandocPkgs, python, runCommand,
+{ artemis, bash, fail, git, git2html, mhonarc, pandocPkgs, python, runCommand,
   withDeps, wrap, writeScript }:
 
 with rec {
@@ -10,7 +10,7 @@ with rec {
         name   = "splicer";
         paths  = [ python ];
         script = ''
-          #!/usr/bin/env python
+          #!${python}/bin/python
           import os
           import sys
           pre, post = sys.stdin.read().split('READMESENTINEL')
@@ -20,11 +20,11 @@ with rec {
         '';
       };
 
-      cleaner = wrap {
+      cleaner = with { py = python.withPackages (p: [ p.bleach ]); }; wrap {
         name   = "cleaner.py";
-        paths  = [ (python.withPackages (p: [ p.bleach ])) ];
+        paths  = [ py ];
         script = ''
-          #!/usr/bin/env python
+          #!${py}/bin/python
           import bleach
           import sys
 
@@ -40,7 +40,7 @@ with rec {
       };
     };
     script = ''
-      #!/usr/bin/env bash
+      #!${bash}/bin/bash
       set -eu
       shopt -s nullglob
 
@@ -203,7 +203,7 @@ with rec {
       EDITOR      = wrap {
         name   = "test-editor";
         script = ''
-          #!/usr/bin/env bash
+          #!${bash}/bin/bash
           sed -i -e "s@^Subject: .*@Subject: $SUBJECT@g" "$1"
           sed -i -e "s@Detailed description.@$BODY@g"    "$1"
         '';

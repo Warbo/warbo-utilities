@@ -4,7 +4,7 @@ wrap {
   name   = "phone";
   paths  = [ bash iptables ];
   script = ''
-    #!/usr/bin/env bash
+    #!${bash}/bin/bash
     set -e
 
     [[ -n "$DEVICE" ]] || DEVICE="enp0s29f0u2"

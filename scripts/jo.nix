@@ -4,7 +4,7 @@ wrap {
   name   = "jo";
   paths  = [ bash openssh ];
   script = ''
-    #!/usr/bin/env bash
+    #!${bash}/bin/bash
     export XAUTHORITY=/home/chris/.Xauthority
 
     [[ -n "$REMOTE_DISPLAY" ]] || REMOTE_DISPLAY=:1

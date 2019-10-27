@@ -8,7 +8,7 @@ with rec {
     paths  = [ bash coreutils curl glibc.bin wget xmlstarlet ];
     vars   = { SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt; };
     script = ''
-      #!/usr/bin/env bash
+      #!${bash}/bin/bash
       set -e
 
       echo "$2" | grep 'epguides.com' > /dev/null ||
