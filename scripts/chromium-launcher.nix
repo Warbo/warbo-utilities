@@ -8,7 +8,7 @@ wrap {
     launcher = wrap {
       name   = "chrome-launcher.sh";
       script = ''
-        #!${bash}/bin/bash
+        #!/bin/sh
         chromium --disable-namespace-sandbox --no-sandbox "$@"
       '';
     };

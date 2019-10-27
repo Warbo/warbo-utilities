@@ -21,7 +21,7 @@ with rec {
       __noChroot    = true;
       SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt;
       script        = writeScript "setup.sh" ''
-        #!${bash}/bin/bash
+        #!/bin/sh
         set -e
         apt-get update
         apt-get install -y chromium
