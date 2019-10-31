@@ -8,10 +8,12 @@ wrap {
     set -e
 
     [[ -n "$DEVICE" ]] || DEVICE="enp0s29f0u2"
-    echo "Using DEVICE '$DEVICE'" 1>&2
+    echo "Using DEVICE '$DEVICE'"                                    1>&2
+    echo "NOTE: The OpenMoko should appear as '$DEVICE' in ifconfig" 1>&2
 
     [[ -n "$ADDRESS" ]] || ADDRESS="192.168.1.200"
     echo "Using ADDRESS '$ADDRESS'" 1>&2
+    echo "NOTE: This is the static IP we'll set on our end" 1>&2
 
     # "Easy" method; unreliable
     #sudo ip address add "$ADDRESS"/24 dev "$DEVICE"
@@ -24,6 +26,7 @@ wrap {
     sudo sysctl -w net.ipv4.ip_forward=1
     sudo ip addr add "$ADDRESS"/24 dev "$DEVICE"
 
-    echo "Phone should now be available at 192.168.1.202" 1>&2
+    echo "Phone should now be available at 192.168.1.202"                 1>&2
+    echo "If not, run 'ifconfig' on the phone to make sure that's its IP" 1>&2
   '';
 }
