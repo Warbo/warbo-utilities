@@ -1,0 +1,13 @@
+From: Chris Warburton
+Date: Fri, 10 Jan 2020 06:27:24 +0000
+State: new
+Subject: Make trackGit ask about commitizen
+Message-Id: <99b8fc0a16924e09-0-artemis@nixos>
+
+Commitizen is a convention around things like commit messages. There's
+associated tooling to correctly format such messages, to generate
+changelogs from such histories, etc.
+
+We should ask if we should add the formatting stuff to our git hooks.
+
+We should ask if we should initialise a changelog.
