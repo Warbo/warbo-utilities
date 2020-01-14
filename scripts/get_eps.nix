@@ -1,12 +1,28 @@
-{ bash, coreutils, curl, fail, glibc, html2text, runCommand, wget, withDeps,
-  wrap, xidel, xmlstarlet }:
+{ bash, coreutils, curl, fail, glibc, haskellPackages, html2text, raw,
+  runCommand, wget, withDeps, wrap, xidel }:
 
 with builtins;
 with rec {
+  processor = runCommand "get-eps-processor"
+    {
+      buildInputs = [
+        (haskellPackages.ghcWithPackages (hs: [ hs.bytestring hs.time ]))
+      ];
+      script = raw."get_eps.hs";
+    }
+    ''
+      cp "$script" ./Main.hs
+      ghc --make -o Main Main.hs
+      cp Main "$out"
+    '';
+
   go = wrap {
     name   = "get-eps";
-    paths  = [ bash coreutils curl glibc.bin wget xmlstarlet ];
-    vars   = { SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt; };
+    paths  = [ bash coreutils curl glibc.bin wget ];
+    vars   = {
+      inherit processor;
+      SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt;
+    };
     script = ''
       #!${bash}/bin/bash
       set -e
@@ -14,86 +30,10 @@ with rec {
       echo "$2" | grep 'epguides.com' > /dev/null ||
         fail 'get_eps URL should be from epguides.com'
 
-      curl -s -f 'http://epguides.com' > /dev/null ||
-        fail "Can't contact epguides.com, aborting"
-
-      FEED=$(mktemp '/tmp/get-eps-XXXXX.xml')
-
-      function cleanup {
-        rm -f "$FEED"
-      }
-      trap cleanup EXIT
-
       PAGE=$(curl -f "$2") || fail "Couldn't download '$2'"
 
-      cat <<EOF > "$FEED"
-      <?xml version="1.0" encoding="utf-8"?>
-      <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
-        <channel>
-          <title>$1</title>
-          <description>$1</description>
-        </channel>
-      </rss>
-      EOF
-
-      NOW=$(date -d 'yesterday' '+%s')
-       LY=$(date -d 'last year' '+%s')
-
-      while read -r EP
-      do
-        echo "$EP" | grep '^.' > /dev/null || continue
-        echo "EP: $EP" 1>&2
-
-        # Format is number,season,episode,airdate,title
-        DATE=$(echo "$EP" | cut -d , -f 4)
-
-        # Stick '19' before the year if it's before the Unix epoch (epguides has
-        # a Y2K problem...). Without this, GNU date will assume dates like '64'
-        # should be '2064' (and, on 32bit, will get an overflow error!)
-        YEAR=$(echo "$DATE" | cut -d ' ' -f 3)
-        if [[ "$YEAR" -lt 70 ]] && [[ "$YEAR" -gt 38 ]]
-        then
-          YEAR="19$YEAR"
-        fi
-        DATE=$(paste -d ' ' <(echo "$DATE" | cut -d ' ' -f1-2) <(echo "$YEAR"))
-        unset YEAR
-
-        SECS=$(date -d "$DATE" '+%s')
-        PDAT=$(date -d "$DATE" --iso-8601)
-
-        # Anything older than a year is not news
-        if [[ -z "$KEEP_ALL" ]] && [[ "$SECS" -lt "$LY"  ]]
-        then
-          continue
-        fi
-
-        # Anything scheduled for the future is no use
-        [[ "$SECS" -lt "$NOW" ]] || continue
-
-        # Format is number,season,episode,airdate,title
-         NUM=$(echo "$EP" | cut -d , -f 1)
-        SNUM=$(echo "$EP" | cut -d , -f 2)
-        ENUM=$(echo "$EP" | cut -d , -f 3)
-        NAME=$(echo "$EP" | cut -d , -f 5)
-
-        # shellcheck disable=SC2001
-        URL=$(echo "$2" | sed -e 's/&/&amp;/g')
-
-         DESC="Episode $NUM, ${"s$" + "{SNUM}e$" + "{ENUM}"} - $NAME"
-        TITLE="$NUM (s''${SNUM}e''${ENUM}) $NAME"
-        xmlstarlet ed -L \
-          -a "//channel" -t elem -n item        -v ""       \
-          -s "//item[1]" -t elem -n title       -v "$TITLE" \
-          -s "//item[1]" -t elem -n link        -v "$URL"   \
-          -s "//item[1]" -t elem -n pubDate     -v "$PDAT"  \
-          -s "//item[1]" -t elem -n description -v "$DESC"  \
-          -s "//item[1]" -t elem -n guid        -v "$1-$NUM" "$FEED"
-
-      done < <(echo "$PAGE" | grep -v '^\s*<'       |
-               iconv -c -f utf-8 -t ascii//translit |
-               grep '\S' | grep '^[0-9]')
-
-      cat "$FEED"
+      # shellcheck disable=SC2154
+      echo "$PAGE" | FEED="$1" "$processor"
     '';
   };
 
