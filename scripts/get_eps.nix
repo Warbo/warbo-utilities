@@ -101,6 +101,7 @@ with rec {
     haveExpanse = runCommand "test-expanse"
       {
         inherit go;
+        __noChroot  = true;
         buildInputs = [ curl fail xidel ];
         KEEP_ALL    = "1";
         URL         = "http://epguides.com/common/exportToCSVmaze.asp?maze=1825";
@@ -123,6 +124,7 @@ with rec {
     haveWalkingDead = runCommand "test-walking-dead"
       {
         inherit go;
+        __noChroot  = true;
         buildInputs = [ curl fail xidel ];
         KEEP_ALL    = "1";
         URL         = "http://epguides.com/common/exportToCSVmaze.asp?maze=73";
