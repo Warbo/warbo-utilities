@@ -75,7 +75,11 @@ lineToItem feed today line = if inRange today day then Just item else Nothing
         desc  = BS.concat ["Episode ", num, ", ", ep, " - ", name]
         ep    = BS.concat ["s", series, "e", episode]
         guid  = BS.concat [feed , "-", num]
-        date  = BS.pack (DF.formatTime DF.defaultTimeLocale "%Y-%m-%d" day)
+        date  = case day of
+                  Nothing -> error ("No date given for: " ++ BS.unpack line)
+                  Just d  -> BS.pack (DF.formatTime DF.defaultTimeLocale
+                                                    "%Y-%m-%d"
+                                                    d)
 
         -- Splice the output fields into the XML template
         item = BS.unlines [
@@ -97,32 +101,37 @@ mkFeed feed items = BS.unlines ([
   ] ++ items ++ ["</rss>"])
 
 -- | Turn dates from a naive '20 Nov 10' format into a more sensible 2010-11-20
-fixDate :: BS.ByteString -> Cal.Day
-fixDate d = case DF.parseTimeM False  -- Don't strip leading/trailing whitespace
-                               DF.defaultTimeLocale  -- US locale; it'll do
-                               "%d %b %Y"  -- Format to parse
-                               (BS.unpack (BS.unwords [day, month, year'])) of
-                   Nothing -> error ("Failed to decode date: " ++ BS.unpack d)
-                   Just d' -> d'
+fixDate :: BS.ByteString -> Maybe Cal.Day
+fixDate d = do [day, month, year] <- dmy
+               let year' = prefix year
+               DF.parseTimeM False                 -- No whitespace padding
+                             DF.defaultTimeLocale  -- US locale; it'll do
+                             "%d %b %Y"            -- Format to parse
+                             (BS.unpack (BS.unwords [day, month, year']))
 
-  where [day, month, year] = BS.split ' ' d
+  where dmy = case BS.split ' ' d of
+                [day, month, year] -> Just [day, month, year]
+                _                  -> Nothing  -- Missing date
 
         {- Stick '19' before the year if it's before the Unix epoch (epguides
            has a Y2K problem...). Without this, GNU date will assume dates like
            '64' should be '2064' (and, on 32bit, will get an overflow error!) -}
-        year' = let y :: Int
-                    y = read (BS.unpack year)
+        prefix y = let y' :: Int
+                       y' = read (BS.unpack y)
 
-                    century = if y < 70 && y > 30 then "19" else "20"
-                 in century +++ year
+                       century = if y' < 70 && y' > 30 then "19" else "20"
+                    in century +++ y
 
 -- | Whether a given date is within a year of the given 'today' date, and not in
 --   the future. If 'today' is Nothing we always return True (useful for tests).
+--   If 'day' is Nothing, there was no date given, so we return False.
 inRange today = case today of
   Nothing     -> const True
   Just today' -> let lastYear = Cal.addDays (-365) today'
-                  in \day -> Cal.diffDays lastYear day <= 0 &&
-                             Cal.diffDays today'   day >= 0
+                  in \day -> case day of
+                               Nothing -> False
+                               Just d  -> Cal.diffDays lastYear d <= 0 &&
+                                          Cal.diffDays today'   d >= 0
 
 -- | Shorthand
 (+++) = BS.append
