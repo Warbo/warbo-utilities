@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Mon, 20 Jan 2020 17:37:34 +0000
+Subject: Re: Speed up get_eps
+Message-Id: <d25194af07869a36-df81f0f1529af109-artemis@nixos>
+References: <d25194af07869a36-0-artemis@nixos>
+In-Reply-To: <d25194af07869a36-0-artemis@nixos>
+
+We now use Haskell
