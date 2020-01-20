@@ -20,19 +20,19 @@ ipod || {
     exit 1
 }
 
-echo "DELETING IPOD TODO" 1>&2
+echo "DELETING IPOD TO""DO" 1>&2
 
-for D in ~/iPod/Audio/TODO/*
+for D in ~/iPod/Audio/TO""DO/*
 do
     echo "DELETING '$D'" 1>&2
     rm -rf "$D"
 done
 
-echo "MOVING NEW TODOS" 1>&2
+echo "MOVING NEW TO""DOS" 1>&2
 
-for D in ~/Audio/TODO/*
+for D in ~/Audio/TO""DO/*
 do
-    cp -rv "$D" ~/iPod/Audio/TODO/
+    cp -rv "$D" ~/iPod/Audio/TO""DO/
 
     NAME=$(basename "$D")
 

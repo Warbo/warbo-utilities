@@ -67,8 +67,8 @@ do
             continue
         }
 
-        mkdir -p "$HOME/Audio/TODO/$GUESSTINATION"
-        inDir "$HOME/Audio/TODO/$GUESSTINATION" get_bbc_podcast "$URL"
+        mkdir -p "$HOME/Audio/TO""DO/$GUESSTINATION"
+        inDir "$HOME/Audio/TO""DO/$GUESSTINATION" get_bbc_podcast "$URL"
 
         markRead "$F"
     done
@@ -116,8 +116,8 @@ function getFromSrc {
         echo "Found URL $URL" 1>&2
 
         # Create and enter the output dir
-        mkdir -p "$HOME/Audio/TODO/$OUT"
-        pushd "$HOME/Audio/TODO/$OUT"
+        mkdir -p "$HOME/Audio/TO""DO/$OUT"
+        pushd "$HOME/Audio/TO""DO/$OUT"
 
           # Avoid hammering a site with too many requests
           sleep 2
