@@ -1,5 +1,19 @@
 #!/usr/bin/env bash
 
-# Useful rsync options for copying to remote servers
+# Useful rsync options for copying to remote servers. Some explanation:
+#   --ignore-times because Nix sets them all to 1970
+#   --checksum uses file content to determine what's changed, in lieu of the
+#     timestamp
+#   --delete removes any files on the destination which aren't in the source
+#   --progress tells us what it's up to
+#   --copy-unsafe-links causes absolute symlinks (or relative ones pointing
+#     outside the source tree) to be dereferenced and copied as files/dirs
+#   --archive causes directories and (safe) symlinks to be copied, and
+#     permissions, etc. to be preserved
+#   -e forces SSH to use a TTY, so sudo will work
+#   --rsync-path tells us what to run on the remote end, in this case we use
+#     sudo so we've got permission to write to /var/www. NOTE: If you use an
+#     SSH passphrase, this might cause it to be sent in the clear! We use
+#     keys so it's not an issue.
 rsync --checksum --delete --ignore-times --progress --copy-unsafe-links \
       --archive --compress -e "ssh -t" --rsync-path="sudo rsync" "$@"
