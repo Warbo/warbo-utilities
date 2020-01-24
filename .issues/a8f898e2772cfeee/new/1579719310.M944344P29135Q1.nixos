@@ -1,0 +1,13 @@
+From: Chris Warburton
+Date: Wed, 22 Jan 2020 18:54:26 +0000
+State: new
+Subject: Fix genGitHtml
+Message-Id: <a8f898e2772cfeee-0-artemis@nixos>
+
+Encountered the following error:
+
+    Sanitising README HTML (if any), to prevent XSS
+    Traceback (most recent call last):
+      File "/nix/store/07ml4kh64jx6573xvk0frx9chyyfbvws-cleaner.py-unwrapped/cleaner.py", line 11, in <module>
+        'img' : ['alt',  'src'],
+    UnicodeEncodeError: 'ascii' codec can't encode character u'\u2019' in position 9: ordinal not in range(128)
