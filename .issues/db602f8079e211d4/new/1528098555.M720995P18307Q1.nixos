@@ -1,7 +1,8 @@
 From: Chris Warburton
 Date: Mon, 04 Jun 2018 08:48:52 +0100
-State: new
+State: resolved
 Subject: Give shell/pipeline to unfreeze_emacs
 Message-Id: <db602f8079e211d4-0-artemis@nixos>
+resolution: fixed
 
 Use racketWithDeps or something.
