@@ -16,11 +16,9 @@ with rec {
         done
       }
 
-      function removeMessage {
-        stopMu
-        rm "$1"
-        mu remove "$1"
-      }
+      # Gather up the filenames to remove, so we can delete them all at once
+      # without having to keep polling mu
+      REMOVALS=()
 
       # Some feeds are high-volume and only interesting for a short time. We
       # clean up their articles 1 month after posting
@@ -33,7 +31,7 @@ with rec {
           SECS=$(date -d "$D" "+%s")
           if [[ "$SECS" -lt "$CUTOFF" ]]
           then
-            removeMessage "$F"
+            REMOVALS+=("$F")
           fi
         done < <(find "$HOME/Mail/feeds/$FEED/cur" -type f)
       done
@@ -46,7 +44,7 @@ with rec {
       do
         while read -r F
         do
-          removeMessage "$F"
+          REMOVALS+=("$F")
         done < <(find "$HOME/Mail/feeds/$FEED/cur" -type f -mtime +30)
       done
 
@@ -57,11 +55,18 @@ with rec {
       do
         while read -r F
         do
-          removeMessage "$F"
+          REMOVALS+=("$F")
         done < <(mu find --fields="l" --sortfield='d' --reverse \
                          maildir:/feeds/"$FEED" not flag:unread |
                  tail -n+100                                    |
                  head -n20                                      )
+      done
+
+      stopMu
+      for F in "''${REMOVALS[@]}"
+      do
+        rm "$F"
+        mu remove "$F"
       done
 
       # Delete old BBC news content (since their RSS only has summaries)
@@ -94,8 +99,14 @@ with rec {
         unset PAST
       done
 
+      # Occasionaly run a full index, to clean up old messages
       stopMu
-      mu index --maildir="$HOME/Mail" --lazy-check
+      if [[ "$(( RANDOM % 100 ))" -eq 0 ]]
+      then
+        mu index --maildir="$HOME/Mail"
+      else
+        mu index --maildir="$HOME/Mail" --lazy-check
+      fi
     '';
   };
 
