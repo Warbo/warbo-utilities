@@ -1,4 +1,4 @@
-{ bash, haskellPackages, mkBin, python, pythonPackages, wrap }:
+{ bash, haskell-nix, mkBin, python, pythonPackages, wrap }:
 
 with rec {
   random_mail = mkBin {
@@ -76,9 +76,36 @@ with rec {
       exit 0
     '';
   };
+
+  xmobar =
+    with { hn = haskell-nix {}; };
+    (hn.haskell-nix.hackage-package {
+      name        = "xmobar";
+      version     = "0.30";
+      ghc         = hn.buildPackages.pkgs.haskell-nix.compiler.ghc865;
+      index-state = "2020-01-11T00:00:00Z";
+      modules     = [
+        # Without this we get 'error: The Nixpkgs package set does not contain
+        # the package: Xrender (system dependency). You may need to augment the
+        # system package mapping in haskell.nix so that it can be found.'
+        # That's what we're doing here.
+        ({ pkgs, ... }: {
+          # Anything we add to _module.args.pkgs can be used as an argument by a
+          # cabal-to-nix generated function. 'Xrender' is one such argument.
+          _module.args.pkgs = { Xrender = pkgs.xorg.libXrender; };
+
+          # The Haskell X11 library needs libXscrnSaver; since we're adding that
+          # extra dependency, we might as well enable Xinerama support too.
+          packages.X11.components.library.libs = [
+            pkgs.xorg.libXinerama
+            pkgs.xorg.libXScrnSaver
+          ];
+        })
+      ];
+    }).components.exes.xmobar;
 };
 wrap {
-  name   = "xmb";
-  paths  = [ bash next python pythonPackages.lxml ];
-  file   = "${haskellPackages.xmobar}/bin/xmobar";
+  name  = "xmb";
+  paths = [ bash next python pythonPackages.lxml ];
+  file  = "${xmobar}/bin/xmobar";
 }
