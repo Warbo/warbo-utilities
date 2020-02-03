@@ -6,7 +6,7 @@ rec {
 
   warbo-packages = fetchgit {
     url    = http://chriswarbo.net/git/warbo-packages.git;
-    rev    = "4590188";
-    sha256 = "0dgm1949bksk4pv7kym678nbfzxizx68g8bzlvk9ylrl5w102a7h";
+    rev    = "17bb06b";
+    sha256 = "1fwpv5d4s5nzgnhc944q9y139ljwd9ldfajday3n2ik7ckkijsb1";
   };
 }
