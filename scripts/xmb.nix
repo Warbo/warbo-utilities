@@ -1,4 +1,4 @@
-{ bash, haskell-nix, mkBin, python, pythonPackages, wrap }:
+{ bash, haskell-nix, mkBin, python, pythonPackages, raw, wrap }:
 
 with rec {
   random_mail = mkBin {
@@ -80,6 +80,10 @@ with rec {
   xmobar =
     with { hn = haskell-nix {}; };
     (hn.haskell-nix.hackage-package {
+      # DELETE/REPLACE THESE TWO WHEN CHANGING THIS DERIVATION
+      plan-sha256  = "1lyl1z35lzjd9idmg2kpw6rqigfqmxzby0zv13l363v3l8ixh820";
+      materialized = raw.xmobar-plan-to-nix-pkgs;
+
       name        = "xmobar";
       version     = "0.30";
       ghc         = hn.buildPackages.pkgs.haskell-nix.compiler.ghc865;
