@@ -1,2 +1,0 @@
-#!/usr/bin/env bash
-exec vlc 'http://media-ice.musicradio.com/LBCUK.m3u'
