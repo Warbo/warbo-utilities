@@ -1,7 +1,9 @@
-{ bash, makeWrapper, procps, psmisc, runCommand, writeScript }:
+{ bash, procps, psmisc, wrap }:
 
-with {
-  raw = writeScript "coolDown" ''
+wrap {
+  name   = "coolDown";
+  paths  = [ bash procps psmisc ];
+  script = ''
     #!${bash}/bin/bash
 
     function setState {
@@ -26,9 +28,4 @@ with {
       sleep 20
     done
   '';
-};
-
-runCommand "coolDown" { buildInputs = [ makeWrapper ]; } ''
-  makeWrapper "${raw}" "$out" --prefix PATH : "${procps}/bin" \
-                              --prefix PATH : "${psmisc}/bin"
-''
+}
