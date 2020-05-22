@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+cp "$HOME/.mozilla/firefox/"*.default-*"/places.sqlite" DEL
+echo 'select url from moz_bookmarks, moz_places where moz_places.id=moz_bookmarks.fk;' |
+nix-shell -p sqlite --run 'sqlite3 DEL' | grep http
+rm DEL
