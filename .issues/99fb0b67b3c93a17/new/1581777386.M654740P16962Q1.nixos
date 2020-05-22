@@ -1,0 +1,23 @@
+From: Chris Warburton
+Date: Sat, 15 Feb 2020 13:30:04 +0000
+State: new
+Subject: Make trackGit add github remote to working copies
+Message-Id: <99fb0b67b3c93a17-0-artemis@nixos>
+
+If we have multiple working copies of a project on different machines,
+we want some way to merge changes across all of them.
+
+nixos.local is the best place to push things out to all mirrors, etc.
+since it's got SSH access to chriswarbo.net and GitHub.
+
+It's useful for other machines to push changes to GitHub, since it's on
+the public Internet (unlike nixos.local), is easy enough to add and
+remove SSH to/from, and doesn't have shell access (unlike if we added
+SSH keys to chriswarbo.net).
+
+For this reason, working copies on nixos.local should be able to pull
+changes (made on other machines) from GitHub; then push them everywhere
+like we do at the moment.
+
+To do this we need to add the github repo as remote, checking if it's
+there first.
