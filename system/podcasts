@@ -20,13 +20,22 @@ ipod || {
     exit 1
 }
 
-echo "DELETING IPOD TO""DO" 1>&2
+if [[ -z "$KEEP" ]]
+then
+    echo "ABOUT TO DELETE IPOD TO""DO (SET KEEP=1 TO AVOID THIS)..." 1>&2
+    echo "3..."
+    sleep 1
+    echo "2..."
+    sleep 1
+    echo "1..."
+    sleep 1
 
-for D in ~/iPod/Audio/TO""DO/*
-do
-    echo "DELETING '$D'" 1>&2
-    rm -rf "$D"
-done
+    for D in ~/iPod/Audio/TO""DO/*
+    do
+        echo "DELETING '$D'" 1>&2
+        rm -rf "$D"
+    done
+fi
 
 echo "MOVING NEW TO""DOS" 1>&2
 
