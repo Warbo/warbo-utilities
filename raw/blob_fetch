@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+set -e
+
+function usage {
+    {
+        echo "Usage: [type=mpeg] output=my_video.mp4 blob_fetch PRE POST [...]"
+        echo
+        echo "Fetch 'blob' videos as a sequence of chunks and concatenate."
+        echo "These URLs usually look like 'https://example.org/foo123.ts', and"
+        echo "can be discovered by watching the Network pane in a browser."
+        echo "PRE and POST are the common parts of the URLs, e.g. for the above"
+        echo
+        echo "  output=foo.mp4 blob_fetch 'https://example.org/foo' '.ts'"
+        echo
+        echo "This will fetch PRE + '1' + POST, then PRE + '2' + POST, etc."
+        echo "We keep going as long as the output of 'file' matches the grep -i"
+        echo "pattern \$type (default matches 'mpeg' or 'data'). The output of"
+        echo "'file' is echoed to stderr, in case we need to adjust \$type."
+        echo "Chunks are appended to \$output immediately after matching \$type"
+        echo
+        echo "NOTE: We use cURL, which many sites will reject. We set generic"
+        echo "options like a Firefox user agent but we often need site-specific"
+        echo "details like Referer. We pass any extra arguments (other than PRE"
+        echo "and POST) on to 'curl', for example -H for setting headers:"
+        echo "  output=X blob_fetch Y Z -H foo=bar -H baz=quux"
+        echo
+        echo "TIP: The Network pane in Firefox/Chromium is useful, especially"
+        echo "right-clicking a chunk's URL and using Copy -> As Curl"
+        echo
+        echo "$*"
+    } 1>&2
+    exit 1
+}
+
+[[ "$#" -gt 1   ]] || usage "No PRE & POST arguments given"
+# shellcheck disable=SC2154
+[[ -n "$output" ]] || usage "No \$output given"
+[[ -e "$output" ]] && usage "Output '$output' already exists"
+
+ begin="$1"
+ending="$2"
+
+shift
+shift
+
+userAgent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:76.0) Gecko/20100101 Firefox/76.0'
+
+function fetch {
+    N="$1"
+    shift
+    curl "${begin}${N}${ending}" \
+         -H "User-Agent: $userAgent" \
+         -H 'Accept: */*' \
+         -H 'Accept-Language: en-GB,en;q=0.5' \
+         -H 'DNT: 1' \
+         -H 'Connection: keep-alive' \
+         --compressed \
+         "$@"
+}
+
+[[ -n "$type" ]] || type='\(mpeg\)\|\(data\)'
+tempfile='TeMpOrArY'
+X=1
+while true
+do
+    fetch "$X" --output "$tempfile" "$@" || true
+    file "$tempfile" | tee >(cat 1>&2) | grep -qi "$type" || break
+    cat "$tempfile" >> "$output"
+    X=$(( X + 1 ))
+done
+rm "$tempfile"
