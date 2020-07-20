@@ -23,8 +23,16 @@ do
         URL=$(grep '^Link: ' < "$F" | head -n1 | grep -o 'http.*' |
               grep 'youtube.com')
         [[ -n "$URL" ]] || continue
-        TITLE=$(wget -q -O- "$URL" | xidel -q -e '//h1' - |
-                grep -v 'unavailable')
+        WEBTITLE=$(wget -q -O- "$URL"   |
+                   xidel -q -e '//h1' - |
+                   grep -v 'unavailable')
+        MSGTITLE=$(grep '^Subject: ' < "$F" | sed -e 's/^Subject: //g')
+        if [[ -n "$WEBTITLE" ]]
+        then
+            TITLE="$WEBTITLE"
+        else
+            TITLE="$MSGTITLE"
+        fi
 
         msg "$NAME" "$TITLE"
         case "$answer" in
