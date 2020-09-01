@@ -128,4 +128,4 @@ printf '%s; %s | %s | while read -r F; do %s; done\n' \
        "touch '$output'"                              \
        "find '$tempdir' -type f | cut -d / -f 2"      \
        "sort -n"                                      \
-       "cat '$tempdir'/"'"$F"'" >> '$output'"      1>&2
+       "cat '$tempdir'/\"\$F\" >> '$output'"          1>&2
