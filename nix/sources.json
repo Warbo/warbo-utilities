@@ -1,0 +1,8 @@
+{
+    "warbo-packages": {
+        "branch": "master",
+        "repo": "http://chriswarbo.net/git/warbo-packages.git",
+        "rev": "77bedd59bc6293f7d49525912415cf07e6edb8af",
+        "type": "git"
+    }
+}
