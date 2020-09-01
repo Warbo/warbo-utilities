@@ -1,13 +1,17 @@
 with rec {
-  inherit (import ./helpers.nix {}) nix-helpers warbo-packages;
+  inherit (import ./helpers.nix) nix-helpers sources warbo-packages;
 
-  pkgs = import <nixpkgs> {
+  warbo-packages-sources = import "${sources.warbo-packages}/nix/sources.nix";
+
+  pkgs = import nix-helpers.repoLatest {
     config   = {};
     overlays = [
-      (import "${nix-helpers   }/overlay.nix")
-      (import "${warbo-packages}/overlay.nix")
+      (import "${warbo-packages-sources.nix-helpers}/overlay.nix")
+      (import "${sources.warbo-packages}/overlay.nix")
       (import ./overlay.nix)
     ];
   };
 };
-{ inherit (pkgs) warbo-utilities warbo-utilities-scripts; }
+{
+  inherit (pkgs) warbo-utilities warbo-utilities-scripts;
+}
