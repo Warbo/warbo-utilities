@@ -3,7 +3,7 @@ set -e
 
 function usage {
     {
-        echo "Usage: [type=mpeg] output=my_video.mp4 blob_fetch PRE POST [...]"
+        echo "Usage: output=my_video.mp4 blob_fetch PRE POST [...]"
         echo
         echo "Fetch 'blob' videos as a sequence of chunks and concatenate."
         echo "These URLs usually look like 'https://example.org/foo123.ts', and"
@@ -16,7 +16,17 @@ function usage {
         echo "We keep going as long as the output of 'file' matches the grep -i"
         echo "pattern \$type (default matches 'mpeg' or 'data'). The output of"
         echo "'file' is echoed to stderr, in case we need to adjust \$type."
-        echo "Chunks are appended to \$output immediately after matching \$type"
+        echo
+        echo "Results are put in a directory \$output-dir so it's easy to retry"
+        echo "if needed (just run the same command again). Parts which don't"
+        echo "match \$type will be deleted, and a final check will warn about"
+        echo "any left over, or any non-sequential parts. If you're happy that"
+        echo "the download has worked, then you can concatenate the parts in"
+        echo "order, using a command spat out at the end."
+        echo
+        echo "Optional env vars:"
+        echo "  from: where to start counting; defaults to '1'"
+        echo "  type: pattern for 'file' output; default is \(mpeg\)\|\(data\)"
         echo
         echo "NOTE: We use cURL, which many sites will reject. We set generic"
         echo "options like a Firefox user agent but we often need site-specific"
@@ -59,13 +69,63 @@ function fetch {
 }
 
 [[ -n "$type" ]] || type='\(mpeg\)\|\(data\)'
-tempfile='TeMpOrArY'
-X=1
+[[ -n "$from" ]] || from='0'
+tempdir="$output-parts"
+mkdir -p "$tempdir"
+cd "$tempdir"
+X="$from"
 while true
 do
-    fetch "$X" --output "$tempfile" "$@" || true
-    file "$tempfile" | tee >(cat 1>&2) | grep -qi "$type" || break
-    cat "$tempfile" >> "$output"
+    # Fetch this part if we don't have it yet
+    [[ -e "$X" ]] || fetch "$X" --output "$X" "$@" || true
+    if [[ "$X" -eq 0 ]]
+    then
+        # Some start at 1, in which case we'd rather just delete this dodgy part
+        file "$X" | tee >(cat 1>&2) | grep -qi "$type" || rm "$X"
+    else
+        [[ -e "$X" ]] || {
+            # We don't want to try the next part until this one works; otherwise
+            # we might end up concatenating partial files
+            echo "Failed to fetch anything; maybe a network issue?" 1>&2
+            break
+        }
+        file "$X" | tee >(cat 1>&2) | grep -qi "$type" || {
+            # Delete, so it won't appear in out concatenated result, and/or will
+            # be fetched again if we retry
+            rm "$X"
+            echo "We're either finished, or there was an error" 1>&2
+            break
+        }
+    fi
     X=$(( X + 1 ))
 done
-rm "$tempfile"
+
+# Final checks
+
+HIGHEST=1  # Don't complain if there's no 0
+while read -r F
+do
+    N=$(basename "$F")
+    [[ "$N" -gt "$HIGHEST" ]] && HIGHEST="$N"
+done < <(find . -type f)
+
+for N in $(seq 1 "$HIGHEST")
+do
+    [[ -e "$N" ]] && continue
+    echo "Looks like we're missing part $N" 1>&2
+    exit 1
+done
+
+find . -type f | sort -n | while read -r F
+do
+    file "$F" | grep -qi "$type" && continue
+    echo "Wrong filetype for $F, aborting" 1>&2
+    exit 1
+done
+
+echo "If you think it was successful, run the following to concatenate:" 1>&2
+printf '%s; %s | %s | while read -r F; do %s; done\n' \
+       "touch '$output'"                              \
+       "find '$tempdir' -type f | cut -d / -f 2"      \
+       "sort -n"                                      \
+       "cat '$tempdir'/"'"$F"'" >> '$output'"      1>&2
