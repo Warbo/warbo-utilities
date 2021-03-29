@@ -42,4 +42,11 @@ else
     echo "Error indexing" 1>&2
     CODE=2
 fi
+
+echo "Renaming up any leftover isync state files" 1>&2
+echo "(These prevent syncing/indexing, but can be safely moved/deleted)" 1>&2
+while read -r F
+do
+    mv -v "$F" "$F.deleteme"
+done < <(find ~/Mail -name '*.journal')
 exit "$CODE"
