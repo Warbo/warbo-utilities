@@ -1,9 +1,9 @@
-{ gcc, raw, runCommand }:
+{ gcc, gnulib, raw, runCommand }:
 
 runCommand "build-fold-unbuffered"
   {
     src         = raw."fold.c";
-    buildInputs = [ gcc ];
+    buildInputs = [ gcc gnulib ];
   }
   ''
     gcc "$src" -o "$out"
