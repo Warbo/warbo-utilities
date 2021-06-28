@@ -23,9 +23,7 @@ do
         URL=$(grep '^Link: ' < "$F" | head -n1 | grep -o 'http.*' |
               grep 'youtube.com')
         [[ -n "$URL" ]] || continue
-        WEBTITLE=$(wget -q -O- "$URL"   |
-                   xidel -q -e '//h1' - |
-                   grep -v 'unavailable')
+        WEBTITLE=$(youtube-dl -e "$URL")
         MSGTITLE=$(grep '^Subject: ' < "$F" | sed -e 's/^Subject: //g')
         if [[ -n "$WEBTITLE" ]]
         then
