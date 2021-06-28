@@ -68,9 +68,10 @@ do
         }
 
         mkdir -p "$HOME/Audio/TO""DO/$GUESSTINATION"
-        inDir "$HOME/Audio/TO""DO/$GUESSTINATION" get_bbc_podcast "$URL"
-
-        markRead "$F"
+        if inDir "$HOME/Audio/TO""DO/$GUESSTINATION" get_bbc_podcast "$URL"
+        then
+            markRead "$F"
+        fi
     done
 done
 echo "Done with BBC podcasts" 1>&2
