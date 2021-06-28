@@ -22,8 +22,10 @@ fi
 
 if echo "$*" | grep ted.com > /dev/null
 then
-    EXTRA="-f medium"
+    echo "Trying medium format TED talk; falling back to any format" 1>&2
+    youtube-dl --fixup never -f medium "$@" ||
+    youtube-dl --fixup never           "$@"
+else
+    # shellcheck disable=SC2086
+    youtube-dl --fixup never $EXTRA "$@"
 fi
-
-# shellcheck disable=SC2086
-youtube-dl --fixup never $EXTRA "$@"
