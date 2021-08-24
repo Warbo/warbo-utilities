@@ -98,5 +98,7 @@ with rec {
             fail "Couldn't wrap '$P'"
         done
         echo "Finished wrapping scripts" 1>&2
-      '');
+      '') // {
+    inherit cmds scripts;
+  };
 }
