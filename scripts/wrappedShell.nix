@@ -53,6 +53,17 @@ with rec {
         timeout { puts "Timed out for result"; exit 1; }
       }
     '';
+
+    runsPipedCode = runCommand "can-run-piped-code"
+      {
+        inherit go;
+        buildInputs = [ fail ];
+      }
+      ''
+        GOT=$(echo 'printf "hel"; echo "lo";' | "$go")
+        [[ "x$GOT" = "xhello" ]] || fail "Expected 'hello', got '$GOT'"
+        mkdir "$out"
+      '';
   };
 };
 withDeps (attrValues checks) go

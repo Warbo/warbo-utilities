@@ -31,4 +31,12 @@ set -e
 #  - 'fold-unbuffered' is specifically written to avoid buffering, but the pipe
 #    might still buffer. We use 'stdbuf' to prevent that.
 # shellcheck disable=SC2016
-expect -f "$wrappedExpect" -- "$@" | stdbuf -i0 -o0 -e0  "$fold"
+
+if [ -t 0 ]
+then
+    # Stdin is a terminal, run interactively
+    expect -f "$wrappedExpect" -- "$@" | stdbuf -i0 -o0 -e0  "$fold"
+else
+    # Stdin is a pipe; run a shell directly, since stdin is weird in expect
+    bash "$@" | stdbuf -i0 -o0 -e0 "$fold"
+fi
