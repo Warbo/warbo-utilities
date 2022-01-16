@@ -1,4 +1,4 @@
-{ artemis, bash, fail, git, git2html, mhonarc, pandocPkgs, python, runCommand,
+{ artemis, bash, fail, git, git2html, mhonarc, pandocPkgs, python3, runCommand,
   withDeps, wrap, writeScript }:
 
 with rec {
@@ -8,9 +8,9 @@ with rec {
     vars   = {
       splicer = wrap {
         name   = "splicer";
-        paths  = [ python ];
+        paths  = [ python3 ];
         script = ''
-          #!${python}/bin/python
+          #!${python3}/bin/python3
           import os
           import sys
           pre, post = sys.stdin.read().split('READMESENTINEL')
@@ -20,11 +20,11 @@ with rec {
         '';
       };
 
-      cleaner = with { py = python.withPackages (p: [ p.bleach ]); }; wrap {
+      cleaner = with { py = python3.withPackages (p: [ p.bleach ]); }; wrap {
         name   = "cleaner.py";
         paths  = [ py ];
         script = ''
-          #!${py}/bin/python
+          #!${py}/bin/python3
           import bleach
           import sys
 
