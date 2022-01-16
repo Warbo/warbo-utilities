@@ -1,4 +1,4 @@
-{ bash, curl, fail, html2text, nixpkgs2005, raw, runCommand, wget, withDeps,
+{ bash, curl, fail, html2text, nixpkgs2009, raw, runCommand, wget, withDeps,
   wrap, xidel, xmlstarlet }:
 
 with builtins;
@@ -9,7 +9,7 @@ with rec {
     vars   = { SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt; };
     paths  = [
       html2text
-      (nixpkgs2005.python.withPackages (p: [
+      (nixpkgs2009.python.withPackages (p: [
         p.beautifulsoup4 p.feedparser p.PyRSS2Gen
       ]))
     ];
