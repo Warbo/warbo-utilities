@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-export EDITOR=emacsclient
+
+[[ -n "$EDITOR" ]] || export EDITOR=emacsclient
+
 if [[ "x$1" = "xclose" ]]
 then
     shift
