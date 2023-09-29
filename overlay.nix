@@ -3,6 +3,10 @@ self: super:
 with builtins;
 with self.lib;
 with rec {
+  inherit (self.nix-helpers)
+    attrsToDirs dirsToAttrs fail foldAttrs' nixFilesIn nixpkgs1709 patchShebang
+    withDeps xvfb-run-safe;
+
   # Let scripts depend on each other by adding 'bin' to the argument set
   extraArgs = {
     raw = mapAttrs (name: entry:
@@ -11,18 +15,18 @@ with rec {
       else if elem name [ "alert.wav" "bbcExamplePage.html.gz" ] then
         entry
       else
-        self.patchShebang {
+        patchShebang {
           inherit name;
           file = entry;
-        }) (self.dirsToAttrs ./raw);
+        }) (dirsToAttrs ./raw);
     scripts = warbo-utilities-scripts;
 
     # Force xidel version, to avoid argument incompatibilities
-    inherit (self.nixpkgs1709) xidel;
+    inherit (nixpkgs1709) xidel;
   };
 
   scripts =
-    mapAttrs (_: f: self.newScope extraArgs f { }) (self.nixFilesIn ./scripts);
+    mapAttrs (_: f: self.newScope extraArgs f { }) (nixFilesIn ./scripts);
 
   cmds = foldl (rest: dir: rest // mapAttrs (f: _: dir + "/${f}") (readDir dir))
     { } [ ./system ./web ./git ./development ./docs ];
@@ -30,7 +34,7 @@ with rec {
   check = mapAttrs (name: script:
     self.runCommand "check-${name}" {
       inherit script;
-      buildInputs = [ self.fail self.shellcheck ];
+      buildInputs = [ fail self.shellcheck ];
       LANG = "en_US.UTF-8";
     } ''
       set -e
@@ -63,20 +67,20 @@ with rec {
 
   warbo-utilities-scripts = cmds // scripts;
 
-  warbo-utilities = self.withDeps (attrValues check)
+  warbo-utilities = withDeps (attrValues check)
     (self.runCommand "warbo-utilities" {
       __noChroot = true; # To access files linked to by our deps
-      bin = self.attrsToDirs warbo-utilities-scripts;
-      buildInputs = [ self.fail self.makeWrapper ];
-      forContext = self.foldAttrs' (_: val: str:
+      bin = attrsToDirs warbo-utilities-scripts;
+      buildInputs = [ fail self.makeWrapper ];
+      forContext = foldAttrs' (_: val: str:
         substring 0 0 ''
           ${val} ${str}
         '') "" warbo-utilities-scripts;
     } ''
       echo "Tying the knot between scripts" 1>&2
       mkdir -p "$out/bin" || fail "Couldn't make '$out/bin'"
-      for P in ${escapeShellArg self.fail}'/bin/fail'          \
-               ${escapeShellArg self.xvfb-run-safe}'/bin/xvfb-run-safe' \
+      for P in ${escapeShellArg fail}'/bin/fail'          \
+               ${escapeShellArg xvfb-run-safe}'/bin/xvfb-run-safe' \
                "$bin"/*
       do
         F=$(readlink -f "$P") || fail "Couldn't readlink '$P'"
