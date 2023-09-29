@@ -1,4 +1,4 @@
-{ helpers ? import ./helpers.nix, nix-helpers ? helpers.nix-helpers
+{ helpers ? import ./helpers.nix, nix-helpers ? warbo-packages.nix-helpers
 , sources ? helpers.sources, warbo-packages ? helpers.warbo-packages }:
 
 with rec {
