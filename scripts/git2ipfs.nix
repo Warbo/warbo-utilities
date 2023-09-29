@@ -2,7 +2,7 @@
 
 with rec {
   ipfsBin = wrap {
-    name   = "ipfsBin";
+    name = "ipfsBin";
     script = ''
       #!${bash}/bin/bash
       if command -v ipfs > /dev/null
@@ -16,8 +16,8 @@ with rec {
   };
 };
 wrap {
-  name   = "git2ipfs";
-  paths  = [ (attrsToDirs { bin = { inherit ipfsBin; }; }) inNixedDir ];
+  name = "git2ipfs";
+  paths = [ (attrsToDirs { bin = { inherit ipfsBin; }; }) inNixedDir ];
   script = ''
     #!${bash}/bin/bash
     set -e

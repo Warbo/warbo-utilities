@@ -1,9 +1,9 @@
-{ bash, fail, jq, jsbeautifier, lynx, raw, wget, wrap, writeScript, xidel,
-  youtube-dl }:
+{ bash, fail, jq, jsbeautifier, lynx, raw, wget, wrap, writeScript, xidel
+, youtube-dl }:
 
 with rec {
   f5 = wrap {
-    name  = "getvid-f5";
+    name = "getvid-f5";
     paths = [ bash jsbeautifier xidel ];
     script = ''
       #!${bash}/bin/bash
@@ -20,8 +20,8 @@ with rec {
   };
 
   voza = wrap {
-    name   = "getvid-voza";
-    paths  = [ bash wget xidel ];
+    name = "getvid-voza";
+    paths = [ bash wget xidel ];
     script = ''
       #!${bash}/bin/bash
       URL=$(wget -q -O - "$1" | xidel -q -e '//video/source/@src' -)
@@ -31,11 +31,11 @@ with rec {
   };
 
   vse = wrap {
-    name  = "getvid-vse";
+    name = "getvid-vse";
     paths = [ bash lynx ];
-    vars  = {
+    vars = {
       COLUMNS = "1000";
-      cmd     = writeScript "vse-keys" ''
+      cmd = writeScript "vse-keys" ''
         # Command logfile created by Lynx 2.8.9dev.16 (11 Jul 2017)
 
         # Submit form
@@ -78,12 +78,12 @@ with rec {
   };
 };
 wrap {
-  name  = "getvid";
+  name = "getvid";
   paths = [ bash xidel ];
-  vars  = {
+  vars = {
     inherit f5 voza vse;
     list = raw."listepurls.sh";
-    msg  = ''
+    msg = ''
       Usage: getvid <listing url>
 
       Looks through a listing of providers, printing 'TITLE\tURL' to stderr for

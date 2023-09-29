@@ -1,9 +1,9 @@
 { bash, wrap, writeScript }:
 
 wrap {
-  name   = "nix_build";
-  paths  = [ bash ];
-  vars   = {
+  name = "nix_build";
+  paths = [ bash ];
+  vars = {
     expr = writeScript "nix_build_expr.nix" ''
       with builtins;
       with import <nixpkgs> {};

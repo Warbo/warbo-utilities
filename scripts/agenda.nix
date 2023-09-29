@@ -1,9 +1,12 @@
 { bash, coreutils, gcalcli, gnugrep, gnused, wrap }:
 
 wrap {
-  name   = "agenda";
-  paths  = [ bash coreutils gcalcli gnugrep gnused ];
-  vars   = { LC_ALL = "C"; LOCALE = "C"; };
+  name = "agenda";
+  paths = [ bash coreutils gcalcli gnugrep gnused ];
+  vars = {
+    LC_ALL = "C";
+    LOCALE = "C";
+  };
   script = ''
     #!${bash}/bin/bash
 

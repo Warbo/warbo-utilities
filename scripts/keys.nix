@@ -1,9 +1,18 @@
-{ bash, nettools, procps, psmisc, raw, space2ctrl, wrap, xbindkeys, xdotool,
-  xorg }:
+{ bash, nettools, procps, psmisc, raw, space2ctrl, wrap, xbindkeys, xdotool
+, xorg }:
 
 wrap {
-  name  = "keys";
-  file  = raw."keys.sh";
-  paths = [ bash nettools procps psmisc space2ctrl xbindkeys xdotool
-            xorg.setxkbmap xorg.xmodmap ];
+  name = "keys";
+  file = raw."keys.sh";
+  paths = [
+    bash
+    nettools
+    procps
+    psmisc
+    space2ctrl
+    xbindkeys
+    xdotool
+    xorg.setxkbmap
+    xorg.xmodmap
+  ];
 }

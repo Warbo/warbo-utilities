@@ -1,9 +1,9 @@
 { bash, openssl, wget, wrap }:
 
 wrap {
-  name   = "checkTV";
-  vars   = { SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt; };
-  paths  = [ bash openssl (openssl.dev or openssl) wget ];
+  name = "checkTV";
+  vars = { SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt; };
+  paths = [ bash openssl (openssl.dev or openssl) wget ];
   script = ''
     #!${bash}/bin/bash
     set -e

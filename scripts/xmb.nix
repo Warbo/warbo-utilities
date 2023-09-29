@@ -2,7 +2,7 @@
 
 with rec {
   random_mail = mkBin {
-    name   = "random_mail";
+    name = "random_mail";
     script = ''
       #!${bash}/bin/bash
 
@@ -50,8 +50,8 @@ with rec {
     '';
   };
   next = mkBin {
-    name   = "next";
-    paths  = [ random_mail ];
+    name = "next";
+    paths = [ random_mail ];
     script = ''
       #!${bash}/bin/bash
       MAIL=$(random_mail)
@@ -77,18 +77,17 @@ with rec {
     '';
   };
 
-  xmobar =
-    with { hn = haskell-nix {}; };
+  xmobar = with { hn = haskell-nix { }; };
     (hn.haskell-nix.hackage-package {
       # DELETE/REPLACE THESE TWO WHEN CHANGING THIS DERIVATION
-      plan-sha256  = "1lyl1z35lzjd9idmg2kpw6rqigfqmxzby0zv13l363v3l8ixh820";
+      plan-sha256 = "1lyl1z35lzjd9idmg2kpw6rqigfqmxzby0zv13l363v3l8ixh820";
       materialized = raw.xmobar-plan-to-nix-pkgs;
 
-      name        = "xmobar";
-      version     = "0.30";
-      ghc         = hn.buildPackages.pkgs.haskell-nix.compiler.ghc865;
+      name = "xmobar";
+      version = "0.30";
+      ghc = hn.buildPackages.pkgs.haskell-nix.compiler.ghc865;
       index-state = "2020-01-11T00:00:00Z";
-      modules     = [
+      modules = [
         # Without this we get 'error: The Nixpkgs package set does not contain
         # the package: Xrender (system dependency). You may need to augment the
         # system package mapping in haskell.nix so that it can be found.'
@@ -100,16 +99,14 @@ with rec {
 
           # The Haskell X11 library needs libXscrnSaver; since we're adding that
           # extra dependency, we might as well enable Xinerama support too.
-          packages.X11.components.library.libs = [
-            pkgs.xorg.libXinerama
-            pkgs.xorg.libXScrnSaver
-          ];
+          packages.X11.components.library.libs =
+            [ pkgs.xorg.libXinerama pkgs.xorg.libXScrnSaver ];
         })
       ];
     }).components.exes.xmobar;
 };
 wrap {
-  name  = "xmb";
+  name = "xmb";
   paths = [ bash next python pythonPackages.lxml ];
-  file  = "${xmobar}/bin/xmobar";
+  file = "${xmobar}/bin/xmobar";
 }

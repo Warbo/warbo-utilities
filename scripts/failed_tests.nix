@@ -1,8 +1,8 @@
 { bash, wrap }:
 
 wrap {
-  name   = "failed_tests";
-  paths  = [ bash ];
+  name = "failed_tests";
+  paths = [ bash ];
   script = ''
     #!${bash}/bin/bash
     set -e

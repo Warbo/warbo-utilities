@@ -1,12 +1,12 @@
 { bash, dtach, dvtm, wrap }:
 
 wrap {
-  name   = "shell";
-  paths  = [ bash dtach ];
-  vars   = {
+  name = "shell";
+  paths = [ bash dtach ];
+  vars = {
     sesh = wrap {
-      name   = "sesh";
-      paths  = [ bash dvtm ];
+      name = "sesh";
+      paths = [ bash dvtm ];
       script = ''
         #!${bash}/bin/bash
         exec dvtm -M -m ^b

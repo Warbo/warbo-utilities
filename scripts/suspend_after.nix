@@ -2,8 +2,8 @@
 
 with {
   go = wrap {
-    name   = "suspend_after.real";
-    paths  = [ bash pmutils ];
+    name = "suspend_after.real";
+    paths = [ bash pmutils ];
     script = ''
       #!${bash}/bin/bash
       echo "Suspending after..." 1>&2
@@ -13,8 +13,8 @@ with {
   };
 };
 wrap {
-  name   = "suspend_after";
-  paths  = [ bash ];
+  name = "suspend_after";
+  paths = [ bash ];
   script = ''
     #!${bash}/bin/bash
     SECS="$1"

@@ -1,8 +1,8 @@
 { bash, most, wrap }:
 
 wrap {
-  name   = "pager";
-  paths  = [ most ];
+  name = "pager";
+  paths = [ most ];
   script = ''
     #!${bash}/bin/bash
     if [[ "x$TERM" = "xdumb" ]]

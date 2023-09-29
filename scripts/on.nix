@@ -1,8 +1,8 @@
 { bash, feh, wrap, xorg }:
 
 wrap {
-  name   = "on";
-  paths  = [ bash feh xorg.xrandr ];
+  name = "on";
+  paths = [ bash feh xorg.xrandr ];
   script = ''
     #!${bash}/bin/bash
 

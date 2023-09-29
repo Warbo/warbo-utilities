@@ -1,8 +1,8 @@
 { bash, inNixedDir, wrap, xmlstarlet }:
 
 wrap {
-  name   = "pushgitpages";
-  paths  = [ inNixedDir xmlstarlet ];
+  name = "pushgitpages";
+  paths = [ inNixedDir xmlstarlet ];
   script = ''
     #!${bash}/bin/bash
     set -e

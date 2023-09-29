@@ -1,8 +1,8 @@
 { bash, pkgs, wrap }:
 
 wrap {
-  name   = "man";
-  paths  = [ pkgs.man ];
+  name = "man";
+  paths = [ pkgs.man ];
   script = ''
     #!${bash}/bin/bash
     if [[ "x$TERM" = "xdumb" ]]

@@ -1,10 +1,10 @@
-{ bash, coreutils, feed2maildirsimple, libxslt, mkBin, mu-standalone, openssl,
-  procps, python2, raw, scripts, wget, wrap, writeScript, xidel, xmlstarlet }:
+{ bash, coreutils, feed2maildirsimple, libxslt, mkBin, mu-standalone, openssl
+, procps, python2, raw, scripts, wget, wrap, writeScript, xidel, xmlstarlet }:
 
 with rec {
   cleanUp = wrap {
-    name   = "clean-up-news";
-    paths  = [ bash mu-standalone xidel ];
+    name = "clean-up-news";
+    paths = [ bash mu-standalone xidel ];
     script = ''
       #!${bash}/bin/bash
 
@@ -111,8 +111,8 @@ with rec {
   };
 
   convert = wrap {
-    name   = "feeds2maildirs";
-    paths  = [ (python2.withPackages (p: [ feed2maildirsimple ])) ];
+    name = "feeds2maildirs";
+    paths = [ (python2.withPackages (p: [ feed2maildirsimple ])) ];
     script = ''
       #!/usr/bin/env python
       # coding: utf-8
@@ -185,8 +185,8 @@ with rec {
   };
 
   fixRss = mkBin {
-    name   = "fixRss";
-    paths  = [ xmlstarlet ];
+    name = "fixRss";
+    paths = [ xmlstarlet ];
     script = ''
       #!${bash}/bin/bash
 
@@ -221,13 +221,15 @@ with rec {
     '';
   };
 
-  stripNonAscii = "tr -cd '[:print:]\n'";
+  stripNonAscii = ''
+    tr -cd '[:print:]
+    ''';
 
   get = "timeout 20 wget -O- -q --no-check-certificate";
 
   getRss = mkBin {
-    name   = "getRss";
-    paths  = [ coreutils fixRss wget ];
+    name = "getRss";
+    paths = [ coreutils fixRss wget ];
     script = ''
       #!${bash}/bin/bash
       ${get} "$2" | ${stripNonAscii} | fixRss "$1" > "$1.rss"
@@ -235,9 +237,9 @@ with rec {
   };
 
   getAtom = mkBin {
-    name   = "getAtom";
-    paths  = [ coreutils fixRss (libxslt.bin or libxslt) wget ];
-    vars   = { xsl = raw."atom2rss-exslt.xsl"; };
+    name = "getAtom";
+    paths = [ coreutils fixRss (libxslt.bin or libxslt) wget ];
+    vars = { xsl = raw."atom2rss-exslt.xsl"; };
     script = ''
       #!${bash}/bin/bash
       ${get} "$2" | ${stripNonAscii} > "$1.atom"
@@ -247,8 +249,8 @@ with rec {
   };
 
   getYouTube = mkBin {
-    name   = "getYouTube";
-    paths  = [ getAtom ];
+    name = "getYouTube";
+    paths = [ getAtom ];
     script = ''
       #!${bash}/bin/bash
       getAtom "$1" "http://www.youtube.com/feeds/videos.xml?channel_id=$2"
@@ -256,8 +258,8 @@ with rec {
   };
 
   rss = wrap {
-    name   = "pull_down_rss";
-    paths  = [ bash getAtom getRss getYouTube ];
+    name = "pull_down_rss";
+    paths = [ bash getAtom getRss getYouTube ];
     script = ''
       #!${bash}/bin/bash
       set -e
@@ -300,9 +302,12 @@ with rec {
 };
 
 wrap {
-  name   = "get-news-start";
-  paths  = [ bash mu-standalone procps ];
-  vars   = { inherit cleanUp convert rss; inherit (scripts) sysPing; };
+  name = "get-news-start";
+  paths = [ bash mu-standalone procps ];
+  vars = {
+    inherit cleanUp convert rss;
+    inherit (scripts) sysPing;
+  };
   script = ''
     #!${bash}/bin/bash
     set -e
