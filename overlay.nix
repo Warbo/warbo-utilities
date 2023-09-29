@@ -15,7 +15,7 @@ with rec {
           inherit name;
           file = entry;
         }) (self.dirsToAttrs ./raw);
-    scripts = self.warbo-utilities-scripts;
+    scripts = warbo-utilities-scripts;
 
     # Force xidel version, to avoid argument incompatibilities
     inherit (self.nixpkgs1709) xidel;
@@ -59,19 +59,19 @@ with rec {
         shellcheck "$script"
       fi
       mkdir "$out"
-    '') self.warbo-utilities-scripts;
-}; {
+    '') warbo-utilities-scripts;
+
   warbo-utilities-scripts = cmds // scripts;
 
   warbo-utilities = self.withDeps (attrValues check)
     (self.runCommand "warbo-utilities" {
       __noChroot = true; # To access files linked to by our deps
-      bin = self.attrsToDirs self.warbo-utilities-scripts;
+      bin = self.attrsToDirs warbo-utilities-scripts;
       buildInputs = [ self.fail self.makeWrapper ];
       forContext = self.foldAttrs' (_: val: str:
         substring 0 0 ''
           ${val} ${str}
-        '') "" self.warbo-utilities-scripts;
+        '') "" warbo-utilities-scripts;
     } ''
       echo "Tying the knot between scripts" 1>&2
       mkdir -p "$out/bin" || fail "Couldn't make '$out/bin'"
@@ -90,4 +90,6 @@ with rec {
     '') // {
       inherit cmds scripts;
     };
+}; {
+  inherit warbo-utilities warbo-utilities-scripts;
 }
