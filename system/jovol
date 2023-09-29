@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-MACHINE=$(johost) || exit 1
-
-ssh jo@"$MACHINE" -t "./vol"
