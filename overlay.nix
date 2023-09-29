@@ -1,8 +1,10 @@
-self: super:
+self: _:
 
-with builtins;
-with self.lib;
 with rec {
+  inherit (builtins) attrValues elem foldl isAttrs mapAttrs readDir substring;
+
+  inherit (self.nix-helpers.nixpkgs-lib) escapeShellArg;
+
   inherit (self.nix-helpers)
     attrsToDirs dirsToAttrs fail foldAttrs' nixFilesIn nixpkgs1709 patchShebang
     withDeps xvfb-run-safe;
@@ -19,6 +21,7 @@ with rec {
           inherit name;
           file = entry;
         }) (dirsToAttrs ./raw);
+
     scripts = warbo-utilities-scripts;
 
     # Force xidel version, to avoid argument incompatibilities
