@@ -1,10 +1,10 @@
-{ bash, coreutils, feed2maildirsimple, libxslt, mkBin, mu-standalone, openssl
-, procps, python2, raw, scripts, wget, wrap, writeScript, xidel, xmlstarlet }:
+{ bash, coreutils, feed2maildirsimple, libxslt, mkBin, mu, openssl, procps
+, python2, raw, scripts, wget, wrap, writeScript, xidel, xmlstarlet }:
 
 with rec {
   cleanUp = wrap {
     name = "clean-up-news";
-    paths = [ bash mu-standalone xidel ];
+    paths = [ bash mu xidel ];
     script = ''
       #!${bash}/bin/bash
 
@@ -223,7 +223,7 @@ with rec {
 
   stripNonAscii = ''
     tr -cd '[:print:]
-    ''';
+  '';
 
   get = "timeout 20 wget -O- -q --no-check-certificate";
 
@@ -303,7 +303,7 @@ with rec {
 
 wrap {
   name = "get-news-start";
-  paths = [ bash mu-standalone procps ];
+  paths = [ bash mu procps ];
   vars = {
     inherit cleanUp convert rss;
     inherit (scripts) sysPing;
