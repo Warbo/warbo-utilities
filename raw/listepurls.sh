@@ -9,10 +9,10 @@ else
     PAGE=$(curl -s "$1")
 
     LINKS=$(echo "$PAGE" |
-            xidel -q -e '//div[@class="site"]/a/@data-actuallink' -)
+            xidel -s -e '//div[@class="site"]/a/@data-actuallink' -)
 
     [[ -n "$TITLE" ]] ||
-        TITLE=$(echo "$PAGE" | xidel -q -e '//h1' -          |
+        TITLE=$(echo "$PAGE" | xidel -s -e '//h1' -          |
                                sed -e 's/ - Watch Online//g' |
                                grep '^.'                     |
                                head -n1)

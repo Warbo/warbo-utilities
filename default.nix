@@ -27,9 +27,6 @@ with rec {
         }) (dirsToAttrs ./raw);
 
     scripts = warbo-utilities-scripts;
-
-    # Force xidel version, to avoid argument incompatibilities
-    inherit (nixpkgs1709) xidel;
   };
 
   scripts = mapAttrs (_: f: newScope extraArgs f { }) (nixFilesIn ./scripts);

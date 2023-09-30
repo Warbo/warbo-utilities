@@ -83,7 +83,7 @@ with rec {
           continue
         fi
 
-        MILLIS=$(xidel - -q -e '//time/@dateTime' < "$F" | head -n1)
+        MILLIS=$(xidel - -s -e '//time/@dateTime' < "$F" | head -n1)
         if [[ -z "$MILLIS" ]]
         then
           # Delete undated events

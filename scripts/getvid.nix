@@ -9,7 +9,7 @@ with rec {
       #!${bash}/bin/bash
       set -e
       wget -q -O- "$1"                                                  |
-        xidel -q - -e '//script[contains(text(),"p,a,c,k,e,d")]/text()' |
+        xidel -s - -e '//script[contains(text(),"p,a,c,k,e,d")]/text()' |
         js-beautify -                                                   |
         grep -v '\.srt"'                                                |
         grep -o 'file: *"[^"]*'                                         |
@@ -24,7 +24,7 @@ with rec {
     paths = [ bash wget xidel ];
     script = ''
       #!${bash}/bin/bash
-      URL=$(wget -q -O - "$1" | xidel -q -e '//video/source/@src' -)
+      URL=$(wget -q -O - "$1" | xidel -s -e '//video/source/@src' -)
       echo "$URL" | grep 'http' && exit 0
       exit 1
     '';

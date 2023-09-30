@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-URL=$(wget -q -O- "$1" | xidel -q -e '//a/@href' - |
+URL=$(wget -q -O- "$1" | xidel -s -e '//a/@href' - |
                          grep '\.mp3'              |
                          grep -v -- '-low'         |
                          head -n1)

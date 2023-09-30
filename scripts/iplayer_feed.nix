@@ -22,7 +22,7 @@ wrap {
 
       echo "Fetching '$1'" 1>&2
       wget -q -O- "$1" |
-        xidel -q \
+        xidel -s \
           -e "$XPATH/resolve-uri(@href, \"$1\")" \
           -e "$XPATH//div[contains(@class,\"content-item__title\")]/text()" -
     }

@@ -20,7 +20,7 @@ function getPage() {
 function getEvents() {
     GETRESULT='ul[contains(@class,"searchResults")]'
     GETEVENT='div[@class="chunk"]//a[contains(@class, "event")]'
-    xidel -q - -e "//$GETRESULT//$GETEVENT/@href"
+    xidel -s - -e "//$GETRESULT//$GETEVENT/@href"
 }
 
 function eventPage() {
@@ -38,15 +38,15 @@ function eventPage() {
 }
 
 function getGroup() {
-    xidel - -q -e '//span[contains(@class, "event-info-group--groupName")]'
+    xidel - -s -e '//span[contains(@class, "event-info-group--groupName")]'
 }
 
 function getName() {
-    xidel - -q -e '//h1'
+    xidel - -s -e '//h1'
 }
 
 function getDate() {
-    MILLIS=$(xidel - -q -e '//time/@dateTime' | head -n1)
+    MILLIS=$(xidel - -s -e '//time/@dateTime' | head -n1)
     [[ -n "$MILLIS" ]] || {
         echo "Couldn't get date in milliseconds since epoch" 1>&2
         exit 1
@@ -55,7 +55,7 @@ function getDate() {
 }
 
 function getDetails() {
-    xidel - -q -e '//div[contains(@class, "event-description")]'
+    xidel - -s -e '//div[contains(@class, "event-description")]'
 }
 
 ## Render RSS
