@@ -1,11 +1,11 @@
-{ helpers ? import ./helpers.nix, nix-helpers ? warbo-packages.nix-helpers
-, nixpkgs ? nix-helpers.nixpkgs, nixpkgs-lib ? nix-helpers.nixpkgs-lib
-, warbo-packages ? helpers.warbo-packages }:
+{ nix-helpers ? warbo-packages.nix-helpers, nixpkgs ? nix-helpers.nixpkgs
+, nixpkgs-lib ? nix-helpers.nixpkgs-lib
+, warbo-packages ? import ./warbo-packages.nix }:
 
 with rec {
-  inherit (builtins) attrValues elem foldl isAttrs mapAttrs readDir substring;
+  inherit (builtins) attrValues elem isAttrs mapAttrs readDir substring;
 
-  inherit (nix-helpers.nixpkgs-lib) escapeShellArg;
+  inherit (nixpkgs-lib) escapeShellArg foldl;
 
   inherit (nix-helpers)
     attrsToDirs dirsToAttrs fail foldAttrs' nixFilesIn nixpkgs1709 patchShebang
@@ -14,7 +14,7 @@ with rec {
   inherit (nixpkgs) makeWrapper newScope runCommand shellcheck;
 
   # Let scripts depend on each other by adding 'bin' to the argument set
-  extraArgs = {
+  extraArgs = nix-helpers // warbo-packages // {
     raw = mapAttrs (name: entry:
       if isAttrs entry then
         ./raw + "/${name}"
@@ -97,5 +97,5 @@ withDeps (attrValues check) (runCommand "warbo-utilities" {
   done
   echo "Finished wrapping scripts" 1>&2
 '') // {
-  inherit cmds scripts;
+  inherit cmds nix-helpers nixpkgs nixpkgs-lib scripts warbo-packages;
 }
