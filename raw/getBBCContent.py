@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 try:
     from BeautifulSoup import BeautifulSoup
 except ImportError:
@@ -26,9 +26,12 @@ def stripCrap(html):
     if story is None:
         return html
 
-    [[crap.extract() for crap in story.findAll(**args)] \
-     for args in [{'name':'ul', 'attrs':{'class':'sharetools'}},
-                  {'name':'script'}]]
+    for args in [
+        {'name':'ul', 'attrs':{'class':'sharetools'}},
+        {'name':'script'}
+    ]:
+        for crap in story.findAll(**args):
+            crap.extract()
 
     return '<html><head/><body>{0}</body></html>'.format(repr(story))
 
@@ -87,6 +90,7 @@ def getEntry(entry):
             pickle.dump(data, f)
     return data
 
+from functools import reduce
 def processEntry(entry):
     """Replaces the content of entry with a rendered version of the page."""
     escape = lambda x: reduce(lambda x, pair: x.replace(*pair),
@@ -140,7 +144,7 @@ if os.getenv('RUN_TESTS') is None:
     feed         = feedparser.parse(sys.stdin.read())
     feed.entries = filter(lambda e: '/av/' not in getEntry(e)['url'],
                           feed.entries)
-    feed.entries = map(processEntry, feed.entries)
+    feed.entries = list(map(processEntry, feed.entries))
     print(renderToRss(feed))
 else:
     testHtmlToText()

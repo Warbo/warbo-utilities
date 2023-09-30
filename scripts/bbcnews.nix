@@ -1,4 +1,4 @@
-{ bash, curl, fail, html2text, nixpkgs2009, raw, runCommand, wget, withDeps
+{ bash, cacert, curl, fail, html2text, python3, raw, runCommand, wget, withDeps
 , wrap, xidel, xmlstarlet }:
 
 with builtins;
@@ -6,11 +6,10 @@ with rec {
   getContent = wrap {
     name = "getBBCContent.py";
     file = raw."getBBCContent.py";
-    vars = { SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt; };
+    vars = { SSL_CERT_FILE = "${cacert}/etc/ssl/certs/ca-bundle.crt"; };
     paths = [
       html2text
-      (nixpkgs2009.python.withPackages
-        (p: [ p.beautifulsoup4 p.feedparser p.PyRSS2Gen ]))
+      (python3.withPackages (p: [ p.beautifulsoup4 p.feedparser p.PyRSS2Gen ]))
     ];
   };
 

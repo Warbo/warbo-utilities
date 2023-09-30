@@ -1,6 +1,5 @@
 { bash, coreutils, feed2maildirsimple, libxslt, mkBin, mu, openssl, procps
-, python2, raw, scripts, wget, wrap, writeScript, xidel, xmlstarlet }:
-
+, python3, raw, scripts, wget, wrap, writeScript, xidel, xmlstarlet }:
 with rec {
   cleanUp = wrap {
     name = "clean-up-news";
@@ -112,7 +111,7 @@ with rec {
 
   convert = wrap {
     name = "feeds2maildirs";
-    paths = [ (python2.withPackages (p: [ feed2maildirsimple ])) ];
+    paths = [ (python3.withPackages (p: [ feed2maildirsimple ])) ];
     script = ''
       #!/usr/bin/env python
       # coding: utf-8
