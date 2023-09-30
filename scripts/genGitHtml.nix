@@ -1,10 +1,10 @@
-{ artemis, bash, fail, git, git2html, mhonarc, pandocPkgs, python3, runCommand
+{ artemis, bash, fail, git, git2html, mhonarc, pandoc, python3, runCommand
 , withDeps, wrap, writeScript }:
 
 with rec {
   script = wrap {
     name = "genGitHtml";
-    paths = [ fail git git2html mhonarc pandocPkgs ];
+    paths = [ fail git git2html mhonarc pandoc ];
     vars = {
       splicer = wrap {
         name = "splicer";
@@ -199,7 +199,7 @@ with rec {
 
   test = runCommand "genGitHtml-test" {
     inherit script;
-    buildInputs = [ artemis fail git git2html mhonarc pandocPkgs ];
+    buildInputs = [ artemis fail git git2html mhonarc pandoc ];
     EDITOR = wrap {
       name = "test-editor";
       script = ''
