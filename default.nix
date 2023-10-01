@@ -95,4 +95,5 @@ withDeps (attrValues check) (runCommand "warbo-utilities" {
   echo "Finished wrapping scripts" 1>&2
 '') // {
   inherit cmds nix-helpers nixpkgs nixpkgs-lib scripts warbo-packages;
+  warbo-utilities-src = ./.;
 }
