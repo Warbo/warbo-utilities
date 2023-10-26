@@ -9,7 +9,7 @@ with rec {
 
   inherit (nix-helpers)
     attrsToDirs dirsToAttrs fail foldAttrs' nixFilesIn nixpkgs1709 patchShebang
-    withDeps xvfb-run-safe;
+    withDeps;
 
   inherit (nixpkgs) makeWrapper newScope runCommand shellcheck;
 
@@ -81,9 +81,7 @@ withDeps (attrValues check) (runCommand "warbo-utilities" {
 } ''
   echo "Tying the knot between scripts" 1>&2
   mkdir -p "$out/bin" || fail "Couldn't make '$out/bin'"
-  for P in ${escapeShellArg fail}'/bin/fail'          \
-           ${escapeShellArg xvfb-run-safe}'/bin/xvfb-run-safe' \
-           "$bin"/*
+  for P in ${escapeShellArg fail}'/bin/fail' "$bin"/*
   do
     F=$(readlink -f "$P") || fail "Couldn't readlink '$P'"
     N=$(basename    "$P") || fail "No basename for '$P'"
