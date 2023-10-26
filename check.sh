@@ -24,6 +24,13 @@ do
     fi
 done
 
+echo "Checking dependencies are up to date" 1>&2
+F="warbo-packages.nix"
+diff "$F" <(update-nix-fetchgit < "$F") || {
+    echo  "Out of date: $F"
+    exit 1
+} 1>&2
+
 echo "Checking that haskell-nix derivations are cached" 1>&2
 grep -R -l 'haskell-nix' | grep '\.nix$' | while read -r F
 do
