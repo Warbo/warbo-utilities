@@ -53,7 +53,7 @@ wrap {
     then
         # shellcheck disable=SC2029
         FOUND=$(ssh chriswarbo.net "readlink '$L'")
-        if [[ "x$FOUND" = "x$D" ]]
+        if [[ "$FOUND" = "$D" ]]
         then
             true
         else

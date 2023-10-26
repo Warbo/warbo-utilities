@@ -30,7 +30,7 @@ MSGID=""
 while read -r PAIR
 do
     LOCATION=$(echo "$PAIR" | cut -f2)
-    [[ "x$LOCATION" = "x$F" ]] || continue
+    [[ "$LOCATION" = "$F" ]] || continue
 
     FOUND=1
     MSGID=$(echo "$PAIR" | cut -f1)
@@ -46,4 +46,4 @@ OUT=$(emacsclient -e "(mu4e~proc-move \"$MSGID\" nil \"+S-u-N\")") ||
     fail "Emacs gave an error, aborting (stdout: $OUT)"
 
 # We expect the output 'nil', otherwise alert the user
-[[ "x$OUT" = "xnil" ]] || fail "Unexpected response from Emacs: $OUT"
+[[ "$OUT" = "nil" ]] || fail "Unexpected response from Emacs: $OUT"

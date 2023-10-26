@@ -45,7 +45,7 @@
               then
                   H=$(readlink -f "$hook")
                   F=$(readlink -f "$DEST")
-                  [[ "x$H" = "x$F" ]] || {
+                  [[ "$H" = "$F" ]] || {
                       echo "File '$H' should be symlink to '$DEST'" 1>&2
                   }
               else

@@ -79,7 +79,7 @@ pushd "$localRepo" > /dev/null
     then
         rOrigin=$(git remote get-url origin)
     fi
-    if [[ "x$rOrigin" = "x$remoteRepo" ]]
+    if [[ "$rOrigin" = "$remoteRepo" ]]
     then
         echo "$localRepo is setup to push to chriswarbo.net" 1>&2
     else
@@ -110,7 +110,7 @@ then
     # We have an 'origin' remote, we need to see if it's our $REPOS dir
     origin=$(git remote get-url origin)
 fi
-if [[ "x$origin" = "x$localRepo" ]]
+if [[ "$origin" = "$localRepo" ]]
 then
     echo "$ROOT is setup to push to $localRepo" 1>&2
 else

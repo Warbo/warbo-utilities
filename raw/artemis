@@ -2,7 +2,7 @@
 
 [[ -n "$EDITOR" ]] || export EDITOR=emacsclient
 
-if [[ "x$1" = "xclose" ]]
+if [[ "$1" = "close" ]]
 then
     shift
     # Shortcut to close the given Artemis issue ID

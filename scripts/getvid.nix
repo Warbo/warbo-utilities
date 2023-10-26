@@ -102,7 +102,7 @@ wrap {
     #!${bash}/bin/bash
     set -e
 
-    if [[ "x$1" = "x--help" ]]
+    if [[ "$1" = "--help" ]]
     then
       # shellcheck disable=SC2154
       echo "$msg" 1>&2

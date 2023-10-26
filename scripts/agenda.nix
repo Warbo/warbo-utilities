@@ -18,7 +18,7 @@ wrap {
     RESULT=$(gcalcli --military --nocolor agenda "$DATE")
       CODE=$?
 
-    if [[ "x$1" = "xhead" ]]
+    if [[ "$1" = "head" ]]
     then
       echo "$RESULT" | grep '[0-9]' | head -n1 | sed -e 's/  */ /g'
     else

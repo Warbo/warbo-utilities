@@ -22,7 +22,7 @@ killall xbindkeys > /dev/null || true
 # Which machine are we on?
 HOST=$(hostname)
 
-if [[ "x$HOST" = "xolpc" ]]
+if [[ "$HOST" = "olpc" ]]
 then
     # OLPC has a US keyboard, with ctrl in a sensible place
     setxkbmap -option  # Reset options

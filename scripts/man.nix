@@ -5,7 +5,7 @@ wrap {
   paths = [ pkgs.man ];
   script = ''
     #!${bash}/bin/bash
-    if [[ "x$TERM" = "xdumb" ]]
+    if [[ "$TERM" = "dumb" ]]
     then
       # We're in Emacs, open this man page in Emacs's viewer
       emacsclient -e "(man \"$1\")"
