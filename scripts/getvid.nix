@@ -5,33 +5,18 @@ with rec {
   f5 = wrap {
     name = "getvid-f5";
     paths = [ bash jsbeautifier xidel ];
-    script = ''
-      #!${bash}/bin/bash
-      set -e
-      wget -q -O- "$1"                                                  |
-        xidel -s - -e '//script[contains(text(),"p,a,c,k,e,d")]/text()' |
-        js-beautify -                                                   |
-        grep -v '\.srt"'                                                |
-        grep -o 'file: *"[^"]*'                                         |
-        grep -o '".*'                                                   |
-        tr -d '"'                                                       |
-        head -n1
-    '';
+    file = raw."getvid-f5.sh";
   };
 
   voza = wrap {
     name = "getvid-voza";
     paths = [ bash wget xidel ];
-    script = ''
-      #!${bash}/bin/bash
-      URL=$(wget -q -O - "$1" | xidel -s -e '//video/source/@src' -)
-      echo "$URL" | grep 'http' && exit 0
-      exit 1
-    '';
+    file = raw."getvid-voza.sh";
   };
 
   vse = wrap {
     name = "getvid-vse";
+    file = raw."getvid-vse.sh";
     paths = [ bash lynx ];
     vars = {
       COLUMNS = "1000";
@@ -68,13 +53,6 @@ with rec {
         key y
       '';
     };
-    script = ''
-      #!${bash}/bin/bash
-      URL=$(lynx -term=linux -accept_all_cookies -cmd_script="$cmd" "$1" |
-            grep 'video/mp4' | grep -o 'http[^"]*')
-      echo "$URL" | grep 'http' && exit 0
-      exit 1
-    '';
   };
 };
 wrap {
