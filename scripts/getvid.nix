@@ -20,38 +20,7 @@ with rec {
     paths = [ bash lynx ];
     vars = {
       COLUMNS = "1000";
-      cmd = writeScript "vse-keys" ''
-        # Command logfile created by Lynx 2.8.9dev.16 (11 Jul 2017)
-
-        # Submit form
-        key Down Arrow
-        key Down Arrow
-        key Down Arrow
-        key Down Arrow
-        key Down Arrow
-        key Down Arrow
-        key Down Arrow
-        key ^J
-
-        # View source
-        key \
-        key y
-
-        # Print to screen
-        key p
-        key Down Arrow
-        key Down Arrow
-        key ^J
-
-        # Confirm
-        key y
-        key ^J
-
-        # Exit
-        key ^J
-        key q
-        key y
-      '';
+      cmd = raw.vse-keys;
     };
   };
 };
