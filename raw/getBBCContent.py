@@ -12,7 +12,7 @@ import PyRSS2Gen
 import subprocess
 import sys
 import time
-import urllib2
+import urllib.request
 
 msg = lambda x: sys.stderr.write(x + '\n')
 
@@ -54,12 +54,12 @@ def htmlToText(html):
     proc = subprocess.Popen(['html2text', '-nobs', '-ascii'],
                             stdin=subprocess.PIPE,
                             stdout=subprocess.PIPE)
-    out, _ = proc.communicate(stripCrap(html))
+    out, _ = proc.communicate(stripCrap(html).encode())
     return out
 
 def testHtmlToText():
     html = '<html><head /><body><p>Hello &amp; goodbye!</p></body></html>'
-    text = htmlToText(html)
+    text = htmlToText(html).decode()
     want = 'Hello & goodbye!'
     assert text.strip() == want.strip(), repr({
         'error' : 'Did not render as expected',
@@ -79,7 +79,7 @@ def getEntry(entry):
             return pickle.load(f)
 
     msg('Fetching ' + url)
-    response = urllib2.urlopen(url)
+    response = urllib.request.urlopen(url)
     data     = {'url'     : response.geturl(),
                 'content' : response.read()}
     time.sleep(2)  # For courtesy
