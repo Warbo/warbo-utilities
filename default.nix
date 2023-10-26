@@ -71,7 +71,6 @@ with rec {
   warbo-utilities-scripts = cmds // scripts;
 };
 withDeps (attrValues check) (runCommand "warbo-utilities" {
-  __noChroot = true; # To access files linked to by our deps
   bin = attrsToDirs warbo-utilities-scripts;
   buildInputs = [ fail makeWrapper ];
   forContext = foldAttrs' (_: val: str:
@@ -81,7 +80,7 @@ withDeps (attrValues check) (runCommand "warbo-utilities" {
 } ''
   echo "Tying the knot between scripts" 1>&2
   mkdir -p "$out/bin" || fail "Couldn't make '$out/bin'"
-  for P in ${escapeShellArg fail}'/bin/fail' "$bin"/*
+  for P in ${escapeShellArg "${fail}"}'/bin/fail' "$bin"/*
   do
     F=$(readlink -f "$P") || fail "Couldn't readlink '$P'"
     N=$(basename    "$P") || fail "No basename for '$P'"
