@@ -1,4 +1,4 @@
-{ bash, coreutils, curl, fail, glibc, haskellPackages, html2text, raw
+{ bash, cacert, coreutils, curl, fail, glibc, haskellPackages, html2text, raw
 , runCommand, wget, withDeps, wrap, xidel }:
 
 with builtins;
@@ -18,16 +18,21 @@ with rec {
     paths = [ bash coreutils curl glibc.bin wget ];
     vars = {
       inherit processor;
-      SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt;
+      SSL_CERT_FILE = "${cacert}/etc/ssl/certs/ca-bundle.crt";
     };
     script = ''
       #!${bash}/bin/bash
       set -e
 
-      echo "$2" | grep 'epguides.com' > /dev/null ||
-        fail 'get_eps URL should be from epguides.com'
+      if [[ -e "$2" ]]
+      then
+        PAGE=$(cat "$2")
+      else
+        echo "$2" | grep 'epguides.com' > /dev/null ||
+          fail 'get_eps URL should be from epguides.com'
 
-      PAGE=$(curl -f "$2") || fail "Couldn't download '$2'"
+        PAGE=$(curl -f "$2") || fail "Couldn't download '$2'"
+      fi
 
       # shellcheck disable=SC2154
       echo "$PAGE" | FEED="$1" "$processor"
@@ -37,17 +42,14 @@ with rec {
   tests = {
     haveExpanse = runCommand "test-expanse" {
       inherit go;
-      __noChroot = true;
-      buildInputs = [ curl fail xidel ];
+      buildInputs = [ fail xidel ];
       KEEP_ALL = "1";
-      URL = "http://epguides.com/common/exportToCSVmaze.asp?maze=1825";
+      file = fetchurl {
+        name = "get_eps-test-expanse.html";
+        url = "http://epguides.com/common/exportToCSVmaze.asp?maze=1825";
+      };
     } ''
-      curl -s http://epguides.com > /dev/null || {
-        echo "WARNING: Couldn't access epguides (offline?). Skipping test" 1>&2
-        mkdir "$out"
-        exit
-      }
-      CONTENT=$("$go" "TheExpanse" "$URL") || fail "Failed to get eps"
+      CONTENT=$("$go" "TheExpanse" "$file") || fail "Failed to get eps"
 
       echo "$CONTENT" | xidel -s - -e '//item//pubDate' |
                         grep '2015-12-14' > /dev/null ||
@@ -58,17 +60,14 @@ with rec {
 
     haveWalkingDead = runCommand "test-walking-dead" {
       inherit go;
-      __noChroot = true;
-      buildInputs = [ curl fail xidel ];
+      buildInputs = [ fail xidel ];
       KEEP_ALL = "1";
-      URL = "http://epguides.com/common/exportToCSVmaze.asp?maze=73";
+      file = builtins.fetchurl {
+        name = "get_eps-test-walkingdead.html";
+        url = "http://epguides.com/common/exportToCSVmaze.asp?maze=73";
+      };
     } ''
-      curl -s http://epguides.com > /dev/null || {
-        echo "WARNING: Couldn't access epguides (offline?). Skipping test" 1>&2
-        mkdir "$out"
-        exit
-      }
-      CONTENT=$("$go" "WalkingDead" "$URL") || fail "Failed to get eps"
+      CONTENT=$("$go" "WalkingDead" "$file") || fail "Failed to get eps"
 
       echo "$CONTENT" | xidel -s - -e '//item//title' |
         grep 'What Comes After' > /dev/null ||
