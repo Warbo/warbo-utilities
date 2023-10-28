@@ -80,14 +80,13 @@ withDeps (attrValues check) (runCommand "warbo-utilities" {
 } ''
   echo "Tying the knot between scripts" 1>&2
   mkdir -p "$out/bin" || fail "Couldn't make '$out/bin'"
-  for P in ${escapeShellArg "${fail}"}'/bin/fail' "$bin"/*
+  for F in ${escapeShellArg "${fail}"}'/bin/fail' "$bin"/*
   do
-    F=$(readlink -f "$P") || fail "Couldn't readlink '$P'"
-    N=$(basename    "$P") || fail "No basename for '$P'"
+    N=$(basename "$F") || fail "No basename for '$F'"
     cp    "$F" "$out/bin/$N" || fail "Copy failed for '$F'"
     chmod +x   "$out/bin/$N" || fail "Couldn't chmod for '$F'"
     wrapProgram "$out/bin/$N" --prefix PATH : "$out/bin" ||
-      fail "Couldn't wrap '$P'"
+      fail "Couldn't wrap '$F'"
   done
   echo "Finished wrapping scripts" 1>&2
 '') // {
