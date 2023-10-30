@@ -80,7 +80,7 @@ withDeps (attrValues check) (runCommand "warbo-utilities" {
 } ''
   echo "Tying the knot between scripts" 1>&2
   mkdir -p "$out/bin" || fail "Couldn't make '$out/bin'"
-  for F in ${escapeShellArg "${fail}"}'/bin/fail' "$bin"/*
+  for F in ${fail}/bin/fail "$bin"/*
   do
     N=$(basename "$F") || fail "No basename for '$F'"
     cp    "$F" "$out/bin/$N" || fail "Copy failed for '$F'"
