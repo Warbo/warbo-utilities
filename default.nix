@@ -11,7 +11,7 @@ with rec {
     attrsToDirs dirsToAttrs fail foldAttrs' nixFilesIn nixpkgs1709 patchShebang
     withDeps;
 
-  inherit (nixpkgs) makeWrapper newScope runCommand shellcheck;
+  inherit (nixpkgs) bash makeWrapper newScope runCommand shellcheck;
 
   # Let scripts depend on each other by adding 'bin' to the argument set
   extraArgs = nix-helpers // warbo-packages // {
@@ -83,8 +83,12 @@ withDeps (attrValues check) (runCommand "warbo-utilities" {
   for F in ${fail}/bin/fail "$bin"/*
   do
     N=$(basename "$F") || fail "No basename for '$F'"
-    cp    "$F" "$out/bin/$N" || fail "Copy failed for '$F'"
-    chmod +x   "$out/bin/$N" || fail "Couldn't chmod for '$F'"
+    # Create a trampoline, to avoid problems with symlinks, etc.
+    {
+      echo '#!${bash}/bin/bash'
+      printf 'exec %s "$@"' "$F"
+    } > "$out/bin/$N"
+    chmod +x "$out/bin/$N"
     wrapProgram "$out/bin/$N" --prefix PATH : "$out/bin" ||
       fail "Couldn't wrap '$F'"
   done
