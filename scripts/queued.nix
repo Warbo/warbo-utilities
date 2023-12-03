@@ -1,7 +1,7 @@
 { bash, raw, taskspooler, wrap }:
 
 wrap {
-  name = "follow_queued";
+  name = "queued";
   paths = [ bash taskspooler ];
-  file = raw."follow_queued.sh";
+  file = raw."queued.sh";
 }
