@@ -5,10 +5,12 @@ command -v git > /dev/null || {
     exit 1
 }
 
-command -v ts > /dev/null || {
-    echo "No 'ts' command, aborting $0" 1>&2
-    exit 1
-}
+git update-server-info
+
+#command -v ts > /dev/null || {
+#    echo "No 'ts' command, aborting $0" 1>&2
+#    exit 1
+#}
 
 # Fiddle environment to prevent problems
 # shellcheck disable=SC2046
