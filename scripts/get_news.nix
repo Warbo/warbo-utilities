@@ -284,10 +284,6 @@ with rec {
           rss)
             getRss "$NAME" "$URL" || echo "Failed to get $NAME, skipping"
             ;;
-          tv)
-            get_eps "$NAME" "$URL" > "$NAME.rss" ||
-              echo "Failed to get $NAME, skipping"
-            ;;
           youtube)
             getYouTube "$NAME" "$URL" || echo "Failed to get $NAME, skipping"
             ;;
