@@ -24,14 +24,14 @@ do
     done
 done
 
-NAME=$(basename "$PWD" .git)
-if command -v laminarc > /dev/null &&
-   [[ -e /var/lib/laminar/cfg/jobs/"$NAME".run ]]
-then
-    echo "Queueing build of '$NAME'" 1>&2
-    LAMINAR_REASON='Git hook' laminarc queue "$NAME"
-fi
+#NAME=$(basename "$PWD" .git)
+#if command -v laminarc > /dev/null &&
+#   [[ -e /var/lib/laminar/cfg/jobs/"$NAME".run ]]
+#then
+#    echo "Queueing build of '$NAME'" 1>&2
+#    LAMINAR_REASON='Git hook' laminarc queue "$NAME"
+#fi
 
-echo "Scheduling push to Web and IPFS" 1>&2
-[[ -n "$IPFS_PATH" ]] || export IPFS_PATH=/var/lib/ipfs/.ipfs
-ts pushGitPages "$PWD"
+#echo "Scheduling push to Web and IPFS" 1>&2
+#[[ -n "$IPFS_PATH" ]] || export IPFS_PATH=/var/lib/ipfs/.ipfs
+#ts pushGitPages "$PWD"
