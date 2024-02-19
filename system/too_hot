@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-if OUT=$(hot 2>&1)
-then
-    TEMP=$(echo "$OUT" | grep -o ".* >" | grep -o "[0-9.]*")
-    echo "<fc=#FF0000>HOT: ${TEMP}C</fc> "
-fi
