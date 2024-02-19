@@ -34,11 +34,11 @@ diff "$F" <(update-nix-fetchgit < "$F") || {
 echo "Checking that haskell-nix derivations are cached" 1>&2
 grep -R -l 'haskell-nix' | grep '\.nix$' | while read -r F
 do
-    grep 'plan-sha256' < "$F" > /dev/null || {
+    grep -q 'plan-sha256' < "$F" || {
         echo "File '$F' uses haskell-nix without caching a plan-sha256" 1>&2
         fail "Build the package and follow the instructions in 'trace'"
     }
-    grep 'materialized' < "$F" > /dev/null || {
+    grep -q 'materialized' < "$F" || {
         echo "File '$F' uses haskell-nix without a materialised plan"   1>&2
         fail "Build the package and follow the instructions in 'trace'"
     }
@@ -61,7 +61,7 @@ do
         for POSSIBLE in "$D"/*.nix
         do
             N=$(basename "$POSSIBLE" .nix)
-            if grep "\"$N\"" < "$F" > /dev/null
+            if grep -q "\"$N\"" < "$F"
             then
                 [[ "$FOUND" -eq 0 ]] ||
                     fail "Ambiguity: Multiple files in '$D' are found in '$F'"
@@ -80,9 +80,9 @@ do
                    grep -o '"[^"]*"'             ) || fail "No version '$X'"
     unset D
 
-    grep -F "$FOUNDNAME" < "$F" > /dev/null ||
+    grep -q -F "$FOUNDNAME" < "$F" ||
         fail "Expected name '$FOUNDNAME' in '$F', not found"
-    grep -F "$FOUNDVERSION" < "$F" > /dev/null ||
+    grep -q -F "$FOUNDVERSION" < "$F" ||
         fail "Expected version '$FOUNDVERSION' in '$F', not found"
     unset FOUNDNAME
     unset FOUNDVERSION

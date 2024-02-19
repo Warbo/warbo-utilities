@@ -36,7 +36,7 @@ then
   htmlPath="$2"
 fi
 
-if echo "$repoPath" | grep '^/' > /dev/null
+if echo "$repoPath" | grep -q '^/'
 then
   repoPath="file://$repoPath"
 fi

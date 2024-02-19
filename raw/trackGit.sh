@@ -9,7 +9,7 @@ REPOS="/home/chris/Programming/repos"
 
 # Ensure we're in an appropriate git repo, and get its top-level directory
 
-if echo "$PWD" | grep "$REPOS" > /dev/null
+if echo "$PWD" | grep -q "$REPOS"
 then
     echo "trackGit should be called from a working copy, not a bare clone" 1>&2
     exit 1
@@ -25,11 +25,11 @@ fi
 
 origin=""
 name=""
-if git remote | grep '^origin$' > /dev/null
+if git remote | grep -q '^origin$'
 then
     # We have an 'origin' remote. Check if it points to our $REPOS dir
     origin=$(git remote get-url origin)
-    if echo "$origin" | grep "$REPOS" > /dev/null
+    if echo "$origin" | grep -q "$REPOS"
     then
         name=$(basename "$origin" .git)
     fi

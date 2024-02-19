@@ -36,7 +36,7 @@ with rec {
       CONTENT=$("$go" "TheExpanse" "$file") || fail "Failed to get eps"
 
       echo "$CONTENT" | xidel -s - -e '//item//pubDate' |
-                        grep '2015-12-14' > /dev/null ||
+                        grep -q '2015-12-14' ||
         fail "Expanse s01e01 not found?\n$CONTENT"
 
       mkdir "$out"
@@ -54,7 +54,7 @@ with rec {
       CONTENT=$("$go" "WalkingDead" "$file") || fail "Failed to get eps"
 
       echo "$CONTENT" | xidel -s - -e '//item//title' |
-        grep 'What Comes After' > /dev/null ||
+        grep -q 'What Comes After' ||
         fail "Walking Dead s09e05 not found?\n$CONTENT"
 
       mkdir "$out"

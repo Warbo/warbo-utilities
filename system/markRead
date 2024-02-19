@@ -19,7 +19,7 @@ FROM=$(grep '^From:' < "$F" | head -n1 | sed -e 's/^From: //')
 
 # If the From address has the form '"Foo Bar" <foo@bar>' then get just the
 # address (foo@bar)
-if echo "$FROM" | grep '<[^>]*>' > /dev/null
+if echo "$FROM" | grep -q '<[^>]*>'
 then
     FROM=$(echo "$FROM" | grep -o '<[^>]*>' | grep -o '[^<>]*')
 fi

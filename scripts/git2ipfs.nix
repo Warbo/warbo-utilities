@@ -28,7 +28,7 @@ wrap {
 
     NAME=$(basename "$1" .git)
 
-    ipfsBin key list | grep -Fx "$NAME" > /dev/null || {
+    ipfsBin key list | grep -q -Fx "$NAME" || {
       echo "Couldn't find key for '$NAME', can't push" 1>&2
       exit 1
     }

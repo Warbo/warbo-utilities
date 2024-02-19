@@ -6,17 +6,17 @@ URL=$(wget -q -O- "$1" | xidel -s -e '//a/@href' - |
                          head -n1)
 
 # Sanity check
-echo "$URL" | grep '^//' > /dev/null && {
+echo "$URL" | grep -q '^//' && {
     echo "Prepending 'http:' to '$URL'" 1>&2
     URL="http:$URL"
 }
 
-echo "$URL" | grep '^http' > /dev/null || {
+echo "$URL" | grep -q '^http' || {
     echo "While fetching '$1', programme URL '$URL' not http, aborting" 1>&2
     exit 1
 }
 
-echo "$URL" | grep 'mp3$' > /dev/null || {
+echo "$URL" | grep -q 'mp3$' || {
     echo "While fetching '$1', programme URL '$URL' not an mp3, aborting" 1>&2
     exit 1
 }

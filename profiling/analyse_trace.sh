@@ -17,7 +17,7 @@ function get_top_pid {
     # Guess the top-level PID as the one which has no clone line
     while read -r PIDGTP
     do
-        if echo "$INPUT" | grep "clone(.*) = $PIDGTP" > /dev/null
+        if echo "$INPUT" | grep -q "clone(.*) = $PIDGTP"
         then
             true # no-op
         else

@@ -42,8 +42,8 @@ do
     do
         NORM_POSS=$(basename "$POSSIBLE" | norm)
         NORM_D=$(echo "$D" | norm)
-        if echo "$NORM_POSS" | grep -F "$NORM_D"    > /dev/null
-           # || echo "$NORM_D"    | grep -F "$NORM_POSS" > /dev/null
+        if echo "$NORM_POSS" | grep -q -F "$NORM_D"
+           # || echo "$NORM_D"    | grep -q -F "$NORM_POSS"
         then
             [[ -z "$GUESSTINATION" ]] || {
                 echo "'$D' could be '$GUESSTINATION' or '$POSSIBLE', skip" 1>&2
@@ -94,7 +94,7 @@ function getFromSrc {
         PAGE=$(grep -o 'http[s]*://[^ "]*' < "$F" | head -n1) || continue
         echo "Found link $PAGE" 1>&2
 
-        if echo "$PAGE" | grep -i '\.mp3$' > /dev/null
+        if echo "$PAGE" | grep -q -i '\.mp3$'
         then
             echo "Assuming URL '$PAGE' is the file rather than a Web page" 1>&2
             URL="$PAGE"
@@ -132,7 +132,7 @@ function getFromSrc {
               NAME=$(basename "$GOT")
 
               # Skip those which are already .mp3
-              echo "$NAME" | grep -i '\.mp3$' > /dev/null && continue
+              echo "$NAME" | grep -q -i '\.mp3$' && continue
 
               TRIMMED=$(echo "$NAME" | grep -o '^.*\.mp3')
 

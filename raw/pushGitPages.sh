@@ -71,8 +71,7 @@ URL="/git/$NAME.git"
   F="$D/index.html"
 
 # shellcheck disable=SC2029
-if ssh chriswarbo.net "cat $F" |
-   grep "$URL" > /dev/null
+if ssh chriswarbo.net "cat $F" | grep -q "$URL"
 then
     true
 else

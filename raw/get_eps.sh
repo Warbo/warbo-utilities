@@ -5,7 +5,7 @@ if [[ -e "$2" ]]
 then
     PAGE=$(cat "$2")
 else
-    echo "$2" | grep 'epguides.com' > /dev/null ||
+    echo "$2" | grep -q 'epguides.com' ||
         fail 'get_eps URL should be from epguides.com'
 
     PAGE=$(curl -f "$2") || fail "Couldn't download '$2'"

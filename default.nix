@@ -43,7 +43,7 @@ with rec {
       set -e
 
       # Unwrap until we get to the real implementation
-      while grep "extraFlagsArray" < "$script" > /dev/null
+      while grep -q "extraFlagsArray" < "$script"
       do
         script=$(grep '^exec' < "$script" | cut -d ' ' -f2 |
                                             tr -d '"')
@@ -51,17 +51,17 @@ with rec {
       echo "Checking '$script'" 1>&2
 
       SHEBANG=$(head -n1 < "$script")
-      echo "$SHEBANG" | grep '^#!' > /dev/null || {
+      echo "$SHEBANG" | grep -q '^#!' || {
         # Binaries, etc.
         mkdir "$out"
         exit 0
       }
 
-      echo "$SHEBANG" | grep 'usr/bin/env' > /dev/null ||
-      echo "$SHEBANG" | grep '/nix/store'  > /dev/null ||
+      echo "$SHEBANG" | grep -q 'usr/bin/env' ||
+      echo "$SHEBANG" | grep -q '/nix/store' ||
         fail "Didn't use /usr/bin/env or /nix/store:\n$SHEBANG"
 
-      if echo "$SHEBANG" | grep 'bash' > /dev/null
+      if echo "$SHEBANG" | grep -q 'bash'
       then
         shellcheck "$script"
       fi

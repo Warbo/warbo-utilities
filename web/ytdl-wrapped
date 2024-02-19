@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 EXTRA=""
-if echo "$*" | grep yout > /dev/null
+if echo "$*" | grep -q yout
 then
     echo "Looking up available formats" 1>&2
 
@@ -20,7 +20,7 @@ then
     fi
 fi
 
-if echo "$*" | grep ted.com > /dev/null
+if echo "$*" | grep -q ted.com
 then
     echo "Trying medium format TED talk; falling back to any format" 1>&2
     youtube-dl --fixup never -f medium "$@" ||

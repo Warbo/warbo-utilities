@@ -11,7 +11,7 @@ do
         true  # OK
     elif [ -f "$HOOK" ]
     then
-        grep 'post-receive.hook' < "$HOOK" > /dev/null ||
+        grep -q 'post-receive.hook' < "$HOOK" ||
             echo "$HOOK should run ../post-receive.hook (or symlink to it)" 1>&2
     else
         (cd "$repo/hooks" && ln -s ../../post-receive.hook post-receive)
@@ -25,7 +25,7 @@ then
     REMOTE=$(ssh chriswarbo.net "ls /opt/repos/")
     for repo in *.git
     do
-        if ! echo "$REMOTE" | grep "^$repo$" > /dev/null
+        if ! echo "$REMOTE" | grep -q "^$repo$"
         then
             echo "Can't find $repo on remote server, copying..."
             tar c "$repo" | gzip - | ssh chriswarbo.net "cd /opt/repos; tar xz"

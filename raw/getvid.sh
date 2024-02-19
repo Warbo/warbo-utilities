@@ -26,7 +26,7 @@ function tryScrape {
     REGEX="$3"
   SCRAPER="$4"
 
-  echo "$LINK" | grep "$REGEX" > /dev/null || return 1
+  echo "$LINK" | grep -q "$REGEX" || return 1
 
   [[ -n "$DEBUG" ]] && echo "Running $SCRAPER on $LINK" 1>&2
   URL=$("$SCRAPER" "$LINK") || return 0

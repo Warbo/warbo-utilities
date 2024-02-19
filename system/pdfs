@@ -5,7 +5,7 @@ set -e
 
 function isOpen {
     # shellcheck disable=SC2009
-    ps auxww | grep mupdf-x11 | grep "$1" > /dev/null
+    ps auxww | grep mupdf-x11 | grep -q "$1"
 }
 
 function openIfNeeded {
@@ -22,7 +22,7 @@ function openIfNeeded {
 while read -r LINE
 do
     # Skip comments
-    echo "$LINE" | grep '^\s*#' > /dev/null && continue
+    echo "$LINE" | grep -q '^\s*#' && continue
     UNIQUEID=$(echo "$LINE" | cut -f1)
     LOCATION=$(echo "$LINE" | cut -f2)
     openIfNeeded "$UNIQUEID" "$LOCATION"

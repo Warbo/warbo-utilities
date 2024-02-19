@@ -12,9 +12,9 @@ DEST="$2"
 [[ -e "$FROM" ]] || fail "First argument '$FROM' doesn't exist"
 [[ -n "$DEST" ]] || fail "No destination given"
 
-if echo "$DEST" | grep '@' > /dev/null
+if echo "$DEST" | grep -q '@'
 then
-    echo "$DEST" | grep '@[^@:]*:/' > /dev/null ||
+    echo "$DEST" | grep -q '@[^@:]*:/' ||
         fail "Destination '$DEST' has @ like SSH, but no path given (after :/)"
 fi
 
