@@ -11,12 +11,13 @@ if mount | grep -q "$(basename "$REPOS")"
 then
     true
 else
+    # TODO: Make this a service?
     export RCLONE_S3_REGION=eu-west-1
     export RCLONE_S3_PROVIDER=AWS
     export RCLONE_S3_ENV_AUTH=true
     with-aws-creds rclone mount \
                    --vfs-cache-mode=full \
-                   --no-update-modtime --checksum \
+                   --no-update-modtime --checksum --file-perms 0766 \
                    ":s3:www.chriswarbo.net/git" \
                    "$REPOS" &
 fi
