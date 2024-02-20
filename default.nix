@@ -32,7 +32,7 @@ with rec {
   scripts = mapAttrs (_: f: newScope extraArgs f { }) (nixFilesIn ./scripts);
 
   cmds = foldl (rest: dir: rest // mapAttrs (f: _: dir + "/${f}") (readDir dir))
-    { } [ ./system ./web ./git ./development ./docs ];
+    { } [ ./system ./web ./git ./docs ];
 
   check = mapAttrs (name: script:
     runCommand "check-${name}" {
