@@ -1,77 +1,50 @@
 #!/usr/bin/env bash
 set -e
 
+mount | grep -q s3_repos || {
+    echo "$HOME/Drives/s3_repos not mounted, skipping render" 1>&2
+    exit 0
+}
+
 cd "$1"
 
 NAME=$(basename "$PWD" .git)
 
 PAGES=$(repoPath="$PWD" htmlInOut=1 inNixedDir genGitHtml)
 export PAGES
+DEST="$HOME/Drives/s3_repos/$NAME"
 
 git2ipfs "$PWD" || echo "Failed to push to IPFS, carrying on anyway..." 1>&2
-
-D="/opt/html/$NAME"
-L="/opt/git/$NAME"
 
 if [[ -n "$PAGES" ]]
 then
     echo "Pushing '$PAGES' to Web" 1>&2
 
-    # shellcheck disable=SC2029
-    ssh chriswarbo.net "test -e '$D'" || {
-      # shellcheck disable=SC2029
-      ssh chriswarbo.net "sudo mkdir -p '$D'"
-    }
-
-    # shellcheck disable=SC2029
-    ssh chriswarbo.net "test -e '$L'" || {
-      # shellcheck disable=SC2029
-      ssh chriswarbo.net "sudo ln -s '$D' '$L'"
-    }
-
+    #export RCLONE_S3_REGION=eu-west-1
+    #export RCLONE_S3_PROVIDER=AWS
+    #export RCLONE_S3_ENV_AUTH=true
     # Don't include repo.git, since we can use the real, canonical one
-    copyToWeb --exclude /repo.git "$PAGES/" "chriswarbo.net:$D"
+    #with-aws-creds rclone sync "$PAGES" ":s3:www.chriswarbo.net/git/$NAME"
+    rsync --checksum --delete --ignore-times --progress --copy-unsafe-links \
+          --archive --exclude /repo.git "$PAGES/" "$DEST"
 
     # Edit repo link to point at canonical /git repo
-    # shellcheck disable=SC2029
-    CONTENT=$(ssh chriswarbo.net "cat '$D/index.html'")
-
-    # shellcheck disable=SC2029
-    echo "$CONTENT" | sed -e "s@repo.git@/git/$NAME.git@g" |
-      ssh chriswarbo.net "sudo tee '$D/index.html' > /dev/null"
-fi
-
-# Ensure we have a /git link to the /html pages
-# shellcheck disable=SC2029
-if ssh chriswarbo.net "test -h '$L'"
-then
-    # shellcheck disable=SC2029
-    FOUND=$(ssh chriswarbo.net "readlink '$L'")
-    if [[ "$FOUND" = "$D" ]]
-    then
-        true
-    else
-        echo "WARNING: '$L' points to '$FOUND', not '$D'" 1>&2
-    fi
-else
-    echo "WARNING: '$L' is not a symlink to '$D'" 1>&2
+    sed -e "s@repo.git@/git/$NAME.git@g" -i "$DEST/index.html"
 fi
 
 # Ensure there's no snapshot
-F="$D/repo.git"
-
-# shellcheck disable=SC2029
-if ssh chriswarbo.net "test -e '$F'"
+F="$DEST/repo.git"
+if [[ -e "$F" ]]
 then
   echo "WARNING: Shouldn't have '$F', canonical URL should be used" 1>&2
 fi
 
 # Ensure we use canonical URL
 URL="/git/$NAME.git"
-  F="$D/index.html"
+  F="$DEST/index.html"
 
 # shellcheck disable=SC2029
-if ssh chriswarbo.net "cat $F" | grep -q "$URL"
+if grep -q "$URL" < "$F"
 then
     true
 else
