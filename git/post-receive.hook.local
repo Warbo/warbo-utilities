@@ -36,4 +36,15 @@ done
 
 #echo "Scheduling push to Web and IPFS" 1>&2
 #[[ -n "$IPFS_PATH" ]] || export IPFS_PATH=/var/lib/ipfs/.ipfs
-#ts pushGitPages "$PWD"
+if command -v ts > /dev/null
+then
+    ts pushGitPages "$PWD"
+else
+    if command -v tsp > /dev/null
+    then
+        ts pushGitPages "$PWD"
+    else
+        echo "TaskSpooler (ts/tsp) not found, building pages directly" 1>&2
+        pushGitPages "$PWD"
+    fi
+fi
