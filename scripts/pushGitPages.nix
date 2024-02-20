@@ -1,7 +1,7 @@
-{ bash, inNixedDir, raw, wrap, xmlstarlet }:
+{ bash, raw, wrap, xmlstarlet }:
 
 wrap {
   name = "pushgitpages";
-  paths = [ inNixedDir xmlstarlet ];
+  paths = [ xmlstarlet ];
   file = raw."pushGitPages.sh";
 }
