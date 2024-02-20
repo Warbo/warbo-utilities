@@ -26,7 +26,17 @@ then
     # Don't include repo.git, since we can use the real, canonical one
     #with-aws-creds rclone sync "$PAGES" ":s3:www.chriswarbo.net/git/$NAME"
     rsync --checksum --delete --ignore-times --progress --copy-unsafe-links \
-          --archive --exclude /repo.git "$PAGES/" "$DEST"
+          --archive --no-perms --no-owner --no-group \
+          --exclude /repo.git --exclude /branches/master "$PAGES/" "$DEST" || {
+        CODE="$?"
+        if [[ "$CODE" -eq 23 ]]
+        then
+            echo "Ignoring rsync error about attributes (it's S3's fault)" 1>&2
+        else
+            echo "Unexpected rsync problem, aborting" 1>&2
+            exit "$CODE"
+        fi
+    }
 
     # Edit repo link to point at canonical /git repo
     sed -e "s@repo.git@/git/$NAME.git@g" -i "$DEST/index.html"
