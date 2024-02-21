@@ -112,8 +112,6 @@ function render() {
 TICK='`'
 
 cat <<EOF
-# $repoName #
-
 *Last updated: $DATE*
 
 Upstream URL: [${TICK}git clone $REPO_LINK${TICK}]($REPO_LINK)
@@ -135,6 +133,7 @@ echo "Rendering..." 1>&2
 render | pandoc \
              --standalone \
              -f markdown \
+             --metadata title="$repoName" \
              -o "$htmlPath/index.pre.html"
 
 echo "Splicing in README" 1>&2
