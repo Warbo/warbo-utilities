@@ -52,6 +52,16 @@ mkdir -p "$htmlPath/git"
 #        Name           Source repo    Base URL        Destination
 git2html -p "$repoName" -r "$repoPath" -l "$REPO_LINK" "$htmlPath/git" 1>&2
 
+# We need to replace symlinks since S3 doesn't support them. This approach
+# duplicates all the files; there might be a nicer way using redirects...
+echo "Replacing symlinks in '$htmlPath/git'" 1>&2
+while read -r SYMLINK
+do
+    TARGET=$(readlink -f "$SYMLINK")
+    rm -v "$SYMLINK"
+    cp -r "$TARGET" "$SYMLINK"
+done < <(find "$htmlPath/git" -type l)
+
 echo "Generating pages from issue tracker" 1>&2
 mkdir "$htmlPath/issues"
 
