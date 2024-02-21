@@ -21,25 +21,23 @@ with rec {
         '';
       };
 
-      cleaner = with { py = python3.withPackages (p: [ p.bleach ]); };
-        wrap {
-          name = "cleaner.py";
-          paths = [ py ];
-          script = ''
-            #!${py}/bin/python3
-            import bleach
-            import sys
+      cleaner = wrap {
+        name = "cleaner.py";
+        script = ''
+          #!${python3.withPackages (p: [ p.bleach ])}/bin/python3
+          import bleach
+          import sys
 
-            print(bleach.clean(
-              sys.stdin.read(),
-              tags=['a', 'b', 'i', 'emph', 'strong', 'h1', 'h2', 'h3', 'h4',
-                    'img', 'p'],
-              attributes={
-                'a'   : ['href', 'rel'],
-                'img' : ['alt',  'src'],
-              }))
-          '';
-        };
+          print(bleach.clean(
+            sys.stdin.read(),
+            tags=['a', 'b', 'i', 'emph', 'strong', 'h1', 'h2', 'h3', 'h4',
+                  'img', 'p', 'code', 'pre', 'span', 'div'],
+            attributes={
+              'a'   : ['href', 'rel'],
+              'img' : ['alt',  'src'],
+            }))
+        '';
+      };
     };
   };
 
@@ -64,6 +62,10 @@ with rec {
       A [link](http://example.org).
 
       <script type="text/javascript">alert("XSS");</script>
+
+      <pre><code>Some code</code></pre>
+
+      <span />
     '';
   } ''
     mkdir home
@@ -108,6 +110,13 @@ with rec {
     [[ -e html/index.html          ]] || fail "No index.html"
     [[ -e html/git/index.html      ]] || fail "No git/index.html"
     [[ -e html/issues/threads.html ]] || fail "No issues/threads.html"
+
+    for CODE in '<code>Some' '<span'
+    do
+      grep "$CODE" < html/index.html || fail "HTML '$CODE' didn't survive"
+    done
+    < html/index.html | grep -v 'cloudflare' | grep '<script' &&
+      fail "Should've stripped '<script>' tag"
 
     mv html "$out"
   '';
