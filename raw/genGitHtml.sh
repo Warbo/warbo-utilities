@@ -146,20 +146,21 @@ rm "$READMEFILE"
 # Kill the working tree used by git2html
 rm -rf "$htmlPath/git/repository"
 
-echo "Cloning a snapshot of the repo" 1>&2
-git clone --bare "$repoPath" "$htmlPath/repo.git"
-pushd "$htmlPath/repo.git" 1>&2
-  # Unpack git data, so it dedupes better on IPFS
-  git repack -A -d
-  git update-server-info
-  MATCHES=$(find objects/pack -maxdepth 1 -name '*.pack' -print -quit)
-  if [[ -n "$MATCHES" ]]
-  then
-    cp objects/pack/*.pack .
-    git unpack-objects < ./*.pack
-    rm -f ./*.pack
-  fi
-popd 1>&2
+# TODO: Only useful with IPFS, etc.
+# echo "Cloning a snapshot of the repo" 1>&2
+# git clone --bare "$repoPath" "$htmlPath/repo.git"
+# pushd "$htmlPath/repo.git" 1>&2
+#   # Unpack git data, so it dedupes better on IPFS
+#   git repack -A -d
+#   git update-server-info
+#   MATCHES=$(find objects/pack -maxdepth 1 -name '*.pack' -print -quit)
+#   if [[ -n "$MATCHES" ]]
+#   then
+#     cp objects/pack/*.pack .
+#     git unpack-objects < ./*.pack
+#     rm -f ./*.pack
+#   fi
+# popd 1>&2
 
 echo "Removing mhonarc database" 1>&2
 rm -f "$htmlPath/issues/.mhonarc.db"
