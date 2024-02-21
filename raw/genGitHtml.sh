@@ -2,6 +2,10 @@
 set -eu
 shopt -s nullglob
 
+# WARNING: All messages, info, etc. should be sent to stderr. This is intended
+# for use with inNixedDir, which outputs its result path on stdout; anything we
+# send to stdout will be inherited, which will mess up the receiver of that path
+
 # Use Nix output directory, if requested
 
 if [[ -n "${htmlInOut:-}" ]]
@@ -58,7 +62,8 @@ echo "Replacing symlinks in '$htmlPath/git'" 1>&2
 while read -r SYMLINK
 do
     TARGET=$(readlink -f "$SYMLINK")
-    rm -v "$SYMLINK"
+    echo "Replacing '$SYMLINK' with a copy of '$TARGET'" 1>&2
+    rm -v "$SYMLINK" 1>&2
     cp -r "$TARGET" "$SYMLINK"
 done < <(find "$htmlPath/git" -type l)
 
