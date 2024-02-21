@@ -132,13 +132,16 @@ EOF
 }
 
 echo "Rendering..." 1>&2
-render | pandoc --standalone -f markdown -o "$htmlPath/index.html.pre"
+render | pandoc \
+             --standalone \
+             -f markdown \
+             -o "$htmlPath/index.pre.html"
 
 echo "Splicing in README" 1>&2
 # shellcheck disable=SC2154
-"$splicer" < "$htmlPath/index.html.pre" > "$htmlPath/index.html"
+"$splicer" < "$htmlPath/index.pre.html" > "$htmlPath/index.html"
 
-rm "$htmlPath/index.html.pre"
+rm "$htmlPath/index.pre.html"
 rm "$READMEFILE"
 
 # Kill the working tree used by git2html
