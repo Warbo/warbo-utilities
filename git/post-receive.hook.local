@@ -42,7 +42,7 @@ then
 else
     if command -v tsp > /dev/null
     then
-        ts pushGitPages "$PWD"
+        tsp pushGitPages "$PWD"
     else
         echo "TaskSpooler (ts/tsp) not found, building pages directly" 1>&2
         pushGitPages "$PWD"
