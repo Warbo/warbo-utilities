@@ -31,7 +31,7 @@ with rec {
           print(bleach.clean(
             sys.stdin.read(),
             tags=['a', 'b', 'i', 'emph', 'strong', 'h1', 'h2', 'h3', 'h4',
-                  'img', 'p', 'code', 'pre', 'span', 'div'],
+                  'img', 'p', 'code', 'pre', 'span', 'div', 'ul', 'ol', 'li'],
             attributes={
               'a'   : ['href', 'rel'],
               'img' : ['alt',  'src'],
@@ -64,6 +64,8 @@ with rec {
       <script type="text/javascript">alert("XSS");</script>
 
       <pre><code>Some code</code></pre>
+
+      <ul> <li>First</li> <li>Second</li> </ul>
 
       <span />
     '';
@@ -111,7 +113,7 @@ with rec {
     [[ -e html/git/index.html      ]] || fail "No git/index.html"
     [[ -e html/issues/threads.html ]] || fail "No issues/threads.html"
 
-    for CODE in '<code>Some' '<span'
+    for CODE in '<code>Some' '<span' '<ul>' '<li>'
     do
       grep "$CODE" < html/index.html || fail "HTML '$CODE' didn't survive"
     done
