@@ -10,6 +10,16 @@ cd "$1"
 
 NAME=$(basename "$PWD" .git)
 
+# S3 will delete empty directories, but git checks for their presence. Create
+# them if they don't exist.
+if [[ -e HEAD ]]  # Only make dirs in something that looks like a git repo!
+then
+    for D in refs/heads refs/tags objects/info
+    do
+        [[ -e "$D" ]] || mkdir -p "$D"
+    done
+fi
+
 PAGES=$(repoPath="$PWD" htmlInOut=1 inNixedDir genGitHtml)
 export PAGES
 DEST="$HOME/Drives/s3_repos/$NAME"
