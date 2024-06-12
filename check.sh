@@ -1,38 +1,37 @@
 #!/usr/bin/env bash
 set -e
 
+CODE=0
 function fail {
     echo "$*" 1>&2
-    exit 1
+    CODE=1
 }
 
 # Simple, quick sanity check. Useful as a git pre-commit hook.
-find . -name "*.nix" -type f | while read -r F
+while read -r F
 do
     echo "Checking '$F'" 1>&2
-    nix-instantiate --parse "$F" > /dev/null
-done
+    nix-instantiate --parse "$F" > /dev/null || fail "Couldn't instantiate '$F'"
+done < <(find . -name "*.nix" -type f)
 
 echo "Looking for dodgy path references" 1>&2
-find . -not -path '*/\.*' -name '*.nix' | while read -r F  # grep -R is slow
+while read -r F  # grep -R is slow
 do
     if grep '\.\./raw' < "$F"
     then
         echo "Don't use 'raw' as a path in '$F', use the 'raw' variable" 1>&2
-        echo "since that preserves relative paths between files."        1>&2
-        exit 1
+        fail "since that preserves relative paths between files."
     fi
-done
+done < <(find . -not -path '*/\.*' -name '*.nix')
 
 echo "Checking dependencies are up to date" 1>&2
 F="warbo-packages.nix"
 diff "$F" <(update-nix-fetchgit < "$F") || {
-    echo  "Out of date: $F"
-    exit 1
-} 1>&2
+    fail "Out of date: $F"
+}
 
 echo "Checking that haskell-nix derivations are cached" 1>&2
-grep -R -l 'haskell-nix' | grep '\.nix$' | while read -r F
+while read -r F
 do
     grep -q 'plan-sha256' < "$F" || {
         echo "File '$F' uses haskell-nix without caching a plan-sha256" 1>&2
@@ -86,4 +85,6 @@ do
         fail "Expected version '$FOUNDVERSION' in '$F', not found"
     unset FOUNDNAME
     unset FOUNDVERSION
-done
+done < <(grep -R -l 'haskell-nix' | grep '\.nix$')
+
+exit "$CODE"
