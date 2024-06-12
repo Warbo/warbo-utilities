@@ -17,6 +17,12 @@ do
     then
         nixfmt -w 80 -c "$F" || {
             fail "Unformatted '$F'"
+            if [[ -n "$REFORMAT" ]]
+            then
+                nixfmt -w 80 "$F"
+            else
+                echo "Set REFORMAT to auto-format" 1>&2
+            fi
         }
     fi
 done < <(find . -name "*.nix" -type f)
