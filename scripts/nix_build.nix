@@ -1,4 +1,8 @@
-{ bash, wrap, writeScript }:
+{
+  bash,
+  wrap,
+  writeScript,
+}:
 
 wrap {
   name = "nix_build";

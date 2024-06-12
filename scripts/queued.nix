@@ -1,7 +1,15 @@
-{ bash, raw, taskspooler, wrap }:
+{
+  bash,
+  raw,
+  taskspooler,
+  wrap,
+}:
 
 wrap {
   name = "queued";
-  paths = [ bash taskspooler ];
+  paths = [
+    bash
+    taskspooler
+  ];
   file = raw."queued.sh";
 }

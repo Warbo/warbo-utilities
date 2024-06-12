@@ -1,9 +1,19 @@
-{ alsaUtils, bash, raw, wrap }:
+{
+  alsaUtils,
+  bash,
+  raw,
+  wrap,
+}:
 
 wrap {
   name = "honk";
-  paths = [ alsaUtils bash ];
-  vars = { alert = raw."alert.wav"; };
+  paths = [
+    alsaUtils
+    bash
+  ];
+  vars = {
+    alert = raw."alert.wav";
+  };
   script = ''
     #!${bash}/bin/bash
     amixer sset Master unmute > /dev/null

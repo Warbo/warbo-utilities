@@ -1,8 +1,15 @@
-{ bash, iputils, wrap }:
+{
+  bash,
+  iputils,
+  wrap,
+}:
 
 wrap {
   name = "sysPing";
-  paths = [ bash iputils ];
+  paths = [
+    bash
+    iputils
+  ];
   script = ''
     #!${bash}/bin/bash
     set -e

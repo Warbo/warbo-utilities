@@ -1,9 +1,29 @@
-{ bash, coreutils, feed2maildirsimple, libxslt, mkBin, mu, openssl, procps
-, python3, raw, scripts, wget, wrap, writeScript, xidel, xmlstarlet }:
+{
+  bash,
+  coreutils,
+  feed2maildirsimple,
+  libxslt,
+  mkBin,
+  mu,
+  openssl,
+  procps,
+  python3,
+  raw,
+  scripts,
+  wget,
+  wrap,
+  writeScript,
+  xidel,
+  xmlstarlet,
+}:
 with rec {
   cleanUp = wrap {
     name = "clean-up-news";
-    paths = [ bash mu xidel ];
+    paths = [
+      bash
+      mu
+      xidel
+    ];
     script = ''
       #!${bash}/bin/bash
 
@@ -228,7 +248,11 @@ with rec {
 
   getRss = mkBin {
     name = "getRss";
-    paths = [ coreutils fixRss wget ];
+    paths = [
+      coreutils
+      fixRss
+      wget
+    ];
     script = ''
       #!${bash}/bin/bash
       ${get} "$2" | ${stripNonAscii} | fixRss "$1" > "$1.rss"
@@ -237,8 +261,15 @@ with rec {
 
   getAtom = mkBin {
     name = "getAtom";
-    paths = [ coreutils fixRss (libxslt.bin or libxslt) wget ];
-    vars = { xsl = raw."atom2rss-exslt.xsl"; };
+    paths = [
+      coreutils
+      fixRss
+      (libxslt.bin or libxslt)
+      wget
+    ];
+    vars = {
+      xsl = raw."atom2rss-exslt.xsl";
+    };
     script = ''
       #!${bash}/bin/bash
       ${get} "$2" | ${stripNonAscii} > "$1.atom"
@@ -258,7 +289,12 @@ with rec {
 
   rss = wrap {
     name = "pull_down_rss";
-    paths = [ bash getAtom getRss getYouTube ];
+    paths = [
+      bash
+      getAtom
+      getRss
+      getYouTube
+    ];
     script = ''
       #!${bash}/bin/bash
       set -e
@@ -298,7 +334,11 @@ with rec {
 
 wrap {
   name = "get-news-start";
-  paths = [ bash mu procps ];
+  paths = [
+    bash
+    mu
+    procps
+  ];
   vars = {
     inherit cleanUp convert rss;
     inherit (scripts) sysPing;

@@ -1,4 +1,10 @@
-{ checkedRacket, fetchFromGitHub, racketWithPackages, wrap, xclip }:
+{
+  checkedRacket,
+  fetchFromGitHub,
+  racketWithPackages,
+  wrap,
+  xclip,
+}:
 
 with {
   racket = racketWithPackages.override { racket = checkedRacket; } [
@@ -12,7 +18,10 @@ with {
 };
 wrap {
   name = "unfreeze_emacs";
-  paths = [ racket xclip ];
+  paths = [
+    racket
+    xclip
+  ];
   script = ''
     #!${racket}/bin/racket
     #lang racket

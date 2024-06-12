@@ -1,8 +1,15 @@
-{ bash, iptables, wrap }:
+{
+  bash,
+  iptables,
+  wrap,
+}:
 
 wrap {
   name = "phone";
-  paths = [ bash iptables ];
+  paths = [
+    bash
+    iptables
+  ];
   script = ''
     #!${bash}/bin/bash
     set -e

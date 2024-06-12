@@ -1,12 +1,23 @@
-{ bash, dtach, dvtm, wrap }:
+{
+  bash,
+  dtach,
+  dvtm,
+  wrap,
+}:
 
 wrap {
   name = "shell";
-  paths = [ bash dtach ];
+  paths = [
+    bash
+    dtach
+  ];
   vars = {
     sesh = wrap {
       name = "sesh";
-      paths = [ bash dvtm ];
+      paths = [
+        bash
+        dvtm
+      ];
       script = ''
         #!${bash}/bin/bash
         exec dvtm -M -m ^b

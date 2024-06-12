@@ -1,4 +1,8 @@
-{ bash, most, wrap }:
+{
+  bash,
+  most,
+  wrap,
+}:
 
 wrap {
   name = "pager";

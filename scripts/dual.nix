@@ -1,4 +1,8 @@
-{ bash, raw, wrap }:
+{
+  bash,
+  raw,
+  wrap,
+}:
 
 wrap {
   name = "dual";

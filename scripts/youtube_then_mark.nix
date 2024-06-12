@@ -1,4 +1,9 @@
-{ bash, raw, scripts, wrap }:
+{
+  bash,
+  raw,
+  scripts,
+  wrap,
+}:
 
 wrap {
   name = "youtube_then_mark";

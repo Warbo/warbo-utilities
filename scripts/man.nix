@@ -1,4 +1,8 @@
-{ bash, pkgs, wrap }:
+{
+  bash,
+  pkgs,
+  wrap,
+}:
 
 wrap {
   name = "man";

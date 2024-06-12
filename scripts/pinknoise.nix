@@ -1,4 +1,8 @@
-{ bash, sox, writeScript }:
+{
+  bash,
+  sox,
+  writeScript,
+}:
 
 writeScript "pinknoise" ''
   #!${bash}/bin/bash

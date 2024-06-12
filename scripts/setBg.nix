@@ -1,8 +1,15 @@
-{ bash, feh, wrap }:
+{
+  bash,
+  feh,
+  wrap,
+}:
 
 wrap {
   name = "setBg";
-  paths = [ bash feh ];
+  paths = [
+    bash
+    feh
+  ];
   script = ''
     #!${bash}/bin/bash
     PIC="$HOME/Pictures/Backgrounds/01141_hal9000_1280x1024.jpg"

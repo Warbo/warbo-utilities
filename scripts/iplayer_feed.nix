@@ -1,8 +1,17 @@
-{ bash, wget, wrap, xidel }:
+{
+  bash,
+  wget,
+  wrap,
+  xidel,
+}:
 
 wrap {
   name = "iplayer";
-  paths = [ bash wget xidel ];
+  paths = [
+    bash
+    wget
+    xidel
+  ];
   script = ''
     #!${bash}/bin/bash
     set -e

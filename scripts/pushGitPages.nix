@@ -1,4 +1,9 @@
-{ bash, raw, wrap, xmlstarlet }:
+{
+  bash,
+  raw,
+  wrap,
+  xmlstarlet,
+}:
 
 wrap {
   name = "pushgitpages";

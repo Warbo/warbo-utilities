@@ -1,7 +1,17 @@
-{ bash, git, jq, raw, wrap }:
+{
+  bash,
+  git,
+  jq,
+  raw,
+  wrap,
+}:
 
 wrap {
   name = "trackGit";
   file = raw."trackGit.sh";
-  paths = [ bash git jq ];
+  paths = [
+    bash
+    git
+    jq
+  ];
 }

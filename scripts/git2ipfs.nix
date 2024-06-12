@@ -1,4 +1,11 @@
-{ attrsToDirs, bash, ipfs, runCommand, wrap, writeScript }:
+{
+  attrsToDirs,
+  bash,
+  ipfs,
+  runCommand,
+  wrap,
+  writeScript,
+}:
 
 with rec {
   ipfsBin = wrap {
@@ -17,7 +24,13 @@ with rec {
 };
 wrap {
   name = "git2ipfs";
-  paths = [ (attrsToDirs { bin = { inherit ipfsBin; }; }) ];
+  paths = [
+    (attrsToDirs {
+      bin = {
+        inherit ipfsBin;
+      };
+    })
+  ];
   script = ''
     #!${bash}/bin/bash
     set -e

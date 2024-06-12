@@ -1,7 +1,17 @@
-{ artemis, bash, git, raw, wrap }:
+{
+  artemis,
+  bash,
+  git,
+  raw,
+  wrap,
+}:
 
 wrap {
   name = "artemis";
   file = raw.artemis;
-  paths = [ artemis bash git ];
+  paths = [
+    artemis
+    bash
+    git
+  ];
 }
