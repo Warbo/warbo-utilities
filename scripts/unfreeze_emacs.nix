@@ -1,5 +1,4 @@
 {
-  checkedRacket,
   fetchFromGitHub,
   racketWithPackages,
   wrap,
@@ -7,7 +6,7 @@
 }:
 
 with {
-  racket = racketWithPackages.override { racket = checkedRacket; } [
+  racket = racketWithPackages [
     (fetchFromGitHub {
       owner = "willghatch";
       repo = "racket-shell-pipeline";
