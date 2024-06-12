@@ -5,6 +5,7 @@ CODE=0
 function fail {
     echo "$*" 1>&2
     CODE=1
+    [[ -z "$FAILFAST" ]] || exit "$CODE"
 }
 
 # Simple, quick sanity check. Useful as a git pre-commit hook.
