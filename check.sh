@@ -13,6 +13,12 @@ while read -r F
 do
     echo "Checking '$F'" 1>&2
     nix-instantiate --parse "$F" > /dev/null || fail "Couldn't instantiate '$F'"
+    if command -v nixfmt > /dev/null
+    then
+        nixfmt -w 80 -c "$F" || {
+            fail "Unformatted '$F'"
+        }
+    fi
 done < <(find . -name "*.nix" -type f)
 
 echo "Looking for dodgy path references" 1>&2
