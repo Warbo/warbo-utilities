@@ -1,5 +1,5 @@
 {
-  alsaUtils,
+  alsa-utils,
   bash,
   raw,
   wrap,
@@ -8,7 +8,7 @@
 wrap {
   name = "honk";
   paths = [
-    alsaUtils
+    alsa-utils
     bash
   ];
   vars = {
