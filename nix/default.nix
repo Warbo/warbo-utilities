@@ -15,7 +15,7 @@ with rec {
     substring
     ;
 
-  inherit (resolved.nixpkgs-lib) escapeShellArg foldl;
+  inherit (resolved.nixpkgs-lib) cleanSource escapeShellArg foldl;
 
   inherit (resolved.nix-helpers)
     attrsToDirs
@@ -164,5 +164,5 @@ withDeps (attrValues check) (
     nixpkgs-lib
     warbo-packages
   ;
-  warbo-utilities-src = ./..;
+  warbo-utilities-src = cleanSource ./..;
 }
