@@ -36,7 +36,7 @@ with rec {
     shellcheck
     ;
 
-  resolved = import ./warbo-packages.nix {
+  resolved = import ./bootstrap.nix {
     inherit nix-helpers nixpkgs nixpkgs-lib warbo-packages warbo-packages-tree;
   };
 
@@ -48,7 +48,7 @@ with rec {
       raw = mapAttrs (
         name: entry:
         if isAttrs entry then
-          ./raw + "/${name}"
+          ../raw + "/${name}"
         else if
           elem name [
             "alert.wav"
@@ -61,20 +61,20 @@ with rec {
             inherit name;
             file = entry;
           }
-      ) (dirsToAttrs ./raw);
+      ) (dirsToAttrs ../raw);
 
       scripts = warbo-utilities-scripts;
     };
 
-  scripts = mapAttrs (_: f: newScope extraArgs f { }) (nixFilesIn ./scripts);
+  scripts = mapAttrs (_: f: newScope extraArgs f { }) (nixFilesIn ../scripts);
 
   cmds =
     foldl (rest: dir: rest // mapAttrs (f: _: dir + "/${f}") (readDir dir)) { }
       [
-        ./system
-        ./web
-        ./git
-        ./docs
+        ../system
+        ../web
+        ../git
+        ../docs
       ];
 
   check = mapAttrs (
@@ -164,5 +164,5 @@ withDeps (attrValues check) (
     nixpkgs-lib
     warbo-packages
   ;
-  warbo-utilities-src = ./.;
+  warbo-utilities-src = ./..;
 }
