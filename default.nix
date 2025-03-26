@@ -1,10 +1,10 @@
 {
-  nix-helpers ? warbo-packages.nix-helpers,
-  nixpkgs ? nix-helpers.nixpkgs,
-  nixpkgs-lib ? nix-helpers.nixpkgs-lib,
-  warbo-packages ? import ./warbo-packages.nix,
+  nix-helpers ? null,
+  nixpkgs ? null,
+  nixpkgs-lib ? null,
+  warbo-packages ? null,
+  warbo-packages-tree ? { sha1 = "946a6e985316bc687c0e5011dc1fdcdda21688f4"; }
 }:
-
 with rec {
   inherit (builtins)
     attrValues
@@ -15,9 +15,9 @@ with rec {
     substring
     ;
 
-  inherit (nixpkgs-lib) escapeShellArg foldl;
+  inherit (resolved.nixpkgs-lib) escapeShellArg foldl;
 
-  inherit (nix-helpers)
+  inherit (resolved.nix-helpers)
     attrsToDirs
     dirsToAttrs
     fail
@@ -28,7 +28,7 @@ with rec {
     withDeps
     ;
 
-  inherit (nixpkgs)
+  inherit (resolved.nixpkgs)
     bash
     makeWrapper
     newScope
@@ -36,10 +36,14 @@ with rec {
     shellcheck
     ;
 
+  resolved = import ./warbo-packages.nix {
+    inherit nix-helpers nixpkgs nixpkgs-lib warbo-packages warbo-packages-tree;
+  };
+
   # Let scripts depend on each other by adding 'bin' to the argument set
   extraArgs =
-    nix-helpers
-    // warbo-packages
+    resolved.nix-helpers
+    // resolved.warbo-packages
     // {
       raw = mapAttrs (
         name: entry:
@@ -152,11 +156,13 @@ withDeps (attrValues check) (
 // {
   inherit
     cmds
+    scripts
+  ;
+  inherit (resolved)
     nix-helpers
     nixpkgs
     nixpkgs-lib
-    scripts
     warbo-packages
-    ;
+  ;
   warbo-utilities-src = ./.;
 }
