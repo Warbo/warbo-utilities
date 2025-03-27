@@ -12,7 +12,8 @@ with rec {
     warbo-packages =
       if warbo-packages == null
       then import (fetch warbo-packages-tree)
-        ((if nix-helpers == null then {} else { inherit nix-helpers; }) //
+        ({ fetchGitIPFS = fetch; } //
+         (if nix-helpers == null then {} else { inherit nix-helpers; }) //
          (if nixpkgs == null then {} else { inherit nixpkgs; }) //
          (if nixpkgs-lib == null then {} else { inherit nixpkgs-lib; }))
       else warbo-packages;
