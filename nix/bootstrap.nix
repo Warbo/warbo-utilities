@@ -1,4 +1,5 @@
-{ nix-helpers ? null
+{ fetchGitIPFS ? null
+, nix-helpers ? null
 , nixpkgs ? null
 , nixpkgs-lib ? null
 , warbo-packages ? null
@@ -10,7 +11,7 @@ with rec {
   resolved = {
     warbo-packages =
       if warbo-packages == null
-      then import (fetchGitIPFS warbo-packages-tree)
+      then import (fetch warbo-packages-tree)
         ((if nix-helpers == null then {} else { inherit nix-helpers; }) //
          (if nixpkgs == null then {} else { inherit nixpkgs; }) //
          (if nixpkgs-lib == null then {} else { inherit nixpkgs-lib; }))
@@ -74,6 +75,9 @@ with rec {
     then raw
     else (raw { pkgs = nixpkgs; }).fetchGitIPFS;
 
-  fetchGitIPFS = nix-helpers.fetchGitIPFS or boot_fetchGitIPFS;
+  fetch =
+    if fetchGitIPFS == null
+    then nix-helpers.fetchGitIPFS or boot_fetchGitIPFS
+    else fetchGitIPFS;
 };
 resolved

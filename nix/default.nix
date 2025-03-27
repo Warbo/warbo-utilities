@@ -1,4 +1,5 @@
 {
+  fetchGitIPFS ? null,
   nix-helpers ? null,
   nixpkgs ? null,
   nixpkgs-lib ? null,
@@ -37,7 +38,9 @@ with rec {
     ;
 
   resolved = import ./bootstrap.nix {
-    inherit nix-helpers nixpkgs nixpkgs-lib warbo-packages warbo-packages-tree;
+    inherit
+      fetchGitIPFS nix-helpers nixpkgs nixpkgs-lib warbo-packages
+      warbo-packages-tree;
   };
 
   # Let scripts depend on each other by adding 'bin' to the argument set
