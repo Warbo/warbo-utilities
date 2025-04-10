@@ -24,8 +24,6 @@ PAGES=$(repoPath="$PWD" htmlInOut=1 inNixedDir genGitHtml)
 export PAGES
 DEST="$HOME/Drives/s3_repos/$NAME"
 
-git2ipfs "$PWD" || echo "Failed to push to IPFS, carrying on anyway..." 1>&2
-
 if [[ -n "$PAGES" ]]
 then
     echo "Pushing '$PAGES' to Web" 1>&2
