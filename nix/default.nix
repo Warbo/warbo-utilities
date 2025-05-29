@@ -4,7 +4,7 @@
   nixpkgs ? null,
   nixpkgs-lib ? null,
   warbo-packages ? null,
-  warbo-packages-tree ? { sha1 = "70e06b86e626770e82d47a082905e1488cbff613"; }
+  warbo-packages-tree ? { sha1 = "7eb749ff19f967751b2b44d0ded8f542943694da"; }
 }:
 with rec {
   inherit (builtins)
