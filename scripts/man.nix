@@ -23,7 +23,7 @@ with rec {
   '';
 };
 
-  tests = {
+  tests = builtins.attrValues {
     simpleTest = runCommand "man-simple-test" {} ''
       echo "Running simple test"
       true
@@ -31,5 +31,4 @@ with rec {
     '';
   };
 };
-
 withDeps tests man
