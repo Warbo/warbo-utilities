@@ -29,6 +29,22 @@ with rec {
       true
       mkdir $out
     '';
+
+    # Test scenario: Running outside of Emacs
+    outsideEmacsTest = runCommand "man-outside-emacs-test" {} ''
+      echo "Running outside Emacs test"
+      # TODO: Add assertions to check if the standard 'man' command is executed
+      true
+      mkdir $out
+    '';
+
+    # Test scenario: Running inside Emacs
+    insideEmacsTest = runCommand "man-inside-emacs-test" {} ''
+      echo "Running inside Emacs test"
+      # TODO: Add assertions to check if 'emacsclient' is executed
+      true
+      mkdir $out
+    '';
   };
 };
 withDeps tests man
