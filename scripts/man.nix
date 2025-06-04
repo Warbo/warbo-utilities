@@ -20,8 +20,9 @@ with rec {
       if [[ -n "''${INSIDE_EMACS:-}" ]]
       then
         # We're in Emacs, open this man page in Emacs's viewer
-        # Use cl-letf to temporarily set manual-program to the Nix-provided man binary
-        emacsclient -e "(cl-letf ((manual-program \"$REAL\")) (man \"$1\"))"
+        # We're in Emacs, open this man page in Emacs's viewer
+        # Temporarily set manual-program using setq within unwind-protect
+        emacsclient -e "(let ((original-manual-program manual-program)) (unwind-protect (progn (setq manual-program \"$REAL\") (man \"$1\")) (setq manual-program original-manual-program)))"
       else
         # We're outside Emacs, use the normal man binary
         exec "$REAL" "$@"
