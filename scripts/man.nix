@@ -21,7 +21,7 @@ with rec {
       then
         # We're in Emacs, open this man page in Emacs's viewer
         # Use cl-letf to temporarily set manual-program to the Nix-provided man binary
-        emacsclient -e "(cl-letf (((manual-program \"$REAL\"))) (man \"$1\"))"
+        emacsclient -e "(cl-letf ((manual-program \"$REAL\")) (man \"$1\"))"
       else
         # We're outside Emacs, use the normal man binary
         exec "$REAL" "$@"
