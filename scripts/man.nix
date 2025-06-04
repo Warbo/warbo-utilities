@@ -1,15 +1,18 @@
 {
   bash,
   pkgs,
+  runCommand,
+  withDeps,
   wrap,
 }:
 
-wrap {
-  name = "man";
-  script = ''
-    #!${bash}/bin/bash
-    REAL=${pkgs.man}/bin/man
-    if [[ -n "$INSIDE_EMACS" ]]
+with rec {
+  man = wrap {
+    name = "man";
+    script = ''
+      #!${bash}/bin/bash
+      REAL=${pkgs.man}/bin/man
+      if [[ -n "$INSIDE_EMACS" ]]
     then
       # We're in Emacs, open this man page in Emacs's viewer
       emacsclient -e "(progn (require 'cl-lib) (cl-letf (((\"$REAL\" 'manual-program) (man \"$1\")))))"
@@ -18,4 +21,15 @@ wrap {
       exec "$REAL" "$@"
     fi
   '';
-}
+};
+
+  tests = {
+    simpleTest = runCommand "man-simple-test" {} ''
+      echo "Running simple test"
+      true
+      mkdir $out
+    '';
+  };
+};
+
+withDeps tests man
