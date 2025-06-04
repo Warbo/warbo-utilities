@@ -20,7 +20,8 @@ with rec {
       if [[ -n "''${INSIDE_EMACS:-}" ]]
       then
         # We're in Emacs, open this man page in Emacs's viewer
-        emacsclient -e "(progn (require 'cl-lib) (cl-letf ((('manual-program \"$REAL\") (man \"$1\")))))"
+        # Use cl-letf to temporarily set manual-program to the Nix-provided man binary
+        emacsclient -e "(cl-letf (((manual-program \"$REAL\"))) (man \"$1\"))"
       else
         # We're outside Emacs, use the normal man binary
         exec "$REAL" "$@"
@@ -56,6 +57,7 @@ with rec {
       with {
         testScript = writeShellScript "man-test-emacsclient.sh" ''
           set -e
+          export HOME="$PWD" # Provide a home directory for Emacs
           emacs --daemon &
           EMACS_PID=$!
           trap "emacsclient -e '(kill-emacs)' || kill $EMACS_PID" EXIT
