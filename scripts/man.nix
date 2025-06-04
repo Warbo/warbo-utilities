@@ -84,31 +84,45 @@ with rec {
             exit 1
           } 1>&2
 
-          INSIDE_EMACS=t ${man} ls || {
-            echo "Error: man script failed when run inside Emacs simulation"
+          # Simulate running inside Emacs and call the man script with 'ls'
+          echo "Running man script inside simulated Emacs..." 1>&2
+          # Run the man script, which calls emacsclient -e '(man "ls")'
+          # Redirect its output to stderr or /dev/null to avoid interfering with the buffer check
+          INSIDE_EMACS=t ${man} ls >&2 || { # Redirect stdout to stderr
+            echo "Error: man script failed when run inside Emacs simulation" 1>&2
             exit 1
-          } 1>&2
-          sleep 2 # Adjust if needed
+          }
 
-          # Should output #<buffer *Man ls*> or similar if it exists, else nil
-          buffer_output=$(emacsclient -e '(get-buffer "*Man ls*")')
+          # Poll for the *Man ls* buffer
+          echo "Polling for *Man ls* buffer..." 1>&2
+          BUFFER_FOUND=0
+          for i in {1..15}; do # Poll up to 15 times with 1-second delay
+            # Capture output of get-buffer, discard its stderr
+            buffer_output=$(emacsclient -e '(get-buffer "*Man ls*")' 2>/dev/null)
+            if echo "$buffer_output" | ${gnugrep}/bin/grep -q "#<buffer"; then
+              echo "*Man ls* buffer found after $i attempts." 1>&2
+              BUFFER_FOUND=1
+              break
+            fi
+            printf '.' 1>&2 # Print a dot for each attempt
+            sleep 1
+          done 1>&2 # Redirect printf output to stderr
 
-          echo "Looking for Man buffer" 1>&2
-          if echo "$buffer_output" | ${gnugrep}/bin/grep -q "#<buffer"; then
-            echo "Buffer found." 1>&2
-          else
-            echo "Error: buffer not found in output:" 1>&2
-            echo "'$buffer_output'" 1>&2
+          if [ "$BUFFER_FOUND" -eq 0 ]; then
+            echo "Error: *Man ls* buffer not found after timeout." 1>&2
+            echo "Last emacsclient output for get-buffer: '$buffer_output'" 1>&2
             exit 1
           fi
-          true
+
+          echo "Inside Emacs test passed." 1>&2
+          mkdir "$out" # Create the output directory to mark success
         '';
       };
       runCommand "man-inside-emacs-test"
         {
           buildInputs = [ coreutils emacs gnugrep ];
         }
-        ''${testScript} && mkdir "$out"'';
+        ''${testScript} && mkdir "$out"''; # Execute the script and create output dir
   };
 };
 withDeps tests man
