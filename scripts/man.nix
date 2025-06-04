@@ -20,9 +20,15 @@ with rec {
       if [[ -n "''${INSIDE_EMACS:-}" ]]
       then
         # We're in Emacs, open this man page in Emacs's viewer
-        # We're in Emacs, open this man page in Emacs's viewer
-        # Temporarily set manual-program using setq within unwind-protect
-        emacsclient -e "(let ((original-manual-program manual-program)) (unwind-protect (progn (setq manual-program \"$REAL\") (man \"$1\")) (setq manual-program original-manual-program)))"
+        # We can't override manual-program using let, since it's lexical
+        emacsclient -e "(progn
+                          (require 'man)
+                          (let ((old manual-program))
+                            (unwind-protect
+                              (progn
+                                (setq manual-program \"$REAL\")
+                                (man \"$1\"))
+                              (setq manual-program old))))"
       else
         # We're outside Emacs, use the normal man binary
         exec "$REAL" "$@"
@@ -85,12 +91,14 @@ with rec {
           sleep 2 # Adjust if needed
 
           # Should output #<buffer *Man ls*> or similar if it exists, else nil
+          buffer_output=$(emacsclient -e '(get-buffer "*Man ls*")')
+
           echo "Looking for Man buffer" 1>&2
-          if emacsclient -e '(get-buffer "*Man ls*")' | grep "#<buffer" 1>&2
-          then
+          if echo "$buffer_output" | ${gnugrep}/bin/grep -q "#<buffer"; then
             echo "Buffer found." 1>&2
           else
-            echo "Error: *Man ls* buffer not found." 1>&2
+            echo "Error: buffer not found in output:" 1>&2
+            echo "'$buffer_output'" 1>&2
             exit 1
           fi
           true
