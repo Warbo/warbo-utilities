@@ -8,7 +8,7 @@ usage() {
             echo "$msg"
         done
         echo "Usage: $0 <github_url>"
-        echo "Supported formats:"
+        echo "Supported github urls:"
         echo "  https://api.github.com/repos/<owner>/<repo>/commits/<hash_or_branch>"
         echo "  https://github.com/<owner>/<repo>/commit/<hash>"
         echo "  https://github.com/<owner>/<repo>/tree/<branch>"
