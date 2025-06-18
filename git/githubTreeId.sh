@@ -103,9 +103,14 @@ fi
 # Construct the JSON output using a single jq command
 # Pass all potential values and let jq decide whether to use commit_ref as branch or null
 jq -n \
-    --arg owner "$owner_repo" \
-    --arg commit "$fetched_commit_sha" \
-    --arg tree "$tree_sha" \
-    --arg commit_ref_val "$commit_ref" \
-    --argjson is_branch_flag "$is_branch" \
-    '{owner: $owner, commit: $commit, tree: $tree, branch: (if $is_branch_flag == true then $commit_ref_val else null end)}'
+   --arg owner "$owner_repo" \
+   --arg commit "$fetched_commit_sha" \
+   --arg tree "$tree_sha" \
+   --arg commit_ref_val "$commit_ref" \
+   --argjson is_branch_flag "$is_branch" \
+   '{
+        owner: $owner,
+        commit: $commit,
+        tree: $tree,
+        branch: (if $is_branch_flag == true then $commit_ref_val else null end)
+    }'
