@@ -1,15 +1,19 @@
 #!/usr/bin/env bash
 set -e
 
-url="$1" # Get the first argument
-
-if [[ -z "$url" ]]; then
+usage() {
     echo "Usage: $0 <github_url>" >&2
     echo "Supported formats:" >&2
     echo "  https://api.github.com/repos/owner/repo/commits/hash_or_branch" >&2
     echo "  https://github.com/owner/repo/commit/hash" >&2
     echo "  https://github.com/owner/repo/tree/branch" >&2
     echo "  https://github.com/owner/repo (fetches default branch)" >&2
+}
+
+url="$1" # Get the first argument
+
+if [[ -z "$url" ]]; then
+    usage
     exit 1
 fi
 
@@ -47,20 +51,12 @@ elif [[ "$url" =~ ^https://github\.com/([^/]+/[^/]+) ]]; then
         api_url="https://api.github.com/repos/${owner_repo}/commits/${commit_ref}"
     else
         echo "Error: Unrecognized GitHub URL format: $url" >&2
-        echo "Supported formats:" >&2
-        echo "  https://api.github.com/repos/owner/repo/commits/hash_or_branch" >&2
-        echo "  https://github.com/owner/repo/commit/hash" >&2
-        echo "  https://github.com/owner/repo/tree/branch" >&2
-        echo "  https://github.com/owner/repo (fetches default branch)" >&2
+        usage
         exit 1
     fi
 else
     echo "Error: Unrecognized URL format: $url" >&2
-    echo "Supported formats:" >&2
-    echo "  https://api.github.com/repos/owner/repo/commits/hash_or_branch" >&2
-    echo "  https://github.com/owner/repo/commit/hash" >&2
-    echo "  https://github.com/owner/repo/tree/branch" >&2
-    echo "  https://github.com/owner/repo (fetches default branch)" >&2
+    usage
     exit 1
 fi
 
