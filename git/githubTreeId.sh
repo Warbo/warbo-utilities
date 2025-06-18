@@ -58,7 +58,8 @@ elif [[ "$url" =~ ^https://github\.com/([^/]+/[^/]+) ]]; then
             # Optionally check if repo_info was empty or an error message from curl/github
             if [[ -z "$repo_info" ]]; then
                  echo "Error: Received empty response from $repo_api_url" >&2
-            elif echo "$repo_info" | jq -e '.message' >/dev/null; then
+            # Check if the response contains a '.message' field, indicating a GitHub API error
+            elif echo "$repo_info" | jq -e 'has("message")' >/dev/null; then
                  echo "Error: GitHub API returned error: $(echo "$repo_info" | jq -r '.message')" >&2
             fi
             exit 1
