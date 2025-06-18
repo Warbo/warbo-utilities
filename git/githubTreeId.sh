@@ -47,8 +47,13 @@ elif [[ "$url" =~ ^https://github\.com/([^/]+/[^/]+) ]]; then
         repo_api_url="https://api.github.com/repos/${owner_repo}"
         repo_info=$(curl -s "$repo_api_url")
         # Use jq -re to extract default_branch and exit non-zero if null/empty
-        default_branch=$(echo "$repo_info" | jq -re '.default_branch')
-        if [ $? -ne 0 ]; then
+        if default_branch=$(echo "$repo_info" | jq -re '.default_branch'); then
+            # Success: default_branch was set and jq exited 0
+            commit_ref="$default_branch"
+            api_url="https://api.github.com/repos/${owner_repo}/commits/${commit_ref}"
+            is_branch=true
+        else
+            # Failure: jq exited non-zero (null or empty)
             echo "Error: Could not determine default branch for $owner_repo (jq extraction failed)" >&2
             # Optionally check if repo_info was empty or an error message from curl/github
             if [[ -z "$repo_info" ]]; then
@@ -58,9 +63,6 @@ elif [[ "$url" =~ ^https://github\.com/([^/]+/[^/]+) ]]; then
             fi
             exit 1
         fi
-        commit_ref="$default_branch"
-        api_url="https://api.github.com/repos/${owner_repo}/commits/${commit_ref}"
-        is_branch=true
     else
         echo "Error: Unrecognized GitHub URL format: $url" >&2
         usage
