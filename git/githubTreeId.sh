@@ -90,9 +90,7 @@ if [[ -z "$commit_info" ]]; then
     exit 1
 fi
 
-# Pipe commit_info into jq to extract and format the output
-# Use jq's error handling or check the output for nulls
-output_json=$(echo "$commit_info" | jq \
+echo "$commit_info" | jq \
    --arg owner "$owner_repo" \
    --arg commit_ref_val "$commit_ref" \
    --argjson is_branch_flag "$is_branch" \
@@ -101,4 +99,4 @@ output_json=$(echo "$commit_info" | jq \
         commit: .sha, # Access directly from input
         tree: .commit.tree.sha, # Access directly from input
         branch: (if $is_branch_flag == true then $commit_ref_val else null end)
-    }')
+    }'
