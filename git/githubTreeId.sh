@@ -46,9 +46,16 @@ elif [[ "$url" =~ ^https://github\.com/([^/]+/[^/]+) ]]; then
         # Fetch default branch
         repo_api_url="https://api.github.com/repos/${owner_repo}"
         repo_info=$(curl -s "$repo_api_url")
-        default_branch=$(echo "$repo_info" | jq -r '.default_branch')
-        if [[ "$default_branch" == "null" || -z "$default_branch" ]]; then
-            echo "Error: Could not determine default branch for $owner_repo" >&2
+        # Use jq -re to extract default_branch and exit non-zero if null/empty
+        default_branch=$(echo "$repo_info" | jq -re '.default_branch')
+        if [ $? -ne 0 ]; then
+            echo "Error: Could not determine default branch for $owner_repo (jq extraction failed)" >&2
+            # Optionally check if repo_info was empty or an error message from curl/github
+            if [[ -z "$repo_info" ]]; then
+                 echo "Error: Received empty response from $repo_api_url" >&2
+            elif echo "$repo_info" | jq -e '.message' >/dev/null; then
+                 echo "Error: GitHub API returned error: $(echo "$repo_info" | jq -r '.message')" >&2
+            fi
             exit 1
         fi
         commit_ref="$default_branch"
