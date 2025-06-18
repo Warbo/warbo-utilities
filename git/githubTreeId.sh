@@ -58,9 +58,10 @@ elif [[ "$url" =~ ^https://github\.com/([^/]+/[^/]+) ]]; then
             # Optionally check if repo_info was empty or an error message from curl/github
             if [[ -z "$repo_info" ]]; then
                  echo "Error: Received empty response from $repo_api_url" >&2
-            # Check if the response contains a '.message' field, indicating a GitHub API error
-            elif echo "$repo_info" | jq -e 'has("message")' >/dev/null; then
-                 echo "Error: GitHub API returned error: $(echo "$repo_info" | jq -r '.message')" >&2
+            # Print the full response for debugging if it's not empty
+            else
+                 echo "Error: Could not determine default branch for $owner_repo. Received response:" >&2
+                 echo "$repo_info" >&2
             fi
             exit 1
         fi
@@ -91,6 +92,11 @@ tree_sha=$(echo "$commit_info" | jq -r '.commit.tree.sha')
 if [[ "$fetched_commit_sha" == "null" || -z "$fetched_commit_sha" ]]; then
     echo "Error: Could not fetch commit details for $commit_ref on $owner_repo" >&2
     echo "API URL used: $api_url" >&2
+    # Print the full response for debugging if it's not empty
+    if [[ -n "$commit_info" ]]; then
+        echo "Received response:" >&2
+        echo "$commit_info" >&2
+    fi
     exit 1
 fi
 
