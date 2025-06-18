@@ -102,16 +102,10 @@ fi
 
 # Construct the JSON output using a single jq command
 # Pass all potential values and let jq decide whether to use commit_ref as branch or null
-jq_args=(
-    --arg owner "$owner_repo"
-    --arg commit "$fetched_commit_sha"
-    --arg tree "$tree_sha"
-    --arg commit_ref_val "$commit_ref"
-    --argjson is_branch_flag "$is_branch" # Pass the boolean flag as a JSON boolean
-)
-
-# Use a conditional expression in jq to set the branch field
-# Compare against the boolean value 'true' since is_branch_flag is now a boolean
-jq_expression='{owner: $owner, commit: $commit, tree: $tree, branch: (if $is_branch_flag == true then $commit_ref_val else null end)}'
-
-jq -n "${jq_args[@]}" "$jq_expression"
+jq -n \
+    --arg owner "$owner_repo" \
+    --arg commit "$fetched_commit_sha" \
+    --arg tree "$tree_sha" \
+    --arg commit_ref_val "$commit_ref" \
+    --argjson is_branch_flag "$is_branch" \
+    '{owner: $owner, commit: $commit, tree: $tree, branch: (if $is_branch_flag == true then $commit_ref_val else null end)}'
