@@ -84,33 +84,43 @@ fi
 # Now use the constructed api_url to fetch the commit details
 commit_info=$(curl -s "$api_url")
 
-# Extract the actual commit SHA and tree SHA from the response
-fetched_commit_sha=$(echo "$commit_info" | jq -r '.sha')
-tree_sha=$(echo "$commit_info" | jq -r '.commit.tree.sha')
-
-# Check if jq extraction failed (e.g., commit not found)
-if [[ "$fetched_commit_sha" == "null" || -z "$fetched_commit_sha" ]]; then
-    echo "Error: Could not fetch commit details for $commit_ref on $owner_repo" >&2
-    echo "API URL used: $api_url" >&2
-    # Print the full response for debugging if it's not empty
-    if [[ -n "$commit_info" ]]; then
-        echo "Received response:" >&2
-        echo "$commit_info" >&2
-    fi
+# Check if curl failed or returned empty
+if [[ -z "$commit_info" ]]; then
+    echo "Error: Received empty response from $api_url" >&2
     exit 1
 fi
 
-# Construct the JSON output using a single jq command
-# Pass all potential values and let jq decide whether to use commit_ref as branch or null
-jq -n \
+# Pipe commit_info into jq to extract and format the output
+# Use jq's error handling or check the output for nulls
+output_json=$(echo "$commit_info" | jq \
    --arg owner "$owner_repo" \
-   --arg commit "$fetched_commit_sha" \
-   --arg tree "$tree_sha" \
    --arg commit_ref_val "$commit_ref" \
    --argjson is_branch_flag "$is_branch" \
    '{
         owner: $owner,
-        commit: $commit,
-        tree: $tree,
+        commit: .sha, # Access directly from input
+        tree: .commit.tree.sha, # Access directly from input
         branch: (if $is_branch_flag == true then $commit_ref_val else null end)
-    }'
+    }')
+
+# Check if jq failed (e.g., invalid JSON input, or filter error)
+if [[ $? -ne 0 ]]; then
+    echo "Error: jq processing failed." >&2
+    echo "API URL used: $api_url" >&2
+    echo "Received response:" >&2
+    echo "$commit_info" >&2
+    exit 1
+fi
+
+# Check if the output JSON contains null for commit or tree (indicates commit not found or structure changed)
+# We can parse the output_json with jq again to check the fields
+if echo "$output_json" | jq -e '.commit == null or .tree == null' > /dev/null; then
+    echo "Error: Could not fetch commit details for $commit_ref on $owner_repo (commit or tree SHA missing in response)" >&2
+    echo "API URL used: $api_url" >&2
+    echo "Received response:" >&2
+    echo "$commit_info" >&2
+    exit 1
+fi
+
+# Print the final valid JSON output
+echo "$output_json"
