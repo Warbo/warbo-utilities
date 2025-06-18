@@ -20,12 +20,14 @@ fi
 api_url=""
 owner_repo=""
 commit_ref="" # Can be hash or branch name
+is_branch=false # Flag to indicate if commit_ref is a branch name
 
 if [[ "$url" =~ ^https://api\.github\.com/repos/([^/]+/[^/]+)/commits/([^/]+) ]]; then
     # Already an API URL for commits
     owner_repo=${BASH_REMATCH[1]}
     commit_ref=${BASH_REMATCH[2]}
-    api_url="$url"
+    # Cannot reliably determine if it's a branch or hash from API URL alone without another call
+    # We'll assume it's a hash unless it matches a known branch pattern later if needed, but for now, just use the ref.
 elif [[ "$url" =~ ^https://github\.com/([^/]+/[^/]+) ]]; then
     # Standard GitHub URL
     owner_repo=${BASH_REMATCH[1]}
@@ -38,17 +40,20 @@ elif [[ "$url" =~ ^https://github\.com/([^/]+/[^/]+) ]]; then
         # URL with branch/tag
         commit_ref=${BASH_REMATCH[1]}
         api_url="https://api.github.com/repos/${owner_repo}/commits/${commit_ref}"
+        is_branch=true
     elif [[ "$url" =~ ^https://github\.com/([^/]+/[^/]+)$ ]]; then
         # URL is just https://github.com/owner/repo
         # Fetch default branch
         repo_api_url="https://api.github.com/repos/${owner_repo}"
-        default_branch=$(curl -s "$repo_api_url" | jq -r '.default_branch')
+        repo_info=$(curl -s "$repo_api_url")
+        default_branch=$(echo "$repo_info" | jq -r '.default_branch')
         if [[ "$default_branch" == "null" || -z "$default_branch" ]]; then
             echo "Error: Could not determine default branch for $owner_repo" >&2
             exit 1
         fi
         commit_ref="$default_branch"
         api_url="https://api.github.com/repos/${owner_repo}/commits/${commit_ref}"
+        is_branch=true
     else
         echo "Error: Unrecognized GitHub URL format: $url" >&2
         usage
@@ -60,5 +65,32 @@ else
     exit 1
 fi
 
-# Now use the constructed api_url to fetch the commit and extract the tree sha
-curl -s "$api_url" | jq -r '.commit.tree.sha'
+# If api_url was not set by an API URL input, construct it now
+if [[ -z "$api_url" ]]; then
+    api_url="https://api.github.com/repos/${owner_repo}/commits/${commit_ref}"
+fi
+
+# Now use the constructed api_url to fetch the commit details
+commit_info=$(curl -s "$api_url")
+
+# Extract the actual commit SHA and tree SHA from the response
+fetched_commit_sha=$(echo "$commit_info" | jq -r '.sha')
+tree_sha=$(echo "$commit_info" | jq -r '.commit.tree.sha')
+
+# Check if jq extraction failed (e.g., commit not found)
+if [[ "$fetched_commit_sha" == "null" || -z "$fetched_commit_sha" ]]; then
+    echo "Error: Could not fetch commit details for $commit_ref on $owner_repo" >&2
+    echo "API URL used: $api_url" >&2
+    exit 1
+fi
+
+# Construct the JSON output
+json_output="{}"
+json_output=$(echo "$json_output" | jq --arg owner "$owner_repo" '.owner = $owner')
+if [ "$is_branch" = true ]; then
+    json_output=$(echo "$json_output" | jq --arg branch "$commit_ref" '.branch = $branch')
+fi
+json_output=$(echo "$json_output" | jq --arg commit "$fetched_commit_sha" '.commit = $commit')
+json_output=$(echo "$json_output" | jq --arg tree "$tree_sha" '.tree = $tree')
+
+echo "$json_output"
