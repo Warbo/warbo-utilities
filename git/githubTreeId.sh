@@ -84,13 +84,18 @@ if [[ "$fetched_commit_sha" == "null" || -z "$fetched_commit_sha" ]]; then
     exit 1
 fi
 
-# Construct the JSON output
-json_output="{}"
-json_output=$(echo "$json_output" | jq --arg owner "$owner_repo" '.owner = $owner')
-if [ "$is_branch" = true ]; then
-    json_output=$(echo "$json_output" | jq --arg branch "$commit_ref" '.branch = $branch')
-fi
-json_output=$(echo "$json_output" | jq --arg commit "$fetched_commit_sha" '.commit = $commit')
-json_output=$(echo "$json_output" | jq --arg tree "$tree_sha" '.tree = $tree')
+# Construct the JSON output using a single jq command
+jq_args=(
+    --arg owner "$owner_repo"
+    --arg commit "$fetched_commit_sha"
+    --arg tree "$tree_sha"
+)
 
-echo "$json_output"
+jq_expression='{owner: $owner, commit: $commit, tree: $tree}'
+
+if [ "$is_branch" = true ]; then
+    jq_args+=(--arg branch "$commit_ref")
+    jq_expression='{owner: $owner, branch: $branch, commit: $commit, tree: $tree}'
+fi
+
+jq -n "${jq_args[@]}" "$jq_expression"
