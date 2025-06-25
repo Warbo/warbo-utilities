@@ -1,15 +1,13 @@
 {
   coreutils,
-  scripts, # Add 'scripts' to the arguments
   raw,
-  writeShellApplication,
+  writeShellApplication
 }:
 
 "${
   writeShellApplication {
     name = "with-aws-creds";
-    runtimeInputs = [
-      scripts.aws-login # Access aws-login from the 'scripts' attribute
+    runtimeInputs = [ # aws-login will be in PATH via the warbo-utilities wrapper
       coreutils
     ];
     text = builtins.readFile raw."with-aws-creds.sh";
