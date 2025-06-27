@@ -37,27 +37,27 @@ with rec {
   };
 
   tests = builtins.attrValues {
-    outsideEmacsUsesNormalMan = runCommand "man-outside-emacs-test"
-      { buildInputs = [ gnugrep ]; }
-      ''
-        unset INSIDE_EMACS
-        output=$(${man} --version 2>&1) || {
-          echo "Error: Running man gave non-zero status '$?'"
-          echo "Output:"
-          echo "$output"
-          exit 1
-        } 1>&2
+    outsideEmacsUsesNormalMan =
+      runCommand "man-outside-emacs-test" { buildInputs = [ gnugrep ]; }
+        ''
+          unset INSIDE_EMACS
+          output=$(${man} --version 2>&1) || {
+            echo "Error: Running man gave non-zero status '$?'"
+            echo "Output:"
+            echo "$output"
+            exit 1
+          } 1>&2
 
-        # Exact output might vary, but should have "man-db" or "version"
-        echo "$output" | grep -q "man-db\|version" || {
-          echo "Error: Output doesn't look like real 'man' command"
-          echo "Output:"
-          echo "$output"
-          exit 1
-        } 1>&2
+          # Exact output might vary, but should have "man-db" or "version"
+          echo "$output" | grep -q "man-db\|version" || {
+            echo "Error: Output doesn't look like real 'man' command"
+            echo "Output:"
+            echo "$output"
+            exit 1
+          } 1>&2
 
-        mkdir "$out"
-      '';
+          mkdir "$out"
+        '';
 
     # Test scenario: Running inside Emacs
     insideEmacsTest =
@@ -113,11 +113,13 @@ with rec {
           true
         '';
       };
-      runCommand "man-inside-emacs-test"
-        {
-          buildInputs = [ coreutils emacs gnugrep ];
-        }
-        ''${testScript} && mkdir "$out"'';
+      runCommand "man-inside-emacs-test" {
+        buildInputs = [
+          coreutils
+          emacs
+          gnugrep
+        ];
+      } ''${testScript} && mkdir "$out"'';
   };
 };
 withDeps tests man

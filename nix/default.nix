@@ -4,7 +4,9 @@
   nixpkgs ? null,
   nixpkgs-lib ? null,
   warbo-packages ? null,
-  warbo-packages-tree ? { sha1 = "0827994c30afcbf2c00941425f20a75b03094435"; }
+  warbo-packages-tree ? {
+    sha1 = "0827994c30afcbf2c00941425f20a75b03094435";
+  },
 }:
 with rec {
   inherit (builtins)
@@ -39,8 +41,13 @@ with rec {
 
   resolved = import ./bootstrap.nix {
     inherit
-      fetchGitIPFS nix-helpers nixpkgs nixpkgs-lib warbo-packages
-      warbo-packages-tree;
+      fetchGitIPFS
+      nix-helpers
+      nixpkgs
+      nixpkgs-lib
+      warbo-packages
+      warbo-packages-tree
+      ;
   };
 
   # Let scripts depend on each other by adding 'bin' to the argument set
@@ -160,12 +167,12 @@ withDeps (attrValues check) (
   inherit
     cmds
     scripts
-  ;
+    ;
   inherit (resolved)
     nix-helpers
     nixpkgs
     nixpkgs-lib
     warbo-packages
-  ;
+    ;
   warbo-utilities-src = cleanSource ./..;
 }
