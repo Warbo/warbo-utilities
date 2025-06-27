@@ -38,10 +38,11 @@ do
     fi
 done < <(find . -not -path '*/\.*' -name '*.nix')
 
-echo "Checking dependencies are up to date" 1>&2
-F="warbo-packages.nix"
-diff "$F" <(update-nix-fetchgit < "$F") || {
-    fail "Out of date: $F"
-}
+# TODO: Once our git refs are distributed, we can check the tree hash
+# echo "Checking dependencies are up to date" 1>&2
+# F="warbo-packages.nix"
+# diff "$F" <(update-nix-fetchgit < "$F") || {
+#     fail "Out of date: $F"
+# }
 
 exit "$CODE"
