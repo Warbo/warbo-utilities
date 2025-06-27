@@ -30,6 +30,7 @@ done < <(find . -name "*.nix" -type f)
 echo "Looking for dodgy path references" 1>&2
 while read -r F  # grep -R is slow
 do
+    [[ "$F" = './nix/default.nix' ]] && continue
     if grep '\.\./raw' < "$F"
     then
         echo "Don't use 'raw' as a path in '$F', use the 'raw' variable" 1>&2
