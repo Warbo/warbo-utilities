@@ -5,7 +5,7 @@
   nixpkgs-lib ? null,
   warbo-packages ? null,
   warbo-packages-tree ? {
-    sha1 = "cc634d1227d60aed215533ac2872198077276856";
+    sha1 = "0fcbc68e4b1255e9d883511f306d63af8f9f764f";
   },
 }:
 with rec {
